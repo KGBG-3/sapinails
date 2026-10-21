@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>קביעת תור · sapinails.il</title>
+<meta name="description" content="קביעת תור לציפורניים אצל ספיר: בוחרים טיפול, יום ושעה פנויה.">
+<meta name="theme-color" content="#FAE9EE">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="sapinails.il">
+<meta property="og:locale" content="he_IL">
+<meta property="og:title" content="קביעת תור · sapinails.il 💅">
+<meta property="og:description" content="בוחרים טיפול, יום ושעה פנויה, והתור נשמר.">
+<meta property="og:url" content="https://kgbg-3.github.io/sapinails/book/">
+<meta property="og:image" content="https://kgbg-3.github.io/sapinails/og/home.jpg?v=1">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&amp;family=Frank+Ruhl+Libre:wght@500&amp;family=Playpen+Sans+Hebrew&amp;family=Ms+Madi&amp;display=swap">
+<link rel="stylesheet" href="../assets/card.css?v=2">
+<style>
+/* layout: one column; three numbered steps (treatment, time, details) that open in order; the result replaces the steps */
+[hidden]{display:none!important}
+.bk{max-width:520px;gap:16px}
+.brand-sm{margin:0;font-family:var(--font-script);font-size:42px;line-height:1;color:var(--accent)}
+.bk .intro{gap:6px;margin-bottom:4px}
+.bk .sub{font-size:16px;max-width:30em;text-wrap:balance}
+.gift-note{margin:0;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,#FBEFF3,#EFD3DE 55%,#F6E6D2);color:#6A3348;font-weight:700;text-align:center}
+.step{background:rgba(255,250,251,.88);border:1px solid var(--line);border-radius:24px;padding:18px 16px 20px;box-shadow:0 14px 30px -24px rgba(190,75,116,.5)}
+.step[hidden]{display:none}
+.step-h{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-family:var(--font-display);font-weight:500;font-size:23px;line-height:1.2}
+.step-h .num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-family:var(--font-ui);font-weight:800;font-size:15px}
+.step.done .step-h{margin-bottom:10px}
+.step.done .step-h .num{background:var(--accent-soft);color:var(--accent-hover)}
+
+.svc-list{display:flex;flex-direction:column;gap:8px}
+.svc{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:64px;padding:12px 16px;border-radius:18px;border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink);text-align:start;cursor:pointer;font:inherit}
+.svc:hover{border-color:var(--accent)}
+.svc .nm{display:block;font-family:var(--font-hand);font-size:19px;line-height:1.3}
+.svc .meta{display:block;font-size:14px;color:var(--ink-2);margin-top:2px}
+.svc .pr{flex:none;font-family:var(--font-display);font-weight:500;font-size:23px;color:var(--accent-hover);font-variant-numeric:tabular-nums}
+
+.picked{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-radius:16px;background:var(--accent-soft);color:var(--ink);font-weight:700;font-size:15.5px}
+.picked span{min-width:0}
+.linkbtn{flex:none;background:none;border:0;padding:6px 2px;color:var(--accent-hover);font:inherit;font-weight:800;font-size:14.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+.days{display:flex;gap:8px;overflow-x:auto;margin-inline:-16px;padding:2px 16px 12px;scroll-snap-type:x proximity;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day{flex:none;width:62px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px 7px;border-radius:16px;border:1.5px solid var(--line-strong);background:var(--surface);cursor:pointer;color:var(--ink);font:inherit}
+.day .w{font-size:12.5px;color:var(--ink-2);font-weight:800}
+.day .n{font-family:var(--font-display);font-size:23px;line-height:1.15;font-weight:500;font-variant-numeric:tabular-nums}
+.day .m{font-size:11px;color:var(--ink-3);min-height:16px;white-space:nowrap}
+.day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.day[aria-pressed="true"] .w,.day[aria-pressed="true"] .m{color:rgba(255,255,255,.88)}
+.day:disabled{opacity:.36;cursor:default}
+.day-title{margin:4px 0 10px;font-weight:800;font-size:15.5px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{min-height:46px;border-radius:14px;border:1.5px solid var(--line-strong);background:var(--surface);font:inherit;font-weight:800;font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink);cursor:pointer}
+.slot:hover{border-color:var(--accent)}
+.slot[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.part{grid-column:1/-1;font-size:13px;font-weight:800;color:var(--ink-2);margin-top:4px}
+.part:first-child{margin-top:0}
+.empty-day{grid-column:1/-1;margin:0;padding:16px;text-align:center;color:var(--ink-2);border:1px dashed var(--line-strong);border-radius:14px}
+
+.form{display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;border:0;min-width:0}
+.field>label,.legend{font-size:14.5px;font-weight:800;padding:0}
+.opt{font-weight:500;color:var(--ink-3)}
+.input{width:100%;min-height:50px;border:1.5px solid var(--line-strong);border-radius:14px;background:var(--surface);padding:12px 14px;font:inherit;font-size:16px;color:var(--ink);outline:none;-webkit-appearance:none;appearance:none}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+textarea.input{min-height:76px;resize:vertical;line-height:1.45}
+.input.ltr{direction:ltr;text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line-strong);background:var(--surface);font:inherit;font-weight:700;font-size:14.5px;color:var(--ink-2);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.err{margin:0;color:#B3261E;font-size:13.5px;font-weight:700}
+.err[hidden]{display:none}
+.fine{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)}
+.btn[disabled]{opacity:.55;cursor:default;transform:none}
+.alert{margin:0;padding:12px 14px;border-radius:14px;background:#FCE4E1;color:#7A1F18;font-weight:700;font-size:14.5px;line-height:1.5}
+.alert[hidden]{display:none}
+
+.result{background:rgba(255,250,251,.92);border:1px solid var(--line);border-radius:24px;padding:24px 18px;text-align:center;box-shadow:var(--shadow-md);display:flex;flex-direction:column;gap:14px}
+.result[hidden]{display:none}
+.result h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:32px;line-height:1.1;color:var(--accent)}
+.result .lead-txt{margin:0;font-size:16.5px;color:var(--ink-2);line-height:1.5;text-wrap:balance}
+.facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:var(--surface);text-align:start}
+.facts li{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;font-size:15.5px}
+.facts li+li{border-top:1px solid var(--line)}
+.facts span{color:var(--ink-2)}
+.facts b{font-weight:800;text-align:end}
+.todo{margin:0;padding:14px;border-radius:16px;background:var(--accent-soft);text-align:start;font-size:15px;line-height:1.55}
+.todo b{font-weight:800}
+.result .actions{margin-top:2px}
+.again{align-self:center}
+
+.skel{height:64px;border-radius:18px;background:linear-gradient(90deg,#F6E1E8 0%,#FFFAFB 50%,#F6E1E8 100%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:0 0}}
+.bk .foot{display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--font-ui);font-size:14px;opacity:1;padding-top:4px}
+.foot-links{display:flex;gap:18px;color:var(--ink-2);font-weight:700}
+.foot-links a{color:var(--accent-hover);text-underline-offset:3px}
+.foot .script{font-family:var(--font-script);font-size:32px;line-height:1;color:var(--accent)}
+@media (min-width:480px){.slots{grid-template-columns:repeat(5,1fr)}}
+</style>
+</head>
+<body>
+<div class="decos" aria-hidden="true"><img class="deco deco-a" src="../assets/rose.svg?v=1" alt="" width="173" height="132"><img class="deco deco-b" src="../assets/stem.svg?v=1" alt="" width="287" height="154"></div>
+<main class="page bk" id="top">
+  <header class="intro">
+    <p class="brand-sm" dir="ltr">sapinails.il</p>
+    <h1 class="title">קביעת תור</h1>
+    <p class="sub" id="intro">בוחרים טיפול, יום ושעה פנויה, והתור נשמר.</p>
+  </header>
+  <p class="gift-note" id="giftNote" hidden>הכרטיסייה שלך מלאה, והטיפול הזה מתנה ממני ✨</p>
+  <p class="alert" id="loadErr" hidden></p>
+
+  <section class="step" id="stService" aria-labelledby="hService">
+    <h2 class="step-h" id="hService"><span class="num">1</span>איזה טיפול?</h2>
+    <div id="svcBody"><div class="svc-list"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+  </section>
+
+  <section class="step" id="stTime" aria-labelledby="hTime" hidden>
+    <h2 class="step-h" id="hTime"><span class="num">2</span>מתי נוח לך?</h2>
+    <div id="timeBody"></div>
+  </section>
+
+  <section class="step" id="stDetails" aria-labelledby="hDetails" hidden>
+    <h2 class="step-h" id="hDetails"><span class="num">3</span>הפרטים שלך</h2>
+    <form class="form" id="form" novalidate>
+      <div class="field">
+        <label for="fName">שם מלא</label>
+        <input class="input" id="fName" name="name" autocomplete="name" enterkeyhint="next" maxlength="60">
+        <p class="err" id="eName" hidden>צריך שם מלא כדי לשמור את התור.</p>
+      </div>
+      <div class="field">
+        <label for="fPhone">טלפון לוואטסאפ</label>
+        <input class="input ltr" id="fPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="20" placeholder="050-000-0000">
+        <p class="err" id="ePhone" hidden>צריך מספר טלפון מלא, למשל 050-123-4567.</p>
+      </div>
+      <fieldset class="field" id="addonsField" hidden>
+        <legend class="legend">תוספות לטיפול <span class="opt">(לא חובה)</span></legend>
+        <div class="chips" id="addons"></div>
+      </fieldset>
+      <div class="field">
+        <label for="fNote">הערה לספיר <span class="opt">(לא חובה)</span></label>
+        <textarea class="input" id="fNote" name="note" rows="2" maxlength="300" placeholder="למשל: צבע שאת רוצה, השלמה בציפורן אחת"></textarea>
+      </div>
+      <p class="alert" id="sendErr" hidden></p>
+      <button type="submit" class="btn primary" id="send">קביעת התור</button>
+      <p class="fine">בקביעת התור מאשרים את התקנון: ביטול עד 24 שעות לפני התור, ואיחור של 15 דקות ומעלה מבטל את התור.</p>
+    </form>
+  </section>
+
+  <section class="result" id="result" aria-live="polite" hidden></section>
+
+  <footer class="foot">
+    <div class="foot-links"><a id="waLink" href="https://wa.me/972543439530" target="_blank" rel="noopener">וואטסאפ לספיר</a><a id="igLink" href="https://www.instagram.com/sapinails.il/" target="_blank" rel="noopener">אינסטגרם</a></div>
+    <span class="script" dir="ltr">sapinails.il</span>
+  </footer>
+</main>
+<script src="../assets/config.js?v=1"></script>
+<script>
+(() => {
+'use strict';
+const C = window.SAPI || {};
+const ZONE = C.zone || 'Asia/Jerusalem';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const pad = n => String(n).padStart(2, '0');
+const WD_SHORT = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+
+/* ---------- time, always in Israel ---------- */
+const partsFmt = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+function zparts(ms) {
+  const o = {};
+  for (const p of partsFmt.formatToParts(new Date(ms))) o[p.type] = p.value;
+  return { y: +o.year, m: +o.month, d: +o.day, h: (+o.hour) % 24, mi: +o.minute };
+}
+function offsetAt(ms) {
+  const p = zparts(ms);
+  return Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi) - Math.floor(ms / 60000) * 60000;
+}
+function zoned(key, min) {
+  const [y, m, d] = key.split('-').map(Number);
+  const guess = Date.UTC(y, m - 1, d, 0, min);
+  let t = guess - offsetAt(guess);
+  t = guess - offsetAt(t);
+  return t;
+}
+function dayKey(ms) { const p = zparts(ms); return `${p.y}-${pad(p.m)}-${pad(p.d)}`; }
+function addDays(key, n) {
+  const [y, m, d] = key.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + n));
+  return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+}
+function weekday(key) { const [y, m, d] = key.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).getUTCDay(); }
+const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
+const hhmm = ms => { const p = zparts(ms); return `${pad(p.h)}:${pad(p.mi)}`; };
+const fmtLong = ms => new Intl.DateTimeFormat('he-IL', { timeZone: ZONE, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(ms));
+const fmtMonthShort = key => new Intl.DateTimeFormat('he-IL', { timeZone: 'UTC', month: 'short' }).format(new Date(key + 'T12:00:00Z'));
+function fmtDur(m) {
+  if (m < 60) return `${m} דק׳`;
+  const h = Math.floor(m / 60), r = m % 60;
+  const hs = h === 1 ? 'שעה' : h === 2 ? 'שעתיים' : `${h} שעות`;
+  return r === 0 ? hs : r === 30 ? `${hs} וחצי` : `${hs} ו־${r} דק׳`;
+}
+const fmtPrice = p => (p == null || p === '' ? '' : `${Number(p).toLocaleString('he-IL')}₪`);
+
+/* ---------- data ---------- */
+async function rpc(fn, args) {
+  const r = await fetch(`${C.url}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: C.key, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args || {}),
+  });
+  if (!r.ok) throw new Error(`rpc ${fn} ${r.status}`);
+  return r.json();
+}
+
+const params = new URLSearchParams(location.search);
+const S = {
+  st: {}, services: [], busy: [], skew: 0, ready: false,
+  service: null, day: null, slot: null, addons: new Set(),
+  gift: params.get('gift') === '1', sending: false,
+};
+const now = () => Date.now() + S.skew;
+const ownerWa = () => {
+  let d = String(S.st.ownerPhone || '').replace(/\D/g, '');
+  if (d.startsWith('0')) d = '972' + d.slice(1);
+  return d || C.waNumber;
+};
+const waLink = text => `https://wa.me/${ownerWa()}${text ? '?text=' + encodeURIComponent(text) : ''}`;
+
+async function loadBusy() {
+  const today = dayKey(now());
+  const ahead = Math.max(1, +S.st.maxDaysAhead || 30);
+  const rows = await rpc('public_busy', {
+    p_from: new Date(zoned(today, 0)).toISOString(),
+    p_to: new Date(zoned(addDays(today, ahead + 1), 0)).toISOString(),
+  });
+  S.busy = (rows || []).map(b => [Date.parse(b.s), Date.parse(b.e)]).filter(([a, b]) => b > a);
+}
+async function load() {
+  const info = await rpc('public_info');
+  S.st = info.settings || {};
+  S.services = info.services || [];
+  if (info.now) S.skew = Date.parse(info.now) - Date.now();
+  await loadBusy();
+  S.ready = true;
+}
+
+/* ---------- free times ---------- */
+function slotsFor(key, minutes) {
+  const st = S.st;
+  const step = Math.max(5, +st.slotMinutes || 30);
+  const buf = (+st.bufferMinutes || 0) * 60000;
+  const minStart = now() + (+st.minNoticeMinutes || 0) * 60000;
+  const wins = (st.hours && st.hours[String(weekday(key))]) || [];
+  const out = [];
+  for (const w of wins) {
+    const ws = toMin(w.from), we = toMin(w.to);
+    if (ws == null || we == null) continue;
+    for (let t = ws; t + minutes <= we; t += step) {
+      const s = zoned(key, t), e = s + minutes * 60000;
+      if (s < minStart) continue;
+      if (S.busy.every(([bs, be]) => e + buf <= bs || s >= be + buf)) out.push(s);
+    }
+  }
+  return out.sort((a, b) => a - b);
+}
+function dayList() {
+  const today = dayKey(now());
+  const ahead = Math.max(1, +S.st.maxDaysAhead || 30);
+  const out = [];
+  for (let i = 0; i <= ahead; i++) out.push(addDays(today, i));
+  return out;
+}
+
+/* ---------- rendering ---------- */
+function renderIntro() {
+  if (S.st.intro) $('#intro').textContent = S.st.intro;
+  $('#giftNote').hidden = !S.gift;
+  $('#waLink').href = waLink('');
+  if (C.instagram) $('#igLink').href = C.instagram;
+}
+function renderService() {
+  const box = $('#svcBody');
+  const sec = $('#stService');
+  if (S.service) {
+    sec.classList.add('done');
+    box.innerHTML = `<div class="picked"><span>${esc(S.service.name)} · ${fmtDur(S.service.minutes)}${S.service.price != null ? ' · ' + fmtPrice(S.service.price) : ''}</span><button type="button" class="linkbtn" data-act="change-service">שינוי</button></div>`;
+    return;
+  }
+  sec.classList.remove('done');
+  if (!S.services.length) { box.innerHTML = '<p class="empty-day">כרגע אין טיפולים פתוחים לקביעה אונליין. אפשר לכתוב לספיר בוואטסאפ.</p>'; return; }
+  box.innerHTML = `<div class="svc-list" role="radiogroup" aria-label="בחירת טיפול">${S.services.map(s =>
+    `<button type="button" class="svc" role="radio" aria-checked="false" data-act="service" data-id="${esc(s.id)}"><span><span class="nm">${esc(s.name)}</span><span class="meta">${fmtDur(s.minutes)}</span></span><span class="pr">${fmtPrice(s.price)}</span></button>`).join('')}</div>`;
+}
+function renderTime() {
+  const sec = $('#stTime');
+  sec.hidden = !S.service;
+  if (!S.service) return;
+  const box = $('#timeBody');
+  if (S.slot) {
+    sec.classList.add('done');
+    box.innerHTML = `<div class="picked"><span>${esc(fmtLong(S.slot))} · ${hhmm(S.slot)}</span><button type="button" class="linkbtn" data-act="change-time">שינוי</button></div>`;
+    return;
+  }
+  sec.classList.remove('done');
+  const days = dayList().map(k => ({ k, n: slotsFor(k, S.service.minutes).length }));
+  if (!S.day || !days.some(d => d.k === S.day && d.n)) {
+    const first = days.find(d => d.n);
+    S.day = first ? first.k : null;
+  }
+  if (!S.day) {
+    box.innerHTML = `<p class="empty-day">אין שעות פנויות לטיפול הזה בשבועות הקרובים. אפשר לכתוב לספיר ונמצא זמן.</p><div class="actions" style="margin-top:12px"><a class="btn line" href="${esc(waLink('היי ספיר, אשמח לקבוע תור'))}" target="_blank" rel="noopener">וואטסאפ לספיר</a></div>`;
+    return;
+  }
+  let lastMonth = '';
+  const chips = days.map((d, i) => {
+    const [, m, dd] = d.k.split('-');
+    const showMonth = i === 0 || m !== lastMonth;
+    lastMonth = m;
+    return `<button type="button" class="day" data-act="day" data-k="${d.k}" aria-pressed="${d.k === S.day}"${d.n ? '' : ' disabled'} aria-label="${esc(fmtLong(zoned(d.k, 720)))}${d.n ? '' : ', אין שעות פנויות'}"><span class="w">${WD_SHORT[weekday(d.k)]}</span><span class="n">${+dd}</span><span class="m">${showMonth ? esc(fmtMonthShort(d.k)) : ''}</span></button>`;
+  }).join('');
+  const slots = slotsFor(S.day, S.service.minutes);
+  const parts = [['בוקר', 0, 12 * 60], ['צהריים', 12 * 60, 16 * 60], ['אחר הצהריים וערב', 16 * 60, 24 * 60]];
+  let grid = '';
+  for (const [label, a, b] of parts) {
+    const inPart = slots.filter(s => { const p = zparts(s); const mm = p.h * 60 + p.mi; return mm >= a && mm < b; });
+    if (!inPart.length) continue;
+    grid += `<p class="part">${label}</p>` + inPart.map(s => `<button type="button" class="slot" data-act="slot" data-t="${s}" aria-pressed="false">${hhmm(s)}</button>`).join('');
+  }
+  box.innerHTML = `<div class="days" id="days">${chips}</div><p class="day-title">${esc(fmtLong(zoned(S.day, 720)))}</p><div class="slots">${grid || '<p class="empty-day">אין שעות פנויות ביום הזה.</p>'}</div>`;
+  const on = $('#days .day[aria-pressed="true"]');
+  if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+function renderDetails() {
+  const sec = $('#stDetails');
+  sec.hidden = !S.slot;
+  const addons = Array.isArray(S.st.addons) ? S.st.addons.filter(Boolean) : [];
+  $('#addonsField').hidden = !addons.length;
+  $('#addons').innerHTML = addons.map(a => `<button type="button" class="chip" data-act="addon" data-v="${esc(a)}" aria-pressed="${S.addons.has(a)}">${esc(a)}</button>`).join('');
+}
+function render() {
+  renderIntro();
+  renderService();
+  renderTime();
+  renderDetails();
+}
+function goTo(id) {
+  const el = document.getElementById(id);
+  if (el && el.scrollIntoView) setTimeout(() => el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }), 30);
+}
+
+/* ---------- details memory (this phone only) ---------- */
+function rememberMe(name, phone) { try { localStorage.setItem('sapinails.me', JSON.stringify({ name, phone })); } catch (_) {} }
+function recallMe() {
+  try {
+    const v = JSON.parse(localStorage.getItem('sapinails.me') || 'null');
+    if (v && typeof v === 'object') { if (v.name) $('#fName').value = v.name; if (v.phone) $('#fPhone').value = v.phone; }
+  } catch (_) {}
+}
+
+/* ---------- send ---------- */
+const ERR = {
+  taken: 'השעה הזו נתפסה הרגע. בחרי בבקשה שעה אחרת.',
+  time: 'השעה הזו כבר לא זמינה. בחרי בבקשה שעה אחרת.',
+  notice: 'השעה הזו קרובה מדי. בחרי בבקשה שעה מאוחרת יותר.',
+  ahead: 'אפשר לקבוע תור עד חודש קדימה. בחרי בבקשה תאריך קרוב יותר.',
+  limit: 'כבר יש שני תורים פתוחים על המספר הזה. לשינוי או לתור נוסף אפשר לכתוב לספיר בוואטסאפ.',
+  busy: 'יש עכשיו עומס בבקשות. נסי שוב בעוד כמה דקות, או כתבי לספיר בוואטסאפ.',
+  closed: 'קביעת התורים סגורה כרגע. אפשר לכתוב לספיר בוואטסאפ.',
+};
+async function send() {
+  if (S.sending) return;
+  const name = $('#fName').value.trim().replace(/\s+/g, ' ');
+  const phone = $('#fPhone').value.trim();
+  const note = $('#fNote').value.trim();
+  const digits = phone.replace(/\D/g, '');
+  $('#eName').hidden = name.length >= 2;
+  $('#ePhone').hidden = digits.length >= 9;
+  if (name.length < 2) { $('#fName').focus(); return; }
+  if (digits.length < 9) { $('#fPhone').focus(); return; }
+  const addons = [...S.addons];
+  if (S.gift) addons.push('טיפול מתנה מהכרטיסייה');
+  S.sending = true;
+  const btn = $('#send');
+  btn.disabled = true; btn.textContent = 'שומרים את התור…';
+  $('#sendErr').hidden = true;
+  try {
+    const res = await rpc('request_booking', {
+      p_service: S.service.id, p_start: new Date(S.slot).toISOString(),
+      p_name: name, p_phone: phone, p_note: note, p_addons: addons,
+    });
+    if (res && res.ok) {
+      rememberMe(name, phone);
+      showResult(res, name);
+      return;
+    }
+    const code = res && res.error;
+    if (code === 'name') { $('#eName').hidden = false; $('#fName').focus(); }
+    else if (code === 'phone') { $('#ePhone').hidden = false; $('#fPhone').focus(); }
+    else if (code === 'service') { await load(); S.service = null; S.slot = null; render(); showErr('הטיפול עודכן בינתיים. בחרי בבקשה שוב.'); goTo('stService'); }
+    else if (['taken', 'time', 'notice', 'ahead'].includes(code)) {
+      try { await loadBusy(); } catch (_) {}
+      S.slot = null; render();
+      flash('#timeBody', ERR[code]);
+      goTo('stTime');
+    } else showErr(ERR[code] || 'משהו לא הסתדר. נסי שוב, או כתבי לספיר בוואטסאפ.');
+  } catch (_) {
+    showErr('אין חיבור לאינטרנט כרגע. בדקי את החיבור ונסי שוב.');
+  } finally {
+    S.sending = false;
+    if (document.contains(btn)) { btn.disabled = false; btn.textContent = 'קביעת התור'; }
+  }
+}
+function showErr(msg) { const a = $('#sendErr'); a.textContent = msg; a.hidden = false; }
+function flash(sel, msg) {
+  const box = $(sel);
+  const p = document.createElement('p');
+  p.className = 'alert';
+  p.style.marginBottom = '12px';
+  p.textContent = msg;
+  box.prepend(p);
+}
+
+function icsFor(res) {
+  const stamp = ms => new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//sapinails.il//booking//HE', 'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT', `UID:${res.id}@sapinails`, `DTSTAMP:${stamp(Date.now())}`,
+    `DTSTART:${stamp(Date.parse(res.start))}`, `DTEND:${stamp(Date.parse(res.end))}`,
+    `SUMMARY:${res.service} · sapinails.il`,
+    S.st.address ? `LOCATION:${S.st.address}` : '',
+    'DESCRIPTION:ביטול או שינוי עד 24 שעות לפני\\, בוואטסאפ לספיר.',
+    'END:VEVENT', 'END:VCALENDAR',
+  ].filter(Boolean);
+  return lines.join('\r\n');
+}
+function showResult(res, name) {
+  const start = Date.parse(res.start);
+  const when = `${fmtLong(start)} · ${hhmm(start)}`;
+  const first = name.split(' ')[0];
+  const facts = `<ul class="facts">
+    <li><span>טיפול</span><b>${esc(res.service)}</b></li>
+    <li><span>מתי</span><b>${esc(when)}</b></li>
+    ${res.price != null ? `<li><span>מחיר</span><b>${fmtPrice(res.price)}</b></li>` : ''}
+    ${S.st.address ? `<li><span>איפה</span><b>${esc(S.st.address)}</b></li>` : ''}
+  </ul>`;
+  let html;
+  if (res.status === 'confirmed') {
+    const msg = `היי ספיר 💕\nקבעתי תור ל${res.service} ב${fmtLong(start)} בשעה ${hhmm(start)}. נתראה ✨`;
+    html = `<h2>התור נקבע ✨</h2>
+      <p class="lead-txt">${esc(first)}, מחכה לך!</p>
+      ${facts}
+      <div class="actions">
+        <button type="button" class="btn primary" data-act="ics">הוספה ליומן בטלפון</button>
+        <a class="btn line" href="${esc(waLink(msg))}" target="_blank" rel="noopener">הודעה לספיר בוואטסאפ</a>
+      </div>
+      <p class="fine">לביטול או שינוי עד 24 שעות לפני התור, כותבים לספיר בוואטסאפ.</p>`;
+  } else {
+    const msg = `היי ספיר 💕\nאני ${name}, ביקשתי תור ל${res.service} ב${fmtLong(start)} בשעה ${hhmm(start)}.\nמצרפת תמונה עדכנית של הציפורניים 💅`;
+    html = `<h2>הבקשה נשלחה ✨</h2>
+      <p class="lead-txt">השעה שמורה לך עד שספיר מאשרת את התור.</p>
+      ${facts}
+      <p class="todo"><b>מה עכשיו?</b> שולחים לספיר בוואטסאפ תמונה עדכנית של הציפורניים. ספיר תחזור אלייך לאישור התור ולפרטי המקדמה (50₪ שמתקזזים ממחיר הטיפול, כמו שכתוב בתקנון ללקוחות חדשות).</p>
+      <div class="actions">
+        <a class="btn primary" href="${esc(waLink(msg))}" target="_blank" rel="noopener">שליחת תמונה לספיר בוואטסאפ</a>
+      </div>`;
+  }
+  html += `<button type="button" class="linkbtn again" data-act="again">קביעת תור נוסף</button>`;
+  S.lastResult = res;
+  ['stService', 'stTime', 'stDetails'].forEach(id => { $('#' + id).hidden = true; });
+  $('#giftNote').hidden = true;
+  const box = $('#result');
+  box.innerHTML = html;
+  box.hidden = false;
+  goTo('top');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const act = el.dataset.act;
+  if (act === 'service') {
+    S.service = S.services.find(s => s.id === el.dataset.id) || null;
+    S.slot = null;
+    render(); goTo('stTime');
+  } else if (act === 'change-service') { S.service = null; S.slot = null; render(); goTo('stService'); }
+  else if (act === 'day') { S.day = el.dataset.k; renderTime(); }
+  else if (act === 'slot') { S.slot = Number(el.dataset.t); render(); goTo('stDetails'); setTimeout(() => { const f = $('#fName'); if (f && !f.value) f.focus({ preventScroll: true }); }, 350); }
+  else if (act === 'change-time') { S.slot = null; render(); goTo('stTime'); }
+  else if (act === 'addon') {
+    const v = el.dataset.v;
+    if (S.addons.has(v)) S.addons.delete(v); else S.addons.add(v);
+    el.setAttribute('aria-pressed', String(S.addons.has(v)));
+  } else if (act === 'ics' && S.lastResult) {
+    const blob = new Blob([icsFor(S.lastResult)], { type: 'text/calendar;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sapinails-tor.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  } else if (act === 'again') {
+    $('#result').hidden = true;
+    S.slot = null; S.service = null; S.addons.clear(); S.gift = false;
+    $('#fNote').value = '';
+    ['stService'].forEach(id => { $('#' + id).hidden = false; });
+    loadBusy().catch(() => {}).finally(() => { render(); goTo('top'); });
+  }
+});
+$('#form').addEventListener('submit', e => { e.preventDefault(); send(); });
+$('#fName').addEventListener('input', () => { $('#eName').hidden = true; });
+$('#fPhone').addEventListener('input', () => { $('#ePhone').hidden = true; });
+
+/* ---------- start ---------- */
+(async () => {
+  recallMe();
+  try {
+    await load();
+    const pre = params.get('s');
+    if (pre) S.service = S.services.find(s => s.id === pre) || null;
+    render();
+    if (S.service) goTo('stTime');
+  } catch (_) {
+    $('#svcBody').innerHTML = '';
+    const a = $('#loadErr');
+    a.innerHTML = 'לא הצלחנו לטעון את היומן כרגע. אפשר לרענן את הדף, או לקבוע ישירות <a href="' + esc(waLink('היי ספיר, אשמח לקבוע תור')) + '" target="_blank" rel="noopener">בוואטסאפ לספיר</a>.';
+    a.hidden = false;
+  }
+})();
+})();
+</script>
+</body>
+</html>

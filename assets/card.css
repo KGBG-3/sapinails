@@ -12,6 +12,7 @@
   color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 html{background:var(--bg);-webkit-text-size-adjust:100%}
 body{margin:0;min-height:100vh;min-height:100dvh;position:relative;background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 svg{display:block}
@@ -72,6 +73,7 @@ a{color:inherit}
 .btn.primary:hover{background:var(--accent-hover)}
 .btn.line{min-height:52px;font-weight:700;font-size:16.5px;color:var(--accent-hover);border-color:var(--line-strong);background:rgba(255,255,255,.35)}
 .btn.line:hover{border-color:var(--accent)}
+.small-link{align-self:center;padding:6px 4px;font-size:14.5px;font-weight:700;color:var(--accent-hover);text-underline-offset:3px}
 
 /* how it works */
 .how{margin-top:6px}

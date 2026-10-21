@@ -1,0 +1,2426 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ניהול · sapinails.il</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FAE9EE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ספיר · ניהול">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&amp;family=Frank+Ruhl+Libre:wght@400;500&amp;family=Playpen+Sans+Hebrew:wght@400&amp;family=Ms+Madi&amp;display=swap">
+<style>
+:root{
+  --bg:#FAE9EE;--surface:#FFFAFB;--surface-2:#F6E1E8;
+  --ink:#2E1D24;--ink-2:#7D5566;--ink-3:#A48D98;
+  --line:#F0D7E0;--line-strong:#E5C1CE;
+  --accent:#BE4B74;--accent-hover:#A63D63;--accent-ink:#FFFFFF;--accent-soft:#F8DCE6;--accent-soft-ink:#A33B63;
+  --warn:#A65A14;
+  --wa:#157F4A;--wa-hover:#10683C;--wa-ink:#FFFFFF;--wa-ring:rgba(21,127,74,.45);
+  --bubble:#E4F4E9;--bubble-ink:#1F2A22;
+  --danger:#B3261E;--danger-ink:#FFFFFF;--danger-soft:#FCE4E1;
+  --card-flat:#F7DAE2;--card-ink:#2E1D24;--card-ink-2:#7D5566;--sheen:rgba(255,255,255,.38);
+  --rose-ink:#C4567E;--marker:#D9809F;
+  --nail-empty-fill:rgba(255,255,255,.6);--nail-empty-stroke:#D9AFBF;--nail-edge:rgba(90,25,50,.2);
+  --shadow-sm:0 1px 2px rgba(120,40,70,.07);
+  --shadow-md:0 18px 36px -18px rgba(190,75,116,.35),0 3px 8px rgba(120,40,70,.06);
+  --fab-shadow:0 14px 30px -12px rgba(190,75,116,.6),0 2px 6px rgba(0,0,0,.08);
+  --backdrop:rgba(42,18,30,.4);
+  --font-display:"Frank Ruhl Libre","David Libre",David,Georgia,serif;
+  --font-hand:"Playpen Sans Hebrew","Assistant",cursive;
+  --font-script:"Ms Madi","Mrs Saint Delafield",cursive;
+  --font-ui:"Assistant","Heebo","Arial Hebrew","Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#161014;--surface:#20161B;--surface-2:#2B1F25;
+    --ink:#F6E9EE;--ink-2:#BEA4AF;--ink-3:#8E7582;
+    --line:#33262D;--line-strong:#4A3842;
+    --accent:#EE88AA;--accent-hover:#F6A2BE;--accent-ink:#2A0E1A;--accent-soft:#3E2230;--accent-soft-ink:#F4B5CA;
+    --warn:#F0B26F;
+    --wa:#3CC97E;--wa-hover:#5BD894;--wa-ink:#06200F;--wa-ring:rgba(60,201,126,.4);
+    --bubble:#1C3325;--bubble-ink:#E4F4E9;
+    --danger:#FF8C84;--danger-ink:#2A0B08;--danger-soft:#3B1E1C;
+    --card-flat:#2E1E26;--rose-ink:#E3A0BA;--marker:#7A3550;--card-ink:#F8EAF0;--card-ink-2:#C9ABB8;--sheen:rgba(255,255,255,.07);
+    --nail-empty-fill:rgba(255,255,255,.04);--nail-empty-stroke:#6C5261;--nail-edge:rgba(255,255,255,.22);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.45);
+    --shadow-md:0 20px 40px -20px rgba(0,0,0,.8),0 2px 6px rgba(0,0,0,.4);
+    --fab-shadow:0 14px 30px -12px rgba(0,0,0,.75),0 2px 6px rgba(0,0,0,.4);
+    --backdrop:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161014;--surface:#20161B;--surface-2:#2B1F25;
+  --ink:#F6E9EE;--ink-2:#BEA4AF;--ink-3:#8E7582;
+  --line:#33262D;--line-strong:#4A3842;
+  --accent:#EE88AA;--accent-hover:#F6A2BE;--accent-ink:#2A0E1A;--accent-soft:#3E2230;--accent-soft-ink:#F4B5CA;
+  --warn:#F0B26F;
+  --wa:#3CC97E;--wa-hover:#5BD894;--wa-ink:#06200F;--wa-ring:rgba(60,201,126,.4);
+  --bubble:#1C3325;--bubble-ink:#E4F4E9;
+  --danger:#FF8C84;--danger-ink:#2A0B08;--danger-soft:#3B1E1C;
+  --card-flat:#2E1E26;--rose-ink:#E3A0BA;--marker:#7A3550;--card-ink:#F8EAF0;--card-ink-2:#C9ABB8;--sheen:rgba(255,255,255,.07);
+  --nail-empty-fill:rgba(255,255,255,.04);--nail-empty-stroke:#6C5261;--nail-edge:rgba(255,255,255,.22);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.45);
+  --shadow-md:0 20px 40px -20px rgba(0,0,0,.8),0 2px 6px rgba(0,0,0,.4);
+  --fab-shadow:0 14px 30px -12px rgba(0,0,0,.75),0 2px 6px rgba(0,0,0,.4);
+  --backdrop:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{background:var(--bg)}
+html.locked,html.locked body{overflow:hidden}
+body{color:var(--ink);font-family:var(--font-ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+svg{display:block}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.flip{transform:scaleX(-1)}
+
+.app{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 128px;display:flex;flex-direction:column;gap:16px}
+
+/* header */
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-top:4px}
+.eyebrow{font-size:12.5px;font-weight:800;letter-spacing:.05em;color:var(--accent)}
+.studio{font-family:var(--font-display);font-weight:400;font-size:clamp(30px,8.4vw,38px);line-height:1.08;margin:2px 0 6px;text-wrap:balance}
+.sub{font-size:14.5px;color:var(--ink-2);min-height:1.5em;font-variant-numeric:tabular-nums}
+.icon-btn{width:44px;height:44px;flex:none;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;box-shadow:var(--shadow-sm)}
+.icon-btn:hover{border-color:var(--line-strong)}
+
+/* banner */
+.banner{border:1px solid var(--line-strong);background:var(--surface);border-radius:16px;padding:12px 14px;font-size:14.5px;line-height:1.5}
+.banner strong{font-weight:800}
+
+/* toolbar */
+.toolbar{display:flex;flex-direction:column;gap:12px}
+.search{position:relative;display:block}
+.search svg{position:absolute;inset-inline-start:15px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
+.search input{width:100%;height:50px;border-radius:999px;border:1px solid var(--line);background:var(--surface);padding-inline:46px 18px;font-size:16px;outline:none;-webkit-appearance:none;appearance:none;box-shadow:var(--shadow-sm)}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;padding-block:2px}
+.chips::-webkit-scrollbar{display:none}
+.chips.wrap{flex-wrap:wrap;overflow:visible;margin-inline:0;padding-inline:0}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);font-weight:700;font-size:14.5px;white-space:nowrap}
+.chip .n{font-variant-numeric:tabular-nums;font-weight:800;color:var(--ink-3)}
+.chip[aria-pressed="true"],.chip[aria-checked="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] .n{color:var(--bg);opacity:.75}
+
+/* client list */
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.row{display:flex;align-items:center;gap:4px;padding-inline:6px 12px}
+.row+.row{border-top:1px solid var(--line)}
+.row-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:12px 8px;text-align:start;border-radius:16px}
+.row-main:hover .nm{color:var(--accent)}
+.avatar{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;font-family:var(--font-display);font-size:21px;line-height:1;background:var(--av);color:var(--av-ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.row-text{min-width:0;display:flex;flex-direction:column;gap:5px}
+.row-name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:700;font-size:16.5px;line-height:1.25}
+.row-name .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .15s}
+.row-meta{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;font-size:13.5px;color:var(--ink-2)}
+.count{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.when{white-space:nowrap}
+.away{color:var(--warn);font-weight:700}
+.pill{flex:none;font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.pill.gift{background:linear-gradient(135deg,#F9E7EE,#EFD3DE 50%,#F6E6D2);color:#7A3B52}
+.punch-quick{width:46px;height:46px;flex:none;border-radius:50%;border:0;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-soft-ink);transition:transform .12s}
+.punch-quick:active{transform:scale(.92)}
+.punch-quick.gift{background:linear-gradient(135deg,#FBEFF3,#E7C3D2 45%,#F8E8D5 75%,#DDB9CB);color:#6A3348}
+.punch-quick:disabled{opacity:.4;cursor:not-allowed}
+.no-results{padding:28px 16px;text-align:center;color:var(--ink-2);background:var(--surface);border:1px dashed var(--line-strong);border-radius:18px}
+
+/* nails */
+.nails{display:flex;align-items:flex-end}
+.nails.mini{display:inline-flex;gap:3px}
+.nails.mini .nail{width:9px;height:13px}
+.nails.mid{gap:5px;flex-wrap:wrap}
+.nails.mid .nail{width:17px;height:23px}
+.nails.big{display:grid;justify-content:center;align-items:end;gap:10px 9px;margin-block:16px 18px}
+.nails.big .nail,.nails.big .nailbox{width:34px;height:47px}
+.nails.big.dense .nail,.nails.big.dense .nailbox{width:29px;height:40px}
+.nailbox{position:relative;display:block}
+.nailbox .nail{position:absolute;inset:0;width:100%;height:100%}
+.nail .slot{fill:var(--nail-empty-fill);stroke:var(--nail-empty-stroke);stroke-width:1.3;stroke-dasharray:3.2 2.6}
+.nail .edge{stroke:var(--nail-edge);stroke-width:1}
+.nail .num{font-family:var(--font-ui);font-size:10.5px;font-weight:800;fill:var(--ink-3);text-anchor:middle}
+.nail .spark-off{fill:none;stroke:var(--nail-empty-stroke);stroke-width:1.2;stroke-linejoin:round}
+.nail .spark-on{fill:#fff;stroke:#BF946B;stroke-width:.8;stroke-linejoin:round;transform-box:fill-box;transform-origin:center}
+.nail.painting{animation:paint .8s cubic-bezier(.3,.7,.2,1) both}
+.nail.gift-ready .spark-on{animation:twinkle 2.8s ease-in-out infinite}
+@keyframes paint{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes twinkle{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+
+/* the punch card */
+.pcard{position:relative;overflow:hidden;border-radius:24px;padding:18px 18px 18px;color:var(--card-ink);background:var(--card-flat);border:1px solid var(--line);box-shadow:var(--shadow-md)}
+.pc-rose{position:absolute;left:-4px;top:-18px;width:136px;height:136px;color:var(--card-flat);pointer-events:none}
+.pc-rose g{stroke:var(--rose-ink)}
+.pcard::after{content:"";position:absolute;top:-60%;inset-inline-end:-25%;width:75%;height:190%;background:linear-gradient(105deg,transparent 35%,var(--sheen) 50%,transparent 64%);transform:rotate(10deg);pointer-events:none}
+.pcard.is-full{box-shadow:0 0 0 1.5px rgba(196,150,112,.55),var(--shadow-md)}
+.pcard-top{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.pcard-eyebrow{position:relative;isolation:isolate;display:inline-block;padding:3px 16px 7px;font-family:var(--font-display);font-weight:500;font-size:19px;line-height:1.15;color:var(--card-ink)}
+.pcard-eyebrow svg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1}
+.pcard-eyebrow .mk{fill:var(--marker)}
+.pcard-studio{font-family:var(--font-script);font-size:34px;line-height:1.05;color:var(--accent);margin:2px 6px 0 0}
+.pcard-foot{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.pcard-who{min-width:0}
+.pcard-no{flex:none;font-size:12px;font-weight:800;color:var(--card-ink-2);background:var(--card-flat);border:1px solid var(--line-strong);border-radius:999px;padding:3px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pcard-name{position:relative;z-index:1;font-family:var(--font-hand);font-weight:400;font-size:27px;line-height:1.2;text-wrap:balance}
+.pcard-status{position:relative;z-index:1;margin-top:5px;font-size:14.5px;color:var(--card-ink-2);font-variant-numeric:tabular-nums}
+.pcard-status b{color:var(--card-ink);font-weight:800}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:999px;border:1px solid transparent;font-weight:700;font-size:16px;line-height:1.1;text-decoration:none;white-space:nowrap;transition:background-color .15s,border-color .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{background:var(--accent-hover)}
+.btn.big{width:100%;min-height:58px;font-size:18px;font-weight:800}
+.btn.primary.big{box-shadow:0 12px 24px -14px var(--accent)}
+.btn.chrome{background:linear-gradient(135deg,#FBEFF3 0%,#E7C3D2 40%,#F8E8D5 70%,#DDB9CB 100%);color:#4A2233;border-color:rgba(170,120,95,.4)}
+.btn.wa{background:var(--wa);color:var(--wa-ink)}
+.btn.wa:hover{background:var(--wa-hover)}
+.btn.wa.nudge{animation:ring 1.6s ease-out 3}
+@keyframes ring{0%{box-shadow:0 0 0 0 var(--wa-ring)}100%{box-shadow:0 0 0 14px transparent}}
+.btn.ghost{background:var(--surface);border-color:var(--line-strong);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--ink-3)}
+.btn.danger{background:var(--danger);color:var(--danger-ink)}
+.text-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:8px 4px;min-height:40px;color:var(--accent);font-weight:700;font-size:15px}
+.text-btn.danger-txt{color:var(--danger)}
+.head-btn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);font-weight:700;font-size:14.5px;flex:none}
+.mini-btn{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);font-size:13.5px;font-weight:700;color:var(--ink-2)}
+.mini-btn svg.i{width:16px;height:16px}
+.fab{position:fixed;z-index:20;bottom:calc(18px + env(safe-area-inset-bottom,0px));inset-inline-end:max(16px,calc(50% - 264px));min-height:56px;padding-inline:20px 24px;font-size:17px;font-weight:800;box-shadow:var(--fab-shadow)}
+
+/* sheets */
+.layer{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center}
+.backdrop{position:absolute;inset:0;background:var(--backdrop);animation:fade .2s ease both}
+.sheet{position:relative;width:100%;max-width:560px;max-height:calc(100% - 18px - env(safe-area-inset-top,0px));display:flex;flex-direction:column;background:var(--bg);border-radius:26px 26px 0 0;box-shadow:0 -14px 40px -14px rgba(0,0,0,.35);padding-bottom:env(safe-area-inset-bottom,0px);animation:rise .3s cubic-bezier(.2,.8,.2,1) both}
+.sheet-inner{display:flex;flex-direction:column;min-height:0;flex:1}
+.grab{width:42px;height:5px;border-radius:99px;background:var(--line-strong);margin:8px auto 0;flex:none}
+.sheet-head{display:flex;align-items:center;gap:8px;padding:8px 16px 10px;flex:none}
+.sheet-title{flex:1;min-width:0;margin:0;font-family:var(--font-display);font-weight:400;font-size:25px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;outline:none}
+.sheet-body{overflow-y:auto;overscroll-behavior:contain;padding:4px 16px 28px;flex:1;min-height:0}
+@keyframes rise{from{transform:translateY(48px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (min-width:720px){
+  .layer{align-items:center;padding:24px}
+  .sheet{border-radius:26px;max-height:min(880px,100%)}
+}
+
+/* client sheet */
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.actions-row{display:flex;gap:10px}
+.actions-row>.btn{flex:1;min-width:0}
+.info{margin:22px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.info-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;min-height:52px}
+.info-row+.info-row{border-top:1px solid var(--line)}
+.info dt{font-size:13.5px;color:var(--ink-2);flex:none}
+.info dd{margin:0;display:flex;align-items:center;gap:10px;font-weight:600;text-align:end;min-width:0;font-variant-numeric:tabular-nums}
+.info-row.notes{align-items:flex-start}
+.info-row.notes dd{white-space:pre-wrap;font-weight:500;line-height:1.45}
+.phone{font-variant-numeric:tabular-nums;user-select:all;-webkit-user-select:all;font-weight:700;letter-spacing:.01em}
+.muted{color:var(--ink-3);font-weight:500}
+.sec-title{margin:0 0 6px;font-size:13.5px;font-weight:800;color:var(--ink-2)}
+.hist{margin-top:22px}
+.hist ol{list-style:none;margin:0;padding:0}
+.hist li{display:flex;justify-content:space-between;gap:12px;padding:10px 2px;border-bottom:1px dashed var(--line-strong);font-size:14.5px}
+.hist time{color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.danger{margin-top:18px}
+.confirm{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:16px;border:1px solid var(--danger);background:var(--danger-soft)}
+.confirm p{margin:0;font-weight:600}
+
+/* whatsapp sheet */
+.wa-body{display:flex;flex-direction:column;gap:14px}
+.bubble-wrap{display:flex}
+.bubble{width:100%;margin-inline-end:28px;background:var(--bubble);color:var(--bubble-ink);border-radius:20px 20px 20px 6px;padding:13px 15px;font-size:15.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;box-shadow:var(--shadow-sm);border:1px solid transparent}
+textarea.bubble-edit{min-height:250px;resize:vertical;border-color:var(--line-strong);outline:none;font-family:var(--font-ui)}
+textarea.bubble-edit:focus{border-color:var(--wa)}
+.wa-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--ink-2)}
+.fine{margin:0;font-size:13px;color:var(--ink-2)}
+.warn-txt{color:var(--warn);font-weight:700}
+
+/* forms */
+.form{display:flex;flex-direction:column;gap:18px}
+.field{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;border:0;min-width:0}
+.field>label,.legend{font-size:14.5px;font-weight:800;padding:0}
+.opt{font-weight:500;color:var(--ink-3)}
+.input{width:100%;min-height:50px;border:1px solid var(--line-strong);border-radius:14px;background:var(--surface);padding:12px 14px;font-size:16px;outline:none}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input.ltr{text-align:right}
+textarea.input{resize:vertical;min-height:84px;line-height:1.45}
+.help{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.err{font-size:13.5px;font-weight:700;color:var(--danger)}
+.seg{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--surface-2)}
+.seg label{flex:1;position:relative}
+.seg input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.seg span{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:999px;font-weight:700;color:var(--ink-2)}
+.seg input:checked+span{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:48px;height:48px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);font-size:24px;font-weight:500;line-height:1;display:grid;place-items:center}
+.stepper output{min-width:44px;text-align:center;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.stepper .unit{font-size:14px;color:var(--ink-2)}
+.divider{height:1px;background:var(--line);margin:26px 0 20px}
+
+/* empty & loading */
+.empty{display:flex;flex-direction:column;gap:22px}
+.example{display:flex;flex-direction:column;gap:8px}
+.example-tag{align-self:flex-start;font-size:12px;font-weight:800;color:var(--ink-2);border:1px dashed var(--line-strong);border-radius:999px;padding:2px 11px}
+.empty-copy{display:flex;flex-direction:column;gap:16px}
+.empty-title{margin:0;font-family:var(--font-display);font-weight:400;font-size:25px;line-height:1.2;text-wrap:balance}
+.steps{counter-reset:s;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:15.5px}
+.steps li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-soft-ink);font-weight:800;font-size:14px}
+.skel-list{display:flex;flex-direction:column;gap:10px}
+.skel{height:68px;border-radius:18px;background:linear-gradient(90deg,var(--surface-2) 0%,var(--surface) 50%,var(--surface-2) 100%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:0 0}}
+
+/* toasts */
+.toasts{position:fixed;z-index:90;left:0;right:0;bottom:calc(88px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:8px;padding-inline:16px;pointer-events:none}
+.toast{pointer-events:auto;width:100%;max-width:528px;display:flex;align-items:center;gap:4px;padding:8px 8px 8px 8px;padding-inline-start:16px;border-radius:16px;background:var(--ink);color:var(--bg);box-shadow:var(--shadow-md);font-size:15px;font-weight:600;animation:rise .25s ease both}
+.toast .t-msg{flex:1;padding-block:6px}
+.toast button{flex:none;background:none;border:0;border-radius:10px;min-height:40px;padding:0 10px;color:var(--accent-soft);font-weight:800}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+/* ===== admin shell: login, bottom tabs, agenda, hours, settings ===== */
+[hidden]{display:none!important}
+:root{--pend:#FBEFD2;--pend-ink:#7A5200;--pend-line:#E2B655;--ok-soft:#DFF3E7;--ok-ink:#1E6B45;--ok-line:#3D9A6A;--noshow-soft:#FBEED6;--noshow-ink:#94500F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pend:#3A2E12;--pend-ink:#F2CD7A;--pend-line:#B88A2E;--ok-soft:#173428;--ok-ink:#7FD8A8;--ok-line:#4FB283;--noshow-soft:#3B2B12;--noshow-ink:#F0B26F}}
+:root[data-theme="dark"]{--pend:#3A2E12;--pend-ink:#F2CD7A;--pend-line:#B88A2E;--ok-soft:#173428;--ok-ink:#7FD8A8;--ok-line:#4FB283;--noshow-soft:#3B2B12;--noshow-ink:#F0B26F}
+
+.app{padding-block:18px calc(160px + env(safe-area-inset-bottom,0px))}
+.view{display:flex;flex-direction:column;gap:16px}
+.view[hidden]{display:none}
+.fab{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+.toasts{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto}
+html.locked .toasts{align-items:flex-start}
+html.locked .toast{width:auto;max-width:calc(100% - 76px)}
+.toast .t-msg{cursor:pointer}
+.toast{animation:drop .25s ease both}
+@keyframes drop{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+
+.tabbar{position:fixed;z-index:30;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -10px 28px -22px rgba(120,40,70,.45)}
+.tabbar[hidden]{display:none}
+.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;background:none;border:0;color:var(--ink-3);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;min-height:58px}
+.tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab .badge{position:absolute;top:5px;inset-inline-start:calc(50% + 4px);min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:11.5px;font-weight:800;line-height:19px;text-align:center}
+.tab .badge[hidden]{display:none}
+
+/* login */
+.login{min-height:calc(100vh - 80px);min-height:calc(100dvh - 80px);justify-content:center;align-items:stretch}
+.login-card{display:flex;flex-direction:column;gap:18px;width:100%;max-width:380px;margin:0 auto;text-align:center}
+.login .script{margin:0;font-family:var(--font-script);font-size:62px;line-height:1;color:var(--accent)}
+.login h1{margin:0;font-family:var(--font-display);font-weight:400;font-size:28px}
+.login .form{text-align:start}
+
+/* shared bits */
+.section-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 -4px}
+.section-title h2{margin:0;font-family:var(--font-display);font-weight:400;font-size:22px;line-height:1.2}
+.section-title .hint{font-size:13px;color:var(--ink-2)}
+.st{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap;vertical-align:middle}
+.st.pending{background:var(--pend);color:var(--pend-ink)}
+.st.confirmed{background:var(--accent-soft);color:var(--accent-soft-ink)}
+.st.done{background:var(--ok-soft);color:var(--ok-ink)}
+.st.noshow{background:var(--noshow-soft);color:var(--noshow-ink)}
+.st.cancelled{background:var(--surface-2);color:var(--ink-3)}
+.tag-new{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap;vertical-align:middle}
+.err-box{padding:12px 14px;border-radius:14px;background:var(--danger-soft);color:var(--danger);font-weight:700;font-size:14.5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select.input{-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);background-position:16px 22px,21px 22px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-inline-start:34px}
+input[type=date].input,input[type=time].input,input[type=number].input{direction:ltr;text-align:right}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;cursor:pointer}
+.switch input{flex:none;-webkit-appearance:none;appearance:none;width:46px;height:28px;border-radius:999px;background:var(--line-strong);position:relative;margin:0;cursor:pointer;transition:background .2s}
+.switch input::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(-18px)}
+.switch .lbl{font-weight:700}
+.switch .lbl small{display:block;font-weight:500;font-size:13px;color:var(--ink-2)}
+
+/* agenda */
+.pending,.toclose{display:flex;flex-direction:column;gap:10px}
+.req{background:var(--surface);border:1px solid var(--line-strong);border-inline-start:4px solid var(--pend-line);border-radius:18px;padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm)}
+.req.close{border-inline-start-color:var(--accent)}
+.req-top{display:flex;flex-direction:column;gap:3px;background:none;border:0;padding:0;text-align:start;color:var(--ink);font:inherit;cursor:pointer}
+.req .who{font-weight:800;font-size:16.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.req .what{font-size:14.5px;color:var(--ink);font-variant-numeric:tabular-nums}
+.req .when{font-size:13px;color:var(--ink-2)}
+.req-actions{display:flex;gap:8px}
+.req-actions .btn{flex:1;min-width:0;min-height:44px;font-size:15px;padding:0 10px}
+.weeknav{display:flex;align-items:center;gap:8px;margin-top:4px}
+.weeknav .lbl{flex:1;min-width:0;font-family:var(--font-display);font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 1px 6px;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer;color:var(--ink);font:inherit;min-width:0}
+.wd .w{font-size:11.5px;color:var(--ink-2);font-weight:700}
+.wd .n{font-family:var(--font-display);font-size:21px;line-height:1.15;font-variant-numeric:tabular-nums}
+.wd .c{font-size:11px;font-weight:800;color:var(--accent);min-height:15px}
+.wd.closed{opacity:.5}
+.wd.today .n{color:var(--accent)}
+.wd[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.wd[aria-pressed="true"] .w,.wd[aria-pressed="true"] .c,.wd[aria-pressed="true"] .n{color:var(--accent-ink)}
+.dayhead{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+.dayhead h2{margin:0;font-family:var(--font-display);font-weight:400;font-size:23px}
+.dayhead .meta{font-size:14px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.agenda{display:flex;flex-direction:column;gap:8px}
+.ap{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--accent);border-radius:16px;padding:11px 13px;cursor:pointer;color:var(--ink);font:inherit}
+.ap .t{font-weight:800;font-variant-numeric:tabular-nums;font-size:15.5px;direction:ltr;text-align:right;min-width:46px;line-height:1.25}
+.ap .t small{display:block;font-weight:600;color:var(--ink-3);font-size:12px}
+.ap .mid{min-width:0}
+.ap .who{font-weight:700;overflow-wrap:anywhere}
+.ap .svc{font-size:13.5px;color:var(--ink-2);overflow-wrap:anywhere}
+.ap.pending{border-inline-start-color:var(--pend-line);background:var(--pend)}
+.ap.done{border-inline-start-color:var(--ok-line)}
+.ap.noshow{border-inline-start-color:var(--noshow-ink)}
+.ap.past{opacity:.72}
+.gap{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 14px;padding-inline:14px 8px;border:1px dashed var(--line-strong);border-radius:14px;color:var(--ink-2);font-size:13.5px;font-variant-numeric:tabular-nums}
+.blockrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-radius:14px;background:var(--surface-2);color:var(--ink-2);font-size:14px;font-variant-numeric:tabular-nums}
+.empty-day{padding:22px 16px;text-align:center;color:var(--ink-2);border:1px dashed var(--line-strong);border-radius:16px;line-height:1.55}
+.empty-day b{display:block;color:var(--ink);font-family:var(--font-display);font-weight:400;font-size:20px;margin-bottom:2px}
+
+/* appointment sheet */
+.appt-tags{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mini-card{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--card-flat);border:1px solid var(--line)}
+.mini-card .lbl{font-size:13.5px;color:var(--card-ink-2);margin-top:4px}
+.text-row{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px}
+.confirm-inline{margin-top:12px}
+
+/* hours & settings */
+.card-box{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.hours-day{display:flex;flex-direction:column;gap:8px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.hours-day .head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hours-day .head b{font-size:15.5px}
+.hours-win{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:center}
+.hours-win .input{min-height:44px;padding:8px 10px;font-size:15.5px}
+.hours-win .sep{color:var(--ink-2);font-size:13px}
+.hours-win .rm{background:none;border:0;color:var(--ink-3);font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}
+.addwin{align-self:flex-start;background:none;border:0;color:var(--accent);font:inherit;font-weight:700;font-size:14px;cursor:pointer;padding:2px 0}
+.list-plain{display:flex;flex-direction:column;gap:8px}
+.lrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;color:var(--ink);font:inherit;cursor:pointer}
+.lrow .grow{flex:1;min-width:0}
+.lrow .title{font-weight:700;overflow-wrap:anywhere}
+.lrow .sub2{font-size:13.5px;color:var(--ink-2);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.lrow .price{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lrow.off .title{color:var(--ink-3);text-decoration:line-through}
+.linkbox{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:var(--surface-2);font-size:14px;direction:ltr;overflow-wrap:anywhere}
+.linkbox span{flex:1;min-width:0}
+
+/* dates under the nails */
+.nailcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+.nd{font-size:10.5px;font-weight:700;line-height:13px;min-height:13px;color:var(--card-ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCF1F5"/>
+      <stop offset=".32" stop-color="#E7C3D2"/>
+      <stop offset=".56" stop-color="#F8E8D5"/>
+      <stop offset=".8" stop-color="#D8B2C5"/>
+      <stop offset="1" stop-color="#F5E1EA"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="app" id="app" dir="rtl" lang="he">
+  <section class="view login" id="vLogin" hidden>
+    <div class="login-card">
+      <p class="script" dir="ltr">sapinails.il</p>
+      <h1>הסטודיו של ספיר</h1>
+      <form class="form" id="loginForm" novalidate>
+        <input type="email" name="username" autocomplete="username" value="sapir@sapinails.co.il" hidden>
+        <div class="field">
+          <label for="lPass">סיסמה</label>
+          <input class="input ltr" id="lPass" name="password" type="password" autocomplete="current-password" enterkeyhint="go">
+        </div>
+        <p class="err" id="lErr" hidden></p>
+        <button type="submit" class="btn primary big" id="lBtn">כניסה</button>
+      </form>
+    </div>
+  </section>
+  <section class="view" id="vAgenda" hidden></section>
+  <section class="view" id="vCards" hidden>
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow" id="eyebrow">כרטיסיית מועדון</div>
+      <h1 class="studio" id="studio">הסטודיו של ספיר</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <button type="button" class="icon-btn" data-act="settings" aria-label="הגדרות הכרטיסייה"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+  </header>
+
+  <div class="banner" id="banner" role="status" hidden></div>
+
+  <div class="toolbar" id="toolbar" hidden>
+    <label class="search" for="q">
+      <span class="sr">חיפוש לקוחה</span>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+      <input id="q" type="search" placeholder="חיפוש לפי שם או טלפון" autocomplete="off" enterkeyhint="search">
+    </label>
+    <div class="chips" role="group" aria-label="סינון לקוחות">
+      <button type="button" class="chip" data-act="filter" data-f="all" aria-pressed="true">הכל <span class="n" id="n-all">0</span></button>
+      <button type="button" class="chip" data-act="filter" data-f="gift" aria-pressed="false">מתנה מוכנה <span class="n" id="n-gift">0</span></button>
+      <button type="button" class="chip" data-act="filter" data-f="away" aria-pressed="false">מזמן לא הגיעו <span class="n" id="n-away">0</span></button>
+    </div>
+  </div>
+
+  <main id="main"></main>
+</section>
+  <section class="view" id="vHours" hidden></section>
+  <section class="view" id="vMore" hidden></section>
+</div>
+
+<button type="button" class="btn primary fab" id="addBtn" dir="rtl" hidden></button>
+<nav class="tabbar" id="tabbar" aria-label="ניווט" hidden><div class="in"></div></nav>
+<div id="sheets" dir="rtl" lang="he"></div>
+<div class="toasts" id="toasts" dir="rtl" lang="he" aria-live="polite"></div>
+
+<script src="../assets/config.js?v=1"></script>
+<script src="../assets/vendor/supabase-2.117.3.js"></script>
+<script>
+(() => {
+'use strict';
+const root = document.documentElement;
+root.setAttribute('dir', 'rtl');
+root.setAttribute('lang', 'he');
+
+const DEFAULTS = { studioName: 'הסטודיו של ספיר', cardSize: 6, ownerPhone: '', siteUrl: '' };
+const AWAY_DAYS = 35, LOG_MAX = 40, DAY = 86400000;
+const STOPS = ['#EFD4C6', '#EDBAB8', '#E39AA8', '#D5738F', '#C15075', '#A1365E', '#7E2448'];
+const NAIL = 'M16 1.6C23 5.2 29.4 14.2 29.4 26.2C29.4 36.6 23.4 42.6 16 42.6C8.6 42.6 2.6 36.6 2.6 26.2C2.6 14.2 9 5.2 16 1.6Z';
+const SHINE = 'M8.6 14.4C6.9 19.4 6.5 25.2 7.5 31C7.8 32.5 9.5 32.3 9.4 30.8C8.9 25.2 9.5 19.8 11 15.3C11.5 13.8 9.2 12.9 8.6 14.4Z';
+const SPARK = 'M16 17.4L17.5 21.2L21.3 22.7L17.5 24.2L16 28L14.5 24.2L10.7 22.7L14.5 21.2Z';
+
+const svgI = (d, extra = '') => `<svg class="i${extra}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const IC = {
+  plus: svgI('<path d="M12 5v14M5 12h14"/>'),
+  close: svgI('<path d="M6 6l12 12M18 6 6 18"/>'),
+  gift: svgI('<rect x="3.5" y="8.5" width="17" height="4.5" rx="1"/><path d="M5.5 13v6.5h13V13M12 8.5v11M12 8.5C9.6 8.5 7.6 7.7 7.6 6.1c0-1.4 1.5-2.3 2.9-1.3C11.4 5.4 12 7 12 8.5Zm0 0c2.4 0 4.4-.8 4.4-2.4 0-1.4-1.5-2.3-2.9-1.3C12.6 5.4 12 7 12 8.5Z"/>'),
+  chat: svgI('<path d="M20 11.6a8 8 0 0 1-11.7 7.1L4 20l1.3-4A8 8 0 1 1 20 11.6Z"/><path d="M9 10.5h6M9 13.5h4"/>'),
+  undo: svgI('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>', ' flip'),
+  copy: svgI('<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/>'),
+  edit: svgI('<path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>'),
+  trash: svgI('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5h10L18 7M9 7V4.5h6V7"/>'),
+};
+
+const TPLS = [
+  { k: 'visit', label: 'אחרי טיפול' },
+  { k: 'status', label: 'מצב הכרטיסייה' },
+  { k: 'reminder', label: 'תזכורת לתור' },
+  { k: 'welcome', label: 'הודעת הצטרפות' },
+  { k: 'redeem', label: 'אחרי טיפול מתנה' },
+];
+const UNDO_LABEL = { punch: 'ביטול ניקוב', redeem: 'ביטול מימוש', adjust: 'ביטול עדכון' };
+
+const S = {
+  db: null, status: 'loading', slow: false, canWrite: true,
+  clients: new Map(), settings: normSettings(null),
+  filter: 'all', q: '', stack: [], justPainted: null, lastPunch: null,
+  unsubC: null, unsubS: null,
+};
+
+/* ---------- helpers ---------- */
+const $ = (sel, r = document) => r.querySelector(sel);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
+const gw = (c, f, m) => (c && c.g === 'm' ? m : f);
+const firstName = n => (String(n || '').trim().split(/\s+/)[0] || String(n || ''));
+const plural = (n, one, many) => (n === 1 ? one : `${n} ${many}`);
+let uidSeq = 0;
+
+function normSettings(d) {
+  d = d || {};
+  const n = Math.round(Number(d.cardSize));
+  return {
+    studioName: typeof d.studioName === 'string' ? d.studioName.trim().slice(0, 40) : DEFAULTS.studioName,
+    cardSize: Number.isFinite(n) && n >= 3 && n <= 12 ? n : DEFAULTS.cardSize,
+    ownerPhone: typeof d.ownerPhone === 'string' ? d.ownerPhone.trim().slice(0, 20) : DEFAULTS.ownerPhone,
+    siteUrl: typeof d.siteUrl === 'string' ? d.siteUrl.trim().slice(0, 200) : DEFAULTS.siteUrl,
+  };
+}
+function cardLink(c) {
+  let base = S.settings.siteUrl.replace(/[#?].*$/, '').replace(/\/+$/, '');
+  if (!base) return '';
+  if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
+  const N = S.settings.cardSize, p = Math.min(c.punches, N), no = c.rewards + 1;
+  // a claude.ai page reads the card from the #hash; the public card pages read it from the path, which WhatsApp turns into a card image
+  if (/claude\.ai\/(code\/)?artifact\//i.test(base)) return `${base}#k${p}-${N}-${no}`;
+  return `${base}/k/${N}/${p}/?c=${no}`;
+}
+function normClient(id, d) {
+  const int0 = v => (Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0);
+  return {
+    id,
+    name: typeof d.name === 'string' && d.name.trim() ? d.name.trim().slice(0, 40) : 'ללא שם',
+    phone: typeof d.phone === 'string' ? d.phone.trim().slice(0, 20) : '',
+    g: d.g === 'm' ? 'm' : 'f',
+    notes: typeof d.notes === 'string' ? d.notes.slice(0, 300) : '',
+    punches: int0(d.punches), rewards: int0(d.rewards), visits: int0(d.visits),
+    createdAt: num(d.createdAt, 0),
+    lastVisit: Number.isFinite(d.lastVisit) ? d.lastVisit : null,
+    updatedAt: num(d.updatedAt, 0),
+    log: Array.isArray(d.log) ? d.log.filter(e => e && Number.isFinite(e.t) && typeof e.a === 'string').slice(-LOG_MAX) : [],
+  };
+}
+function toDoc(c) { const { id, ...rest } = c; return JSON.parse(JSON.stringify(rest)); }
+
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function shade(i, N) {
+  const t = N <= 1 ? 1 : i / (N - 1);
+  const x = t * (STOPS.length - 1);
+  const k = Math.min(STOPS.length - 2, Math.floor(x));
+  const f = x - k, a = hex2rgb(STOPS[k]), b = hex2rgb(STOPS[k + 1]);
+  return '#' + a.map((v, j) => Math.round(v + (b[j] - v) * f).toString(16).padStart(2, '0')).join('');
+}
+function avatarColors(name) {
+  let h = 0; for (const ch of String(name)) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  const idx = h % STOPS.length;
+  return { bg: STOPS[idx], ink: idx >= 4 ? '#FFFFFF' : '#3A1F2B' };
+}
+
+function localDigits(p) {
+  let d = String(p || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('972')) d = '0' + d.slice(3);
+  return d;
+}
+function fmtPhone(p) {
+  const d = localDigits(p);
+  if (/^05\d{8}$/.test(d)) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  if (/^0[2-9]\d{7}$/.test(d)) return `${d.slice(0, 2)}-${d.slice(2, 5)}-${d.slice(5)}`;
+  return String(p || '').trim();
+}
+function waNumber(p) {
+  let d = String(p || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('972')) return d;
+  if (d.startsWith('0')) return '972' + d.slice(1);
+  if (d.length === 9 && d.startsWith('5')) return '972' + d;
+  return d;
+}
+function waHref(phone, text) { return `https://wa.me/${waNumber(phone)}?text=${encodeURIComponent(text)}`; }
+
+function rel(ms) {
+  if (!ms) return '';
+  const a = new Date(); a.setHours(0, 0, 0, 0);
+  const b = new Date(ms); b.setHours(0, 0, 0, 0);
+  const days = Math.round((a - b) / DAY);
+  if (days <= 0) return 'היום';
+  if (days === 1) return 'אתמול';
+  if (days === 2) return 'שלשום';
+  if (days < 14) return `לפני ${days} ימים`;
+  if (days < 21) return 'לפני שבועיים';
+  if (days < 30) return 'לפני 3 שבועות';
+  if (days < 60) return 'לפני חודש';
+  if (days < 90) return 'לפני חודשיים';
+  return `לפני ${Math.floor(days / 30)} חודשים`;
+}
+const fmtDate = ms => new Date(ms).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: '2-digit' });
+const isAway = c => { const ref = c.lastVisit || c.createdAt; return !!ref && Date.now() - ref > AWAY_DAYS * DAY; };
+const lastSeen = c => (c.lastVisit ? rel(c.lastVisit) : 'טרם נרשם ביקור');
+const studioName = () => S.settings.studioName;
+
+function monthStats() {
+  const s = new Date(); s.setDate(1); s.setHours(0, 0, 0, 0);
+  const from = s.getTime();
+  let visits = 0, gifts = 0;
+  S.clients.forEach(c => c.log.forEach(e => {
+    if (e.t < from) return;
+    if (e.a === 'punch') visits++;
+    else if (e.a === 'redeem') { visits++; gifts++; }
+  }));
+  return { visits, gifts };
+}
+
+/* ---------- nails ---------- */
+function nail(kind, o = {}) {
+  const cls = o.cls ? ' ' + o.cls : '';
+  if (kind === 'full') {
+    return `<svg class="nail${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="edge" d="${NAIL}" style="fill:${o.color}"/><path d="${SHINE}" fill="#fff" opacity=".5"/><ellipse cx="12.6" cy="8.8" rx="1" ry="1.6" fill="#fff" opacity=".55"/></svg>`;
+  }
+  if (kind === 'empty') {
+    return `<svg class="nail${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="slot" d="${NAIL}"/>${o.n ? `<text class="num" x="16" y="29.5">${o.n}</text>` : ''}</svg>`;
+  }
+  if (kind === 'gift-on') {
+    return `<svg class="nail gift-ready${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="edge" d="${NAIL}" fill="url(#chrome)"/><path d="${SHINE}" fill="#fff" opacity=".75"/><path class="spark-on" d="${SPARK}"/></svg>`;
+  }
+  return `<svg class="nail${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="slot" d="${NAIL}"/><path class="spark-off" d="${SPARK}"/></svg>`;
+}
+function nailRow(p, N, size, paintIdx = -1, dates = null) {
+  const f = Math.min(p, N), full = p >= N;
+  const cell = (h, i) => (dates ? `<span class="nailcell">${h}<span class="nd">${i != null && i < f ? nailDate(dates[i]) : ''}</span></span>` : h);
+  let out = '';
+  for (let i = 0; i < N; i++) {
+    if (i < f) {
+      const col = shade(i, N);
+      out += cell(i === paintIdx && size === 'big'
+        ? `<span class="nailbox">${nail('empty', { n: i + 1 })}${nail('full', { color: col, cls: 'painting' })}</span>`
+        : nail('full', { color: col }), i);
+    } else {
+      out += cell(nail('empty', { n: size === 'big' ? i + 1 : '' }), i);
+    }
+  }
+  out += cell(nail(full ? 'gift-on' : 'gift-off'), null);
+  const total = N + 1;
+  let attrs = '';
+  let cls = `nails ${size}`;
+  if (size === 'big') {
+    const cols = total <= 7 ? total : Math.ceil(total / 2);
+    attrs = ` style="grid-template-columns:repeat(${cols},auto)"`;
+    if (total > 7) cls += ' dense';
+  }
+  const label = full ? `הכרטיסייה מלאה, ${N} מתוך ${N}` : `${f} מתוך ${N} ניקובים`;
+  return `<div class="${cls}" role="img" aria-label="${label}"${attrs}>${out}</div>`;
+}
+
+/* ---------- messages ---------- */
+function progressLines(p, N) {
+  const f = Math.min(p, N), RLM = '‏';
+  const cells = [];
+  for (let i = 0; i < N; i++) cells.push(i < f ? '💖' : '🤍');
+  if (N <= 8) return RLM + cells.join('') + ' 🎁';
+  const half = Math.ceil(N / 2);
+  return RLM + cells.slice(0, half).join('') + '\n' + RLM + cells.slice(half).join('') + ' 🎁';
+}
+function statusLine(p, N) {
+  const f = Math.min(p, N), left = N - f;
+  if (p <= 0) return 'הניקוב הראשון מחכה לך בטיפול הבא ✨';
+  if (left <= 0) return '*הכרטיסייה מלאה!* הטיפול הבא שלך מתנה ממני 🎁';
+  return `*${f} מתוך ${N}* · עוד ${left === 1 ? 'טיפול אחד' : left + ' טיפולים'} ואז טיפול מתנה ממני 🎁`;
+}
+function buildMessage(tpl, c) {
+  const N = S.settings.cardSize, p = c.punches, name = firstName(c.name), studio = studioName();
+  const prog = progressLines(p, N), st = statusLine(p, N);
+  const link = cardLink(c);
+  const sig = (link ? `\n\nלצפייה בכרטיסייה שלך:\n${link}` : '') + (studio ? `\n\n${studio} 💅` : '');
+  switch (tpl) {
+    case 'welcome':
+      return `היי ${name} 💕\n${gw(c, 'ברוכה הבאה', 'ברוך הבא')} לכרטיסיית המועדון שלי!\nעל כל טיפול ${gw(c, 'את מקבלת', 'אתה מקבל')} ניקוב, ואחרי ${N} טיפולים הטיפול הבא מתנה ממני 🎁\n\nהכרטיסייה שלך:\n${prog}\n${st}${sig}`;
+    case 'visit':
+      if (p >= N) return `היי ${name} 🎉\nתודה שבאת היום! הכרטיסייה שלך התמלאה:\n${prog}\n*הטיפול הבא שלך מתנה ממני* 🎁 מחכה לפנק אותך!${sig}`;
+      return `היי ${name} 💕\nתודה שבאת היום ✨\nהוספתי לך ניקוב בכרטיסייה:\n${prog}\n${st}${sig}`;
+    case 'redeem':
+      return `היי ${name} 💝\n${gw(c, 'תתחדשי', 'תתחדש')} על טיפול המתנה! תודה ש${gw(c, 'את', 'אתה')} איתי 💕\nפתחתי לך כרטיסייה חדשה:\n${prog}\n${st}${sig}`;
+    case 'reminder':
+      return `היי ${name} 💕\nמתגעגעת! עבר קצת זמן מאז הטיפול האחרון, אולי הגיע הזמן לחדש את הציפורניים? 💅\n\n${prog}\n${st}\n\nלקביעת תור אפשר פשוט להשיב להודעה הזו ✨${link ? `\nהכרטיסייה שלך: ${link}` : ''}${studio ? `\n${studio}` : ''}`;
+    default:
+      return `היי ${name} 💕\nעדכון מהכרטיסייה שלך:\n${prog}\n${st}${sig}`;
+  }
+}
+function buildSummary() {
+  const N = S.settings.cardSize;
+  const list = [...S.clients.values()].sort((a, b) => a.name.localeCompare(b.name, 'he'));
+  const gifts = list.filter(c => c.punches >= N), away = list.filter(isAway), m = monthStats();
+  const date = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' });
+  let t = `📋 *סיכום כרטיסיות${studioName() ? ' · ' + studioName() : ''}*\n${date}\n${plural(list.length, 'לקוחה אחת', 'לקוחות')} · ${plural(m.visits, 'טיפול אחד', 'טיפולים')} החודש`;
+  if (gifts.length) t += `\n\n🎁 *מתנה מוכנה (${gifts.length})*\n` + gifts.map(c => `• ${c.name}`).join('\n');
+  if (away.length) t += `\n\n⏳ *מזמן לא הגיעו (${away.length})*\n` + away.map(c => `• ${c.name} · ${lastSeen(c)}`).join('\n');
+  if (list.length) {
+    const MAX = 60;
+    t += `\n\n💅 *כל הכרטיסיות*\n` + list.slice(0, MAX).map(c => `• ${c.name} · ${Math.min(c.punches, N)}/${N}`).join('\n');
+    if (list.length > MAX) t += `\nועוד ${list.length - MAX}`;
+  }
+  return t;
+}
+function fmtWa(text) {
+  return esc(text)
+    .replace(/\*([^*\n]+)\*/g, '<b>$1</b>')
+    .replace(/(^|\s)_([^_\n]+)_/g, '$1<i>$2</i>');
+}
+function defaultTpl(c) {
+  const last = c.log[c.log.length - 1];
+  if (last && Date.now() - last.t < 12 * 3600e3) {
+    if (last.a === 'punch') return 'visit';
+    if (last.a === 'redeem') return 'redeem';
+    if (last.a === 'join') return 'welcome';
+  }
+  return isAway(c) ? 'reminder' : 'status';
+}
+
+/* ---------- rendering ---------- */
+function pcardHTML(c, paintIdx) {
+  const N = S.settings.cardSize, f = Math.min(c.punches, N), full = c.punches >= N, left = N - f;
+  const status = full
+    ? '<b>הכרטיסייה מלאה</b> · הטיפול הבא מתנה'
+    : c.punches <= 0
+      ? `כרטיסייה חדשה · ${N} טיפולים עד המתנה`
+      : `<b>${f} מתוך ${N}</b> · עוד ${left === 1 ? 'טיפול אחד' : left + ' טיפולים'} עד טיפול מתנה`;
+  return `<article class="pcard${full ? ' is-full' : ''}">
+    ${ROSE_SVG}
+    <div class="pcard-top">
+      <div><div class="pcard-eyebrow">${MARK_SVG}<span>כרטיסיית מועדון</span></div><div class="pcard-studio" dir="ltr">sapinails.il</div></div>
+    </div>
+    ${nailRow(c.punches, N, 'big', paintIdx, Array.isArray(c.log) ? punchDates(c, N) : null)}
+    <div class="pcard-foot">
+      <div class="pcard-who"><div class="pcard-name">${esc(c.name)}</div><div class="pcard-status">${status}</div></div>
+      <div class="pcard-no">כרטיסייה מס׳ ${c.rewards + 1}</div>
+    </div>
+  </article>`;
+}
+
+function rowHTML(c) {
+  const N = S.settings.cardSize, full = c.punches >= N, f = Math.min(c.punches, N);
+  const av = avatarColors(c.name), init = [...c.name.trim()][0] || '?';
+  const quick = full
+    ? `<button type="button" class="punch-quick gift" data-act="open" data-id="${esc(c.id)}" aria-label="${esc('מימוש טיפול מתנה ל' + c.name)}">${IC.gift}</button>`
+    : `<button type="button" class="punch-quick" data-act="qpunch" data-id="${esc(c.id)}" aria-label="${esc('ניקוב טיפול ל' + c.name)}"${S.canWrite ? '' : ' disabled'}>${IC.plus}</button>`;
+  return `<li class="row">
+    <button type="button" class="row-main" data-act="open" data-id="${esc(c.id)}">
+      <span class="avatar" style="--av:${av.bg};--av-ink:${av.ink}" aria-hidden="true">${esc(init)}</span>
+      <span class="row-text">
+        <span class="row-name"><span class="nm">${esc(c.name)}</span>${full ? '<span class="pill gift">מתנה מוכנה</span>' : ''}</span>
+        <span class="row-meta">${nailRow(c.punches, N, 'mini')}<span class="count">${f}/${N}</span><span class="when${isAway(c) ? ' away' : ''}">${esc(lastSeen(c))}</span></span>
+      </span>
+    </button>
+    ${quick}
+  </li>`;
+}
+
+function visibleClients() {
+  const N = S.settings.cardSize, q = S.q.trim().toLowerCase(), qd = q.replace(/\D/g, '');
+  let arr = [...S.clients.values()];
+  if (S.filter === 'gift') arr = arr.filter(c => c.punches >= N);
+  if (S.filter === 'away') arr = arr.filter(isAway);
+  if (q) arr = arr.filter(c => c.name.toLowerCase().includes(q) || (qd.length >= 3 && localDigits(c.phone).includes(qd)));
+  const ref = c => c.lastVisit || c.createdAt || 0;
+  if (S.filter === 'away') arr.sort((a, b) => ref(a) - ref(b));
+  else arr.sort((a, b) => ref(b) - ref(a) || a.name.localeCompare(b.name, 'he'));
+  return arr;
+}
+
+const ROSE_SVG = '<svg class="pc-rose" viewBox="-80 -80 200 200" aria-hidden="true" focusable="false"><g fill="none" stroke="#C4567E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M-14 -5C-15 -5 -19 -6 -21 -7C-23 -8 -25 -9 -27 -10C-29 -12 -31 -13 -33 -15C-35 -16 -37 -18 -39 -20C-42 -23 -45 -25 -46 -28C-47 -30 -47 -33 -47 -35C-46 -37 -46 -38 -45 -40C-45 -41 -44 -43 -44 -44C-43 -46 -42 -47 -41 -48C-40 -49 -39 -50 -38 -51C-36 -52 -35 -52 -33 -53C-32 -54 -31 -55 -30 -56C-28 -57 -27 -57 -25 -58C-24 -58 -22 -58 -20 -59C-18 -59 -16 -58 -14 -58C-12 -59 -11 -59 -9 -59C-7 -58 -4 -59 -2 -57C0 -55 2 -50 3 -47C4 -44 5 -40 5 -37C5 -34 5 -31 5 -29C5 -26 4 -23 3 -20C2 -17 1 -13 -1 -12C-2 -10 -3 -12 -5 -11C-6 -11 -7 -10 -8 -10C-10 -9 -11 -9 -12 -8C-13 -7 -12 -5 -14 -5Z" fill="currentColor" stroke="none"></path><path d="M-21 -7C-22 -8 -25 -9 -27 -10C-29 -12 -31 -13 -33 -15C-35 -16 -37 -18 -39 -20C-42 -23 -45 -25 -46 -28C-47 -30 -47 -33 -47 -35C-46 -37 -46 -38 -45 -40C-45 -41 -44 -43 -44 -44C-43 -46 -42 -47 -41 -48C-40 -49 -39 -50 -38 -51C-36 -52 -35 -52 -33 -53C-32 -54 -31 -55 -30 -56C-28 -57 -27 -57 -25 -58C-24 -58 -22 -58 -20 -59C-18 -59 -16 -58 -14 -58C-12 -59 -11 -59 -9 -59C-7 -58 -4 -59 -2 -57C0 -55 2 -50 3 -47C4 -44 5 -40 5 -37C5 -34 5 -31 5 -29C5 -26 4 -22 3 -20"></path><path stroke-width="1" d="M-40 -25C-40 -26 -38 -27 -38 -28C-37 -29 -36 -30 -35 -31C-34 -32 -33 -33 -32 -34C-31 -35 -30 -35 -29 -36C-28 -37 -27 -38 -26 -38C-24 -39 -23 -40 -22 -40C-21 -41 -19 -41 -18 -42C-16 -42 -15 -43 -14 -43C-12 -44 -11 -44 -9 -44C-8 -44 -6 -44 -5 -45C-3 -45 -1 -45 -1 -45"></path><path d="M3 -10C2 -12 0 -16 0 -19C-1 -22 -1 -24 -1 -27C-1 -30 -1 -33 0 -36C1 -38 1 -42 3 -45C4 -48 7 -52 9 -54C11 -55 13 -55 15 -55C17 -56 19 -55 21 -55C23 -55 25 -55 26 -55C28 -54 30 -54 31 -53C32 -53 34 -52 35 -51C36 -50 36 -49 37 -48C39 -47 40 -47 41 -46C42 -45 43 -44 44 -43C44 -42 45 -41 45 -39C45 -38 45 -36 45 -34C45 -33 46 -31 45 -29C45 -27 45 -25 43 -23C42 -20 39 -18 37 -16C34 -14 32 -12 30 -11C29 -9 27 -8 25 -7C23 -6 21 -5 19 -4C17 -3 15 -2 13 -3C12 -3 12 -4 12 -5C11 -6 10 -7 9 -8C9 -8 7 -9 6 -9C5 -10 4 -9 3 -10Z" fill="currentColor" stroke="none"></path><path d="M0 -19C0 -20 -1 -24 -1 -27C-1 -30 -1 -33 0 -36C1 -38 1 -42 3 -45C4 -48 7 -52 9 -54C11 -55 13 -55 15 -55C17 -56 19 -55 21 -55C23 -55 25 -55 26 -55C28 -54 30 -54 31 -53C32 -53 34 -52 35 -51C36 -50 36 -49 37 -48C39 -47 40 -47 41 -46C42 -45 43 -44 44 -43C44 -42 45 -41 45 -39C45 -38 45 -36 45 -34C45 -33 46 -31 45 -29C45 -27 45 -25 43 -23C42 -20 39 -18 37 -16C34 -14 32 -12 30 -11C29 -9 27 -8 25 -7C23 -6 20 -5 19 -4"></path><path stroke-width="1" d="M6 -42C6 -42 8 -42 9 -42C11 -41 12 -41 13 -41C15 -40 16 -40 17 -39C18 -39 20 -38 21 -38C22 -37 23 -36 24 -36C25 -35 26 -34 27 -33C28 -33 29 -32 30 -31C31 -30 31 -29 32 -28C33 -27 33 -27 34 -26C35 -25 35 -24 35 -23C36 -22 37 -20 37 -20"></path><path d="M-7 -7C-8 -7 -11 -9 -12 -11C-14 -12 -15 -14 -16 -15C-17 -17 -18 -19 -19 -21C-20 -23 -21 -25 -21 -28C-22 -30 -23 -34 -23 -36C-23 -39 -22 -40 -21 -42C-20 -44 -19 -45 -18 -46C-16 -47 -15 -49 -14 -49C-13 -50 -12 -51 -10 -52C-9 -52 -8 -52 -6 -52C-5 -52 -4 -52 -2 -52C-1 -52 0 -52 2 -52C3 -52 4 -52 6 -51C7 -51 8 -50 10 -49C11 -48 12 -47 14 -46C15 -45 16 -43 17 -42C18 -40 20 -38 20 -35C20 -33 19 -30 19 -28C18 -26 18 -23 17 -22C16 -20 15 -18 14 -16C13 -14 12 -13 11 -11C9 -10 7 -8 6 -7C4 -7 4 -8 3 -8C2 -8 0 -9 -1 -9C-2 -8 -3 -8 -4 -8C-5 -8 -6 -6 -7 -7Z" fill="currentColor" stroke="none"></path><path d="M-16 -15C-16 -16 -18 -19 -19 -21C-20 -23 -21 -25 -21 -28C-22 -30 -23 -34 -23 -36C-23 -39 -22 -40 -21 -42C-20 -44 -19 -45 -18 -46C-16 -47 -15 -49 -14 -49C-13 -50 -12 -51 -10 -52C-9 -52 -8 -52 -6 -52C-5 -52 -4 -52 -2 -52C-1 -52 0 -52 2 -52C3 -52 4 -52 6 -51C7 -51 8 -50 10 -49C11 -48 12 -47 14 -46C15 -45 16 -43 17 -42C18 -40 20 -38 20 -35C20 -33 19 -30 19 -28C18 -26 18 -23 17 -22C16 -20 14 -17 14 -16"></path><g stroke-width="1"><path d="M-19 -29C-19 -30 -18 -31 -17 -31C-16 -32 -15 -32 -14 -33C-13 -33 -12 -34 -10 -34C-9 -34 -8 -35 -7 -35C-6 -35 -5 -36 -3 -36C-2 -36 -1 -36 0 -36C1 -36 3 -36 4 -36C5 -35 6 -35 7 -35C9 -35 10 -34 11 -34C12 -34 13 -33 14 -33C15 -32 16 -31 17 -31"></path><path d="M3 -24C3 -25 3 -26 3 -26C3 -27 3 -28 3 -28C3 -29 3 -30 3 -30"></path><path d="M5 -25C5 -26 5 -26 5 -27C5 -28 5 -28 5 -29C5 -29 5 -30 5 -30"></path><path d="M7 -23C7 -23 7 -24 8 -25C8 -26 8 -26 8 -27C8 -28 8 -29 8 -30"></path><path d="M10 -23C11 -23 11 -24 11 -24C11 -25 11 -25 11 -26C11 -26 12 -27 12 -27"></path><path d="M12 -21C13 -21 13 -22 13 -23C13 -23 13 -24 14 -24C14 -25 14 -25 14 -26"></path></g><path d="M-1 -5C-2 -6 -4 -7 -5 -9C-6 -10 -6 -11 -7 -12C-7 -14 -8 -15 -8 -17C-9 -18 -9 -19 -9 -21C-9 -23 -10 -25 -9 -26C-9 -28 -7 -29 -6 -31C-5 -32 -4 -33 -3 -34C-2 -35 -1 -35 0 -36C1 -36 2 -36 3 -36C4 -36 5 -36 6 -36C7 -36 8 -35 9 -35C10 -34 10 -34 11 -34C12 -34 13 -33 13 -32C14 -32 14 -31 15 -30C15 -29 16 -28 16 -26C16 -25 16 -24 16 -22C15 -21 15 -19 15 -17C14 -16 13 -14 13 -12C12 -11 11 -10 11 -9C10 -7 10 -6 9 -5C9 -5 9 -4 8 -3C8 -2 7 -1 6 -1C6 -1 6 -3 5 -3C5 -4 4 -4 3 -4C3 -5 2 -5 1 -5C0 -5 0 -4 -1 -5Z" fill="currentColor" stroke="none"></path><path d="M-7 -12C-7 -13 -8 -15 -8 -17C-9 -18 -9 -19 -9 -21C-9 -23 -10 -25 -9 -26C-9 -28 -7 -29 -6 -31C-5 -32 -4 -33 -3 -34C-2 -35 -1 -35 0 -36C1 -36 2 -36 3 -36C4 -36 5 -36 6 -36C7 -36 8 -35 9 -35C10 -34 10 -34 11 -34C12 -34 13 -33 13 -32C14 -32 14 -31 15 -30C15 -29 16 -28 16 -26C16 -25 16 -24 16 -22C15 -21 15 -19 15 -17C14 -16 13 -14 13 -12C12 -11 11 -10 11 -9C10 -7 10 -6 9 -5"></path><g stroke-width="1"><path d="M8 -16C8 -16 8 -17 8 -18C8 -18 8 -19 8 -19C8 -20 9 -20 9 -21"></path><path d="M9 -15C9 -15 10 -15 10 -16C10 -16 10 -17 10 -17C10 -18 10 -19 10 -19"></path><path d="M10 -11C10 -11 10 -12 10 -12C10 -13 10 -13 10 -13C11 -14 11 -14 11 -14"></path></g><path d="M-11 5C-12 5 -13 5 -14 5C-15 5 -16 5 -17 5C-18 4 -20 4 -22 3C-23 3 -25 2 -28 1C-31 0 -35 -1 -37 -2C-40 -3 -41 -4 -42 -6C-44 -7 -44 -8 -45 -9C-46 -10 -47 -11 -48 -13C-49 -14 -49 -15 -50 -16C-50 -17 -50 -18 -50 -19C-49 -21 -49 -22 -48 -23C-48 -24 -48 -25 -48 -26C-48 -27 -47 -28 -46 -29C-46 -30 -45 -31 -43 -32C-42 -33 -40 -34 -39 -35C-37 -36 -36 -37 -34 -37C-32 -37 -29 -38 -27 -37C-25 -37 -23 -34 -21 -32C-19 -31 -17 -29 -16 -27C-15 -25 -14 -23 -13 -20C-12 -18 -12 -16 -11 -14C-11 -11 -10 -8 -10 -6C-10 -4 -11 -5 -12 -4C-12 -3 -13 -2 -13 -1C-13 0 -13 1 -13 2C-12 3 -11 4 -11 5Z" fill="currentColor" stroke="none"></path><path d="M-14 5C-14 5 -16 5 -17 5C-18 4 -20 4 -22 3C-23 3 -25 2 -28 1C-31 0 -35 -1 -37 -2C-40 -3 -41 -4 -42 -6C-44 -7 -44 -8 -45 -9C-46 -10 -47 -11 -48 -13C-49 -14 -49 -15 -50 -16C-50 -17 -50 -18 -50 -19C-49 -21 -49 -22 -48 -23C-48 -24 -48 -25 -48 -26C-48 -27 -47 -28 -46 -29C-46 -30 -45 -31 -43 -32C-42 -33 -40 -34 -39 -35C-37 -36 -36 -37 -34 -37C-32 -37 -29 -38 -27 -37C-25 -37 -23 -34 -21 -32C-19 -31 -17 -29 -16 -27C-15 -25 -14 -23 -13 -20C-12 -18 -11 -15 -11 -14"></path><g stroke-width="1"><path d="M-28 -1C-28 -1 -29 -2 -29 -3C-30 -4 -31 -5 -31 -6C-31 -7 -32 -8 -32 -9C-32 -10 -33 -11 -33 -12C-33 -13 -33 -14 -33 -15C-33 -16 -33 -17 -32 -18C-32 -19 -32 -20 -32 -21C-31 -22 -31 -23 -30 -24C-30 -25 -29 -26 -29 -27C-28 -28 -27 -29 -26 -29C-26 -30 -25 -31 -24 -32"></path><path d="M-24 -13C-24 -14 -25 -14 -25 -14C-25 -15 -26 -15 -26 -15C-27 -16 -27 -16 -27 -16"></path><path d="M-25 -17C-25 -17 -26 -18 -26 -19C-27 -20 -28 -20 -28 -21C-29 -21 -30 -22 -30 -22"></path><path d="M-23 -18C-23 -19 -24 -20 -25 -21C-25 -21 -26 -22 -27 -23C-27 -23 -28 -24 -29 -25"></path></g><path d="M-8 1C-8 1 -9 1 -9 0C-10 0 -10 -1 -11 -2C-11 -3 -12 -4 -13 -5C-13 -6 -14 -7 -15 -8C-16 -9 -17 -11 -18 -12C-19 -14 -21 -16 -22 -17C-23 -19 -24 -21 -24 -22C-25 -24 -25 -25 -25 -26C-25 -28 -25 -29 -25 -30C-25 -31 -25 -32 -25 -33C-24 -33 -23 -34 -23 -35C-22 -35 -22 -37 -22 -37C-21 -38 -20 -39 -19 -39C-18 -40 -17 -40 -16 -40C-15 -41 -14 -41 -12 -41C-11 -40 -10 -40 -8 -40C-6 -39 -4 -38 -3 -37C-1 -36 -1 -33 0 -31C0 -29 0 -27 1 -25C1 -23 1 -21 0 -19C0 -17 0 -15 -1 -13C-1 -10 -2 -7 -3 -6C-4 -5 -5 -5 -6 -5C-6 -4 -7 -4 -7 -3C-8 -2 -8 -2 -8 -1C-8 0 -8 1 -8 1Z" fill="currentColor" stroke="none"></path><path d="M-11 -2C-11 -3 -12 -4 -13 -5C-13 -6 -14 -7 -15 -8C-16 -9 -17 -11 -18 -12C-19 -14 -21 -16 -22 -17C-23 -19 -24 -21 -24 -22C-25 -24 -25 -25 -25 -26C-25 -28 -25 -29 -25 -30C-25 -31 -25 -32 -25 -33C-24 -33 -23 -34 -23 -35C-22 -35 -22 -37 -22 -37C-21 -38 -20 -39 -19 -39C-18 -40 -17 -40 -16 -40C-15 -41 -14 -41 -12 -41C-11 -40 -10 -40 -8 -40C-6 -39 -4 -38 -3 -37C-1 -36 -1 -33 0 -31C0 -29 0 -27 1 -25C1 -23 0 -20 0 -19"></path><g stroke-width="1"><path d="M-14 -13C-14 -14 -15 -14 -15 -15C-15 -15 -15 -16 -16 -16C-16 -17 -16 -17 -16 -18"></path><path d="M-14 -11C-15 -11 -15 -12 -15 -12C-15 -13 -16 -13 -16 -14C-16 -14 -16 -15 -17 -15"></path><path d="M-14 -9C-14 -9 -14 -9 -15 -10C-15 -10 -15 -10 -15 -11C-15 -11 -16 -11 -16 -11"></path><path d="M-14 -8C-14 -8 -15 -8 -15 -9C-15 -9 -16 -9 -16 -10C-16 -10 -16 -11 -16 -11"></path></g><path d="M-1 -1C-1 -1 -1 -3 -1 -4C-1 -6 -1 -7 -1 -8C-2 -9 -2 -10 -2 -11C-2 -13 -2 -14 -2 -15C-2 -16 -2 -18 -2 -19C-2 -19 -2 -20 -2 -20C-2 -21 -3 -21 -2 -22C-2 -22 -1 -23 -1 -23C0 -24 0 -24 1 -24C1 -24 2 -24 2 -24C3 -23 3 -23 3 -23C3 -22 4 -22 4 -21C4 -21 4 -20 4 -20C3 -19 3 -19 3 -18C2 -17 2 -17 1 -16C1 -16 1 -16 1 -15C1 -14 1 -14 1 -13C1 -12 1 -11 1 -10C1 -9 1 -8 1 -8C1 -7 1 -6 1 -5C1 -4 1 -3 1 -2C1 -1 0 1 1 1C1 1 1 1 1 0C1 0 1 0 1 -1C1 -1 0 -1 0 -1C0 -1 -1 0 -1 -1Z" fill="currentColor" stroke="none"></path><path d="M-2 -11C-2 -12 -2 -14 -2 -15C-2 -16 -2 -18 -2 -19C-2 -19 -2 -20 -2 -20C-2 -21 -3 -21 -2 -22C-2 -22 -1 -23 -1 -23C0 -24 0 -24 1 -24C1 -24 2 -24 2 -24C3 -23 3 -23 3 -23C3 -22 4 -22 4 -21C4 -21 4 -20 4 -20C3 -19 3 -19 3 -18C2 -17 2 -17 1 -16C1 -16 1 -16 1 -15C1 -14 1 -14 1 -13C1 -12 1 -11 1 -10C1 -9 1 -8 1 -8"></path><path d="M-4 0C-4 0 -3 -1 -3 -2C-3 -2 -4 -3 -4 -4C-4 -5 -4 -7 -4 -8C-4 -9 -4 -10 -4 -11C-4 -12 -4 -13 -5 -14C-5 -14 -5 -15 -5 -16C-5 -16 -5 -17 -6 -18C-6 -19 -6 -20 -6 -21C-6 -22 -6 -23 -6 -23C-5 -24 -5 -25 -4 -25C-4 -26 -3 -26 -3 -27C-2 -27 -1 -27 0 -27C0 -27 1 -27 2 -27C2 -26 3 -26 4 -25C4 -25 5 -24 5 -23C6 -22 6 -21 6 -21C6 -20 6 -20 6 -19C5 -18 5 -16 5 -15C5 -14 5 -13 5 -11C5 -10 5 -9 4 -8C4 -7 4 -5 4 -4C4 -3 3 -3 2 -2C1 -2 1 -3 0 -3C0 -3 -1 -3 -2 -3C-2 -2 -3 -2 -3 -2C-3 -1 -4 0 -4 0Z" fill="currentColor" stroke="none"></path><path d="M-4 -8C-4 -8 -4 -10 -4 -11C-4 -12 -4 -13 -5 -14C-5 -14 -5 -15 -5 -16C-5 -16 -5 -17 -6 -18C-6 -19 -6 -20 -6 -21C-6 -22 -6 -23 -6 -23C-5 -24 -5 -25 -4 -25C-4 -26 -3 -26 -3 -27C-2 -27 -1 -27 0 -27C0 -27 1 -27 2 -27C2 -26 3 -26 4 -25C4 -25 5 -24 5 -23C6 -22 6 -21 6 -21C6 -20 6 -20 6 -19C5 -18 5 -16 5 -15C5 -14 5 -12 5 -11"></path><path d="M2 1C2 0 3 -2 3 -3C3 -4 3 -5 3 -7C3 -8 3 -9 3 -10C3 -11 3 -12 3 -13C3 -14 4 -16 4 -16C4 -17 4 -18 4 -18C4 -19 4 -19 4 -19C4 -20 4 -20 4 -19C3 -19 3 -19 3 -19C2 -18 2 -18 1 -18C0 -18 0 -18 -1 -18C-2 -18 -2 -18 -3 -19C-3 -19 -3 -19 -4 -19C-4 -20 -4 -20 -4 -20C-4 -20 -3 -20 -3 -20C-3 -19 -3 -19 -3 -18C-3 -18 -3 -17 -3 -16C-3 -15 -3 -14 -3 -13C-3 -12 -3 -11 -3 -10C-3 -9 -3 -8 -3 -7C-3 -6 -3 -5 -3 -4C-3 -3 -3 -1 -3 0C-3 1 -2 1 -2 1C-2 2 -1 2 -1 2C0 2 0 2 1 2C1 2 2 2 2 1Z" fill="currentColor" stroke="none"></path><path d="M3 -10C3 -10 3 -12 3 -13C3 -14 4 -16 4 -16C4 -17 4 -18 4 -18C4 -19 4 -19 4 -19C4 -20 4 -20 4 -19C3 -19 3 -19 3 -19C2 -18 2 -18 1 -18C0 -18 0 -18 -1 -18C-2 -18 -2 -18 -3 -19C-3 -19 -3 -19 -4 -19C-4 -20 -4 -20 -4 -20C-4 -20 -3 -20 -3 -20C-3 -19 -3 -19 -3 -18C-3 -18 -3 -17 -3 -16C-3 -15 -3 -14 -3 -13C-3 -12 -3 -11 -3 -10"></path><path d="M4 -2C4 -3 3 -5 3 -7C2 -8 2 -10 1 -11C1 -12 1 -13 1 -15C2 -16 2 -17 2 -18C2 -19 2 -21 2 -22C2 -23 2 -24 3 -24C4 -24 5 -24 6 -24C6 -24 7 -24 7 -24C8 -24 8 -23 8 -23C9 -22 9 -22 8 -21C8 -21 8 -20 8 -20C8 -19 7 -19 7 -18C6 -18 5 -17 5 -17C4 -16 3 -16 2 -16C1 -15 1 -15 0 -15C-1 -14 -2 -14 -3 -14C-4 -14 -4 -14 -4 -13C-5 -12 -4 -11 -4 -10C-4 -9 -4 -8 -4 -7C-4 -6 -4 -5 -3 -3C-3 -2 -3 -1 -2 0C-1 1 0 3 1 3C2 4 3 3 3 3C4 2 4 2 4 1C5 1 5 0 5 0C5 -1 5 -1 4 -2Z" fill="currentColor" stroke="none"></path><path d="M1 -15C2 -15 2 -17 2 -18C2 -19 2 -21 2 -22C2 -23 2 -24 3 -24C4 -24 5 -24 6 -24C6 -24 7 -24 7 -24C8 -24 8 -23 8 -23C9 -22 9 -22 8 -21C8 -21 8 -20 8 -20C8 -19 7 -19 7 -18C6 -18 5 -17 5 -17C4 -16 3 -16 2 -16C1 -15 1 -15 0 -15C-1 -14 -2 -14 -3 -14C-4 -14 -4 -14 -4 -13C-5 -12 -4 -11 -4 -10C-4 -9 -4 -7 -4 -7"></path><g stroke-width="1"><path d="M5 -6C5 -6 5 -6 5 -7C5 -7 5 -8 5 -8C5 -9 5 -9 5 -10"></path><path d="M3 -4C3 -4 3 -4 3 -5C3 -5 3 -5 3 -6C3 -6 3 -6 3 -7"></path><path d="M2 -4C2 -4 2 -4 2 -5C2 -5 2 -5 2 -6C2 -6 2 -7 2 -7"></path><path d="M0 -4C0 -4 0 -4 0 -4C0 -5 0 -5 0 -5C0 -5 0 -6 0 -6"></path></g><path d="M6 -5C6 -7 5 -10 5 -12C5 -15 4 -17 4 -19C4 -21 5 -23 5 -25C5 -27 6 -29 7 -31C7 -33 8 -35 10 -36C11 -38 14 -38 15 -38C17 -38 18 -38 20 -38C21 -37 22 -37 23 -37C24 -36 25 -35 26 -35C26 -34 27 -33 27 -32C27 -31 27 -30 27 -29C27 -28 28 -28 28 -27C28 -26 28 -25 28 -24C27 -23 27 -22 26 -20C26 -19 25 -18 24 -17C23 -15 22 -14 20 -12C19 -11 17 -9 16 -8C14 -7 13 -6 12 -5C11 -4 10 -3 10 -2C9 -1 9 0 9 1C8 1 8 2 8 3C8 3 8 4 8 3C8 3 9 2 9 1C9 0 9 0 9 -1C9 -2 9 -3 8 -3C8 -4 7 -4 6 -5Z" fill="currentColor" stroke="none"></path><path d="M4 -19C4 -20 5 -23 5 -25C5 -27 6 -29 7 -31C7 -33 8 -35 10 -36C11 -38 14 -38 15 -38C17 -38 18 -38 20 -38C21 -37 22 -37 23 -37C24 -36 25 -35 26 -35C26 -34 27 -33 27 -32C27 -31 27 -30 27 -29C27 -28 28 -28 28 -27C28 -26 28 -25 28 -24C27 -23 27 -22 26 -20C26 -19 25 -18 24 -17C23 -15 22 -14 20 -12C19 -11 17 -9 16 -8C14 -7 13 -6 12 -5C11 -4 10 -3 10 -2C9 -1 9 0 9 1"></path><g stroke-width="1"><path d="M9 -30C10 -30 11 -29 12 -29C13 -28 14 -28 14 -27C15 -27 16 -26 16 -25C17 -24 17 -24 18 -23C18 -22 19 -21 19 -21C19 -20 19 -19 19 -18C20 -17 20 -16 19 -16C19 -15 19 -14 19 -13C19 -12 18 -12 18 -11C17 -10 17 -9 16 -9C16 -8 15 -7 14 -7"></path><path d="M15 -10C16 -10 16 -11 16 -11C17 -12 17 -13 17 -13C18 -14 18 -15 19 -15"></path><path d="M15 -8C15 -8 16 -9 16 -9C16 -10 17 -10 17 -11C17 -11 18 -12 18 -13"></path><path d="M15 -6C15 -7 16 -7 16 -8C16 -8 17 -9 17 -9C17 -10 18 -11 18 -11"></path></g><path d="M-3 4C-2 4 -1 2 0 2C0 1 1 0 1 -1C1 -2 2 -3 2 -4C2 -5 2 -6 2 -7C2 -7 2 -8 1 -9C0 -10 -1 -10 -2 -11C-4 -12 -5 -12 -6 -13C-7 -14 -8 -15 -9 -15C-9 -16 -10 -17 -11 -18C-11 -18 -12 -19 -13 -20C-13 -21 -13 -21 -14 -22C-14 -23 -14 -23 -14 -24C-14 -25 -14 -26 -14 -26C-14 -27 -14 -27 -13 -28C-13 -28 -13 -29 -12 -29C-11 -29 -11 -29 -10 -29C-9 -29 -7 -29 -6 -28C-6 -28 -5 -26 -5 -24C-4 -22 -4 -21 -4 -19C-3 -17 -3 -16 -3 -14C-3 -12 -4 -11 -4 -9C-4 -7 -5 -4 -5 -2C-5 -1 -6 -1 -6 -1C-6 0 -6 1 -5 1C-5 2 -5 2 -4 3C-4 3 -3 4 -3 4Z" fill="currentColor" stroke="none"></path><path d="M1 -1C1 -2 2 -3 2 -4C2 -5 2 -6 2 -7C2 -7 2 -8 1 -9C0 -10 -1 -10 -2 -11C-4 -12 -5 -12 -6 -13C-7 -14 -8 -15 -9 -15C-9 -16 -10 -17 -11 -18C-11 -18 -12 -19 -13 -20C-13 -21 -13 -21 -14 -22C-14 -23 -14 -23 -14 -24C-14 -25 -14 -26 -14 -26C-14 -27 -14 -27 -13 -28C-13 -28 -13 -29 -12 -29C-11 -29 -11 -29 -10 -29C-9 -29 -7 -29 -6 -28C-6 -28 -5 -26 -5 -24C-4 -22 -4 -21 -4 -19C-3 -17 -3 -15 -3 -14"></path><path d="M6 3C7 2 8 -1 9 -3C10 -4 10 -6 11 -8C12 -9 12 -11 13 -12C13 -13 14 -15 14 -16C15 -17 16 -18 16 -18C16 -18 16 -17 16 -17C16 -16 15 -16 15 -15C14 -15 14 -14 13 -14C12 -14 11 -13 11 -13C10 -12 9 -12 8 -12C7 -11 6 -11 5 -11C4 -10 3 -10 2 -10C1 -10 -1 -10 -2 -10C-3 -10 -4 -10 -5 -10C-6 -10 -7 -10 -8 -11C-9 -11 -10 -11 -11 -11C-12 -12 -13 -12 -13 -12C-13 -12 -13 -11 -12 -10C-12 -9 -11 -8 -11 -7C-10 -6 -10 -5 -9 -3C-9 -2 -8 -1 -7 1C-6 2 -4 4 -3 5C-2 6 -2 6 -1 6C0 6 1 6 2 6C3 5 4 5 4 5C5 4 5 5 6 3Z" fill="currentColor" stroke="none"></path><path d="M11 -8C11 -8 12 -11 13 -12C13 -13 14 -15 14 -16C15 -17 16 -18 16 -18C16 -18 16 -17 16 -17C16 -16 15 -16 15 -15C14 -15 14 -14 13 -14C12 -14 11 -13 11 -13C10 -12 9 -12 8 -12C7 -11 6 -11 5 -11C4 -10 3 -10 2 -10C1 -10 -1 -10 -2 -10C-3 -10 -4 -10 -5 -10C-6 -10 -7 -10 -8 -11C-9 -11 -10 -11 -11 -11C-12 -12 -13 -12 -13 -12C-13 -12 -13 -11 -12 -10C-12 -9 -11 -8 -11 -7C-10 -6 -9 -4 -9 -3"></path><path d="M12 1C13 -1 15 -4 16 -6C17 -8 18 -9 20 -11C21 -12 22 -14 24 -15C25 -16 27 -17 28 -18C30 -19 33 -20 34 -20C36 -20 36 -18 37 -17C37 -16 37 -15 37 -14C37 -13 38 -12 38 -11C37 -9 37 -8 37 -7C36 -6 36 -5 35 -5C34 -4 33 -3 32 -2C31 -1 31 0 30 0C29 1 28 2 26 3C25 3 24 4 22 4C21 5 19 5 17 6C15 6 14 7 12 7C10 7 7 8 6 8C4 8 2 7 1 7C0 7 0 7 0 7C-1 7 -1 8 -1 8C0 8 0 8 1 9C1 9 2 9 3 9C4 9 6 8 7 8C8 7 8 7 9 6C10 5 11 4 11 4C12 3 11 2 12 1Z" fill="currentColor" stroke="none"></path><path d="M16 -6C16 -6 18 -9 20 -11C21 -12 22 -14 24 -15C25 -16 27 -17 28 -18C30 -19 33 -20 34 -20C36 -20 36 -18 37 -17C37 -16 37 -15 37 -14C37 -13 38 -12 38 -11C37 -9 37 -8 37 -7C36 -6 36 -5 35 -5C34 -4 33 -3 32 -2C31 -1 31 0 30 0C29 1 28 2 26 3C25 3 24 4 22 4C21 5 19 5 17 6C15 6 14 7 12 7C10 7 7 8 6 8C4 8 2 7 1 7C0 7 0 7 0 7C-1 7 -1 8 -1 8C0 8 0 8 1 9"></path><path stroke-width="1" d="M29 -16C29 -15 28 -14 28 -13C28 -12 28 -11 28 -10C27 -9 27 -8 27 -7C26 -7 26 -6 25 -5C24 -4 24 -3 23 -2C22 -2 21 -1 21 0C20 1 19 1 18 2C17 2 16 3 15 4C14 4 13 5 11 5C10 5 9 6 8 6C7 6 5 7 4 7"></path><path d="M0 8C2 8 3 6 4 6C5 5 6 4 7 4C7 3 8 3 8 2C8 2 8 1 8 1C8 1 8 1 7 1C6 1 4 1 2 1C0 1 -1 1 -3 1C-4 1 -6 1 -7 1C-9 0 -10 0 -12 0C-13 -1 -14 -1 -15 -1C-16 -2 -17 -2 -18 -3C-19 -3 -21 -4 -21 -5C-22 -5 -23 -6 -24 -7C-25 -7 -26 -8 -26 -9C-27 -10 -27 -11 -27 -12C-27 -13 -28 -13 -28 -14C-28 -15 -27 -16 -27 -17C-26 -17 -24 -16 -23 -15C-22 -14 -21 -13 -20 -12C-18 -11 -17 -10 -16 -8C-15 -7 -14 -5 -13 -3C-12 -1 -10 1 -10 3C-9 4 -9 4 -8 5C-7 5 -7 6 -6 7C-5 7 -4 7 -3 8C-2 8 -1 8 0 8Z" fill="currentColor" stroke="none"></path><path d="M7 4C7 3 8 3 8 2C8 2 8 1 8 1C8 1 8 1 7 1C6 1 4 1 2 1C0 1 -1 1 -3 1C-4 1 -6 1 -7 1C-9 0 -10 0 -12 0C-13 -1 -14 -1 -15 -1C-16 -2 -17 -2 -18 -3C-19 -3 -21 -4 -21 -5C-22 -5 -23 -6 -24 -7C-25 -7 -26 -8 -26 -9C-27 -10 -27 -11 -27 -12C-27 -13 -28 -13 -28 -14C-28 -15 -27 -16 -27 -17C-26 -17 -24 -16 -23 -15C-22 -14 -21 -13 -20 -12C-18 -11 -17 -9 -16 -8"></path><g stroke-width="1"><path d="M5 2C5 2 3 2 2 2C1 2 0 2 -1 2C-2 2 -4 2 -5 2C-6 1 -7 1 -8 1C-9 1 -10 0 -11 0C-12 -1 -13 -1 -14 -2C-15 -2 -16 -3 -17 -4C-17 -4 -18 -5 -19 -6C-19 -6 -20 -7 -20 -8C-21 -9 -21 -9 -22 -10C-22 -11 -22 -12 -23 -13"></path><path d="M-7 3C-7 3 -7 2 -7 2C-8 2 -8 2 -8 2C-8 1 -9 1 -9 1"></path><path d="M-5 3C-5 3 -5 3 -5 3C-5 3 -5 3 -5 2C-5 2 -6 2 -6 2"></path><path d="M-2 4C-2 4 -2 4 -2 3C-2 3 -2 3 -2 3C-2 3 -2 2 -2 2"></path></g><path d="M7 10C8 10 11 9 13 10C15 10 16 10 18 10C19 10 20 10 21 11C22 12 23 13 24 14C24 16 25 18 24 20C24 22 21 23 20 24C18 25 17 25 15 26C13 27 12 28 10 29C9 30 7 30 5 30C4 31 2 31 1 31C-1 31 -3 30 -4 30C-6 29 -7 30 -9 30C-11 29 -12 29 -14 28C-15 28 -17 27 -18 26C-20 25 -21 23 -23 22C-24 21 -25 20 -27 19C-28 18 -30 16 -30 14C-30 13 -29 11 -28 10C-27 9 -25 9 -24 8C-23 8 -22 8 -20 8C-18 8 -17 8 -15 8C-13 8 -10 9 -9 9C-7 9 -6 10 -5 10C-4 11 -2 11 -1 11C0 11 2 11 3 11C4 11 5 10 7 10Z" fill="currentColor" stroke="none"></path><path d="M13 10C14 10 16 10 18 10C19 10 20 10 21 11C22 12 23 13 24 14C24 16 25 18 24 20C24 22 21 23 20 24C18 25 17 25 15 26C13 27 12 28 10 29C9 30 7 30 5 30C4 31 2 31 1 31C-1 31 -3 30 -4 30C-6 29 -7 30 -9 30C-11 29 -12 29 -14 28C-15 28 -17 27 -18 26C-20 25 -21 23 -23 22C-24 21 -25 20 -27 19C-28 18 -30 16 -30 14C-30 13 -29 11 -28 10C-27 9 -25 9 -24 8C-23 8 -22 8 -20 8C-18 8 -16 8 -15 8"></path><g stroke-width="1"><path d="M20 15C20 15 18 16 16 16C15 16 14 17 12 17C11 18 9 18 8 18C6 18 5 18 4 18C2 19 1 19 -1 19C-2 19 -4 18 -5 18C-7 18 -8 18 -10 18C-11 18 -12 17 -14 17C-15 16 -16 16 -18 16C-19 15 -20 14 -22 14C-23 14 -25 13 -25 13"></path><path d="M2 15C2 15 2 16 2 16C3 16 3 16 3 16C3 17 3 17 3 17"></path><path d="M5 15C5 15 5 16 5 16C5 16 5 16 5 16C5 16 5 17 5 17"></path><path d="M9 15C9 15 9 15 9 15C9 16 9 16 9 16C10 16 10 16 10 16"></path><path d="M11 14C11 14 12 14 12 14C12 15 12 15 12 15C12 15 12 15 13 15"></path><path d="M14 13C14 13 15 13 15 13C15 13 16 14 16 14C16 14 16 14 17 14"></path></g></g></svg>';
+const MARK_SVG = '<svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="mk" d="M36 17C40 17 50 18 57 18C64 19 72 19 79 19C86 19 93 18 100 18C107 18 114 18 121 17C128 17 136 17 143 17C150 17 157 17 164 17C171 17 178 18 185 18C193 18 200 18 207 18C214 19 221 18 228 18C235 18 242 17 249 17C257 16 264 15 271 15C278 14 285 13 292 13C299 12 306 12 314 12C321 11 328 11 335 11C342 12 349 12 356 12C363 12 370 13 378 13C385 13 392 13 399 13C406 13 413 13 420 13C427 13 434 13 442 12C449 12 456 12 463 12C470 12 477 12 484 13C491 13 498 13 506 14C513 15 520 15 527 16C534 16 541 17 548 18C555 18 563 18 570 18C577 18 587 15 591 18C595 20 595 26 596 32C598 38 599 45 599 52C598 59 596 66 595 72C593 78 595 83 591 85C587 88 577 87 570 87C563 88 555 89 548 89C541 89 534 90 527 90C520 90 513 90 506 90C498 90 491 90 484 90C477 89 470 89 463 89C456 88 449 88 442 88C434 88 427 88 420 88C413 88 406 88 399 88C392 88 385 88 378 88C370 88 363 89 356 89C349 89 342 88 335 88C328 88 321 88 314 87C306 87 299 86 292 86C285 85 278 84 271 84C264 84 257 83 249 83C242 83 235 83 228 83C221 83 214 83 207 84C200 84 193 85 185 85C178 86 171 86 164 86C157 87 150 87 143 87C136 88 128 88 121 88C114 88 107 88 100 88C93 87 86 87 79 87C72 87 64 87 57 88C50 88 40 88 36 88L28 82L45 76L28 67L43 62L19 55L39 48L32 40L42 34L26 24L42 19Z"></path><path d="M59 40C59 40 104 39 127 39C149 39 194 40 194 40C194 41 149 42 127 42C104 42 59 41 59 40ZM107 70C107 70 144 69 163 69C181 69 218 70 218 70C218 71 181 72 163 72C144 72 107 71 107 70Z" fill="#fff" opacity=".2"></path></svg>';
+const EXAMPLE = { id: 'example', name: 'נועה לוי', punches: 4, rewards: 1, g: 'f' };
+function emptyHTML() {
+  const canAdd = S.status === 'ready' && S.canWrite;
+  return `<section class="empty">
+    <div class="example"><span class="example-tag">דוגמה</span>${pcardHTML(EXAMPLE, -1)}</div>
+    <div class="empty-copy">
+      <h2 class="empty-title">${S.status === 'ready' ? 'הכרטיסייה מוכנה ללקוחה הראשונה' : 'ככה עובדת הכרטיסייה'}</h2>
+      <ol class="steps">
+        <li><span><b>מוסיפים לקוחה</b> עם שם וטלפון.</span></li>
+        <li><span><b>אחרי כל טיפול לוחצים ניקוב.</b> כשהכרטיסייה מתמלאת, הטיפול הבא מתנה.</span></li>
+        <li><span><b>שולחים לה עדכון בוואטסאפ</b> עם מצב הכרטיסייה, בלחיצה אחת.</span></li>
+      </ol>
+      ${canAdd ? `<button type="button" class="btn primary big" data-act="add">${IC.plus}<span>הוספת לקוחה ראשונה</span></button>` : ''}
+    </div>
+  </section>`;
+}
+
+function renderHeader() {
+  const name = studioName();
+  $('#studio').textContent = name || 'כרטיסיית מועדון';
+  $('#eyebrow').hidden = !name;
+  let sub = '';
+  if (S.status === 'ready') {
+    const m = monthStats();
+    const month = new Intl.DateTimeFormat('he-IL', { month: 'long' }).format(new Date());
+    sub = m.visits === 0
+      ? `עוד אין טיפולים ב${month}`
+      : `${plural(m.visits, 'טיפול אחד', 'טיפולים')} ב${month}${m.gifts ? ' · ' + plural(m.gifts, 'מתנה אחת', 'מתנות') : ''}`;
+  }
+  $('#sub').textContent = sub;
+}
+function renderBanner() {
+  const b = $('#banner');
+  let html = '';
+  if (S.status === 'nodb') html = S.canWrite ? '<strong>רשימת הלקוחות לא נטענה.</strong> כדאי לבדוק את החיבור לאינטרנט ולרענן את הדף.' : '<strong>אין הרשאה.</strong> צריך להתחבר עם הסיסמה של הסטודיו.';
+  else if (S.status === 'ready' && !S.canWrite) html = '<strong>מצב צפייה בלבד.</strong> צריך להתחבר עם הסיסמה של הסטודיו.';
+  else if (S.status === 'loading' && S.slow) html = 'הטעינה לוקחת יותר זמן מהרגיל. אם זה נמשך, כדאי לרענן את הדף.';
+  b.hidden = !html;
+  if (b._last !== html) { b.innerHTML = html; b._last = html; }
+}
+function renderToolbar() {
+  const show = S.status === 'ready' && S.clients.size > 0;
+  $('#toolbar').hidden = !show;
+  if (!show) return;
+  const N = S.settings.cardSize;
+  let gift = 0, away = 0;
+  S.clients.forEach(c => { if (c.punches >= N) gift++; if (isAway(c)) away++; });
+  $('#n-all').textContent = S.clients.size;
+  $('#n-gift').textContent = gift;
+  $('#n-away').textContent = away;
+  document.querySelectorAll('.toolbar .chip').forEach(ch => ch.setAttribute('aria-pressed', String(ch.dataset.f === S.filter)));
+}
+function renderMain() {
+  const m = $('#main');
+  let html;
+  if (S.status === 'loading') {
+    html = '<div class="skel-list" aria-hidden="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>';
+  } else if (S.status === 'nodb' || S.clients.size === 0) {
+    html = emptyHTML();
+  } else {
+    const arr = visibleClients();
+    if (arr.length) html = `<ul class="list">${arr.map(rowHTML).join('')}</ul>`;
+    else {
+      const msg = S.q.trim() ? `לא נמצאה לקוחה שמתאימה ל„${S.q.trim()}”.`
+        : S.filter === 'gift' ? 'אין כרגע כרטיסיות מלאות.'
+        : 'כל הלקוחות ביקרו בחמשת השבועות האחרונים.';
+      html = `<div class="no-results">${esc(msg)}</div>`;
+    }
+  }
+  if (m._last !== html) { m.innerHTML = html; m._last = html; }
+}
+function renderCards() {
+  renderHeader();
+  renderBanner();
+  renderToolbar();
+  renderMain();
+}
+
+/* ---------- sheets ---------- */
+const topSheet = () => S.stack[S.stack.length - 1];
+
+function openSheet(spec) {
+  if (spec.type === 'client') closeAll(true);
+  spec.tid = 'st' + (++uidSeq);
+  spec.prevFocus = document.activeElement;
+  const layer = document.createElement('div');
+  layer.className = 'layer';
+  layer.style.zIndex = String(40 + S.stack.length);
+  layer.innerHTML = `<div class="backdrop" data-act="close"></div><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="${spec.tid}"><div class="grab" aria-hidden="true"></div><div class="sheet-inner"></div></section>`;
+  spec.el = layer;
+  spec.inner = layer.querySelector('.sheet-inner');
+  spec.lastHTML = '';
+  $('#sheets').appendChild(layer);
+  S.stack.push(spec);
+  fillSheet(spec, true);
+  render();
+  const focusEl = spec.type === 'edit' && !spec.id ? $('#f-name', spec.inner) : $('.sheet-title', spec.inner);
+  if (focusEl) focusEl.focus({ preventScroll: true });
+}
+function closeTop() {
+  const spec = S.stack.pop();
+  if (!spec) return;
+  spec.el.remove();
+  render();
+  if (spec.prevFocus && document.contains(spec.prevFocus)) spec.prevFocus.focus({ preventScroll: true });
+}
+function closeAll(silent) {
+  while (S.stack.length) S.stack.pop().el.remove();
+  if (!silent) render();
+}
+function updateSheets() { S.stack.forEach(spec => fillSheet(spec, false)); }
+
+function fillSheet(spec, first) {
+  let html;
+  if (spec.type === 'client') html = clientSheetHTML(spec);
+  else if (spec.type === 'appt') html = apptSheetHTML(spec);
+  else if (spec.type === 'wa') {
+    if (!first && spec.editing) { updateWaLink(spec); return; }
+    html = waSheetHTML(spec);
+  } else if (first) {
+    html = spec.type === 'edit' ? editFormHTML(spec) : spec.type === 'settings' ? settingsHTML(spec)
+      : spec.type === 'apptForm' ? apptFormHTML(spec) : spec.type === 'blockForm' ? blockFormHTML(spec) : svcFormHTML(spec);
+  } else return;
+  if (html === spec.lastHTML) return;
+  const body = $('.sheet-body', spec.inner);
+  const top = body ? body.scrollTop : 0;
+  spec.inner.innerHTML = html;
+  spec.lastHTML = html;
+  const nb = $('.sheet-body', spec.inner);
+  if (nb && !first) nb.scrollTop = top;
+  if (first && spec.type === 'apptForm') updateFreeChips(spec);
+}
+
+function sheetHead(spec, title, extra = '') {
+  return `<div class="sheet-head"><h2 class="sheet-title" id="${spec.tid}" tabindex="-1">${title}</h2>${extra}<button type="button" class="icon-btn" data-act="close" aria-label="סגירה">${IC.close}</button></div>`;
+}
+
+function histText(e, c, N) {
+  switch (e.a) {
+    case 'punch': return `ניקוב · ${Math.min(num(e.p), N)}/${N}`;
+    case 'redeem': return 'טיפול מתנה מומש';
+    case 'adjust': return `עדכון ידני ל־${num(e.p)} ניקובים`;
+    case 'join': return num(e.p) > 0 ? `${gw(c, 'הצטרפה', 'הצטרף')} עם ${plural(num(e.p), 'ניקוב אחד', 'ניקובים')}` : `${gw(c, 'הצטרפה', 'הצטרף')} למועדון`;
+    default: return '';
+  }
+}
+
+function clientSheetHTML(spec) {
+  const c = S.clients.get(spec.id);
+  if (!c) return sheetHead(spec, 'הכרטיסייה לא נמצאה') + '<div class="sheet-body"><p class="help">ייתכן שהלקוחה נמחקה ממכשיר אחר.</p></div>';
+  const N = S.settings.cardSize, full = c.punches >= N;
+  const paintIdx = S.justPainted && S.justPainted.id === c.id ? S.justPainted.idx : -1;
+  const last = c.log[c.log.length - 1];
+  const undoLabel = last && last.prev && UNDO_LABEL[last.a];
+  const recent = !!last && Date.now() - last.t < 3 * 60e3 && ['punch', 'redeem', 'join'].includes(last.a);
+  const dis = S.canWrite ? '' : ' disabled';
+  const id = esc(c.id);
+  const primary = full
+    ? `<button type="button" class="btn chrome big" data-act="redeem" data-id="${id}"${dis}>${IC.gift}<span>מימוש טיפול מתנה</span></button>`
+    : `<button type="button" class="btn primary big" data-act="punch" data-id="${id}"${dis}>${IC.plus}<span>ניקוב טיפול</span></button>`;
+  const waBtn = `<button type="button" class="btn wa${recent ? ' nudge' : ''}" data-act="wa" data-id="${id}">${IC.chat}<span>${recent ? 'שליחת עדכון' : 'וואטסאפ'}</span></button>`;
+  const undoBtn = undoLabel ? `<button type="button" class="btn ghost" data-act="undo" data-id="${id}"${dis}>${IC.undo}<span>${undoLabel}</span></button>` : '';
+  const phone = c.phone
+    ? `<span class="phone" dir="ltr">${esc(fmtPhone(c.phone))}</span><button type="button" class="mini-btn" data-act="copy-phone" data-id="${id}">${IC.copy}<span>העתקה</span></button>`
+    : '<span class="muted">לא הוזן</span>';
+  const since = c.createdAt ? new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(new Date(c.createdAt)) : '';
+  const hist = c.log.slice(-12).reverse().map(e => `<li><span>${esc(histText(e, c, N))}</span><time>${fmtDate(e.t)}</time></li>`).join('');
+  const del = spec.confirmDelete
+    ? `<div class="confirm" role="alert"><p>${esc(`למחוק את ${c.name} מהכרטיסייה? כל הניקובים וההיסטוריה ${gw(c, 'שלה', 'שלו')} יימחקו.`)}</p><div class="actions-row"><button type="button" class="btn danger" data-act="delete-yes" data-id="${id}">מחיקה</button><button type="button" class="btn ghost" data-act="delete-no">ביטול</button></div></div>`
+    : `<button type="button" class="text-btn danger-txt" data-act="delete-ask"${dis}>${IC.trash}<span>מחיקת ${gw(c, 'הלקוחה', 'הלקוח')}</span></button>`;
+  return sheetHead(spec, esc(c.name), `<button type="button" class="head-btn" data-act="edit" data-id="${id}"${dis}>${IC.edit}<span>עריכה</span></button>`) +
+    `<div class="sheet-body">
+      ${pcardHTML(c, paintIdx)}
+      <div class="actions">${primary}<div class="actions-row">${waBtn}${undoBtn}</div><button type="button" class="text-btn" data-act="appt-new-for" data-id="${id}"${dis}>${IC.plus}<span>קביעת תור</span></button></div>
+      <dl class="info">
+        <div class="info-row"><dt>טלפון</dt><dd>${phone}</dd></div>
+        <div class="info-row"><dt>ביקור אחרון</dt><dd>${esc(c.lastVisit ? rel(c.lastVisit) + ' · ' + fmtDate(c.lastVisit) : 'עוד לא נרשם')}</dd></div>
+        ${(() => { const nx = nextApptFor(c); return nx ? `<div class="info-row"><dt>התור הבא</dt><dd><button type="button" class="text-btn" data-act="appt-open" data-id="${esc(nx.id)}">${esc(T.long(nx.s))} · ${T.hm(nx.s)}</button></dd></div>` : ''; })()}
+        <div class="info-row"><dt>סה״כ</dt><dd>${plural(c.visits, 'טיפול אחד', 'טיפולים')} · ${plural(c.rewards, 'מתנה אחת', 'מתנות')}</dd></div>
+        ${since ? `<div class="info-row"><dt>במועדון מאז</dt><dd>${esc(since)}</dd></div>` : ''}
+        ${c.notes ? `<div class="info-row notes"><dt>הערות</dt><dd>${esc(c.notes)}</dd></div>` : ''}
+      </dl>
+      ${hist ? `<section class="hist"><h3 class="sec-title">היסטוריה</h3><ol>${hist}</ol></section>` : ''}
+      <div class="danger">${del}</div>
+    </div>`;
+}
+
+function editFormHTML(spec) {
+  const c = spec.id ? S.clients.get(spec.id) : null;
+  const N = S.settings.cardSize;
+  const v = { name: c ? c.name : '', phone: c ? c.phone : '', g: c ? c.g : 'f', notes: c ? c.notes : '', punches: c ? Math.min(c.punches, N) : 0 };
+  return sheetHead(spec, c ? 'עריכת פרטים' : 'לקוחה חדשה') + `<div class="sheet-body">
+    <form class="form" id="clientForm" novalidate>
+      <div class="field">
+        <label for="f-name">שם</label>
+        <input class="input" id="f-name" name="name" autocomplete="off" enterkeyhint="next" maxlength="40" value="${esc(v.name)}">
+        <div class="err" id="f-name-err" hidden>צריך שם כדי לשמור.</div>
+      </div>
+      <div class="field">
+        <label for="f-phone">טלפון לוואטסאפ <span class="opt">(לא חובה)</span></label>
+        <input class="input ltr" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="off" dir="ltr" maxlength="20" placeholder="050-000-0000" value="${esc(v.phone)}">
+        <div class="err" id="f-phone-err" hidden></div>
+      </div>
+      <fieldset class="field">
+        <legend class="legend">פנייה בהודעות</legend>
+        <div class="seg">
+          <label><input type="radio" name="g" id="f-g-f" value="f"${v.g !== 'm' ? ' checked' : ''}><span>לשון נקבה</span></label>
+          <label><input type="radio" name="g" id="f-g-m" value="m"${v.g === 'm' ? ' checked' : ''}><span>לשון זכר</span></label>
+        </div>
+      </fieldset>
+      <div class="field">
+        <span class="legend" id="f-p-l">ניקובים בכרטיסייה עכשיו</span>
+        <div class="stepper" role="group" aria-labelledby="f-p-l">
+          <button type="button" data-act="step" data-t="f-p" data-d="1" aria-label="ניקוב נוסף">+</button>
+          <output id="f-p" data-min="0" data-max="${N}" aria-live="polite">${v.punches}</output>
+          <button type="button" data-act="step" data-t="f-p" data-d="-1" aria-label="ניקוב אחד פחות">−</button>
+          <span class="unit">מתוך ${N}</span>
+        </div>
+        <p class="help">${c ? 'לתיקון ידני בלבד. אחרי טיפול משתמשים בכפתור הניקוב.' : 'ללקוחות שכבר הגיעו אלייך לפני שהכרטיסייה התחילה.'}</p>
+      </div>
+      <div class="field">
+        <label for="f-notes">הערות <span class="opt">(לא חובה)</span></label>
+        <textarea class="input" id="f-notes" name="notes" rows="2" maxlength="300" placeholder="למשל: אוהבת גוונים ניוד, צורת שקד">${esc(v.notes)}</textarea>
+      </div>
+      <button type="submit" class="btn primary big" id="f-save">${c ? 'שמירת שינויים' : 'הוספה לכרטיסייה'}</button>
+    </form>
+  </div>`;
+}
+
+function cardHelp(n) {
+  return `הטיפול ה־${n + 1} מתנה. ללקוחה שמגיעה פעם בחודש זו מתנה בערך כל ${n + 1} חודשים, הנחה אפקטיבית של כ־${Math.round(100 / (n + 1))}%.`;
+}
+function settingsHTML(spec) {
+  const s = S.settings;
+  return sheetHead(spec, 'הגדרות הכרטיסייה') + `<div class="sheet-body">
+    <form class="form" id="settingsForm" novalidate>
+      <div class="field">
+        <label for="s-name">שם הסטודיו</label>
+        <input class="input" id="s-name" autocomplete="off" maxlength="40" value="${esc(s.studioName)}">
+        <p class="help">מופיע בראש הדף, על הכרטיסייה ובחתימה של ההודעות.</p>
+      </div>
+      <div class="field">
+        <span class="legend" id="s-n-l">טיפולים בתשלום עד טיפול מתנה</span>
+        <div class="stepper" role="group" aria-labelledby="s-n-l">
+          <button type="button" data-act="step" data-t="s-n" data-d="1" aria-label="עוד טיפול">+</button>
+          <output id="s-n" data-min="3" data-max="12" aria-live="polite">${s.cardSize}</output>
+          <button type="button" data-act="step" data-t="s-n" data-d="-1" aria-label="טיפול אחד פחות">−</button>
+        </div>
+        <div id="s-preview">${nailRow(s.cardSize, s.cardSize, 'mid')}</div>
+        <p class="help" id="s-n-help">${cardHelp(s.cardSize)}</p>
+        <p class="help">ללקוחות חודשיות מומלץ 5 או 6. השינוי חל על כל הכרטיסיות.</p>
+      </div>
+      <div class="field">
+        <label for="s-owner">הוואטסאפ שלך</label>
+        <input class="input ltr" id="s-owner" type="tel" inputmode="tel" autocomplete="off" dir="ltr" maxlength="20" placeholder="050-000-0000" value="${esc(s.ownerPhone)}">
+        <p class="help">לכאן נשלח סיכום הכרטיסיות.</p>
+      </div>
+      <div class="field">
+        <label for="s-site">כתובת האתר</label>
+        <input class="input ltr" id="s-site" type="url" inputmode="url" autocomplete="off" dir="ltr" maxlength="200" placeholder="https://sapinails.co.il" value="${esc(s.siteUrl)}">
+        <p class="help">כשיש כתובת, כל הודעה ללקוחה כוללת לינק לכרטיסייה שלה, ובוואטסאפ הלינק מופיע כתמונה של הכרטיסייה.</p>
+      </div>
+      <button type="submit" class="btn primary big" id="s-save">שמירת הגדרות</button>
+    </form>
+    <div class="divider"></div>
+    <div class="field">
+      <span class="legend">סיכום ומעקב</span>
+      <p class="help">כל הלקוחות, מי זכאית למתנה ומי לא הגיעה מזמן, בהודעת וואטסאפ אחת. טוב גם כגיבוי.</p>
+      <button type="button" class="btn wa" data-act="summary">${IC.chat}<span>סיכום לוואטסאפ</span></button>
+    </div>
+  </div>`;
+}
+
+function waText(spec) {
+  if (spec.custom != null) return spec.custom;
+  if (spec.apptId) return apptMessage(spec.tpl, apptById(spec.apptId));
+  if (!spec.id) return buildSummary();
+  const c = S.clients.get(spec.id);
+  return c ? buildMessage(spec.tpl, c) : '';
+}
+function waPhone(spec) {
+  if (spec.apptId) { const ap = apptById(spec.apptId); return ap ? ap.phone : ''; }
+  if (!spec.id) return S.settings.ownerPhone;
+  const c = S.clients.get(spec.id);
+  return c ? c.phone : '';
+}
+function waSheetHTML(spec) {
+  const c = spec.id ? S.clients.get(spec.id) : null;
+  if (spec.id && !c) return sheetHead(spec, 'הלקוחה לא נמצאה') + '<div class="sheet-body"><p class="help">ייתכן שהיא נמחקה ממכשיר אחר.</p></div>';
+  const text = waText(spec), phone = waPhone(spec), href = waHref(phone, text);
+  const ap = spec.apptId ? apptById(spec.apptId) : null;
+  const chips = ap ? `<div class="chips wrap" role="radiogroup" aria-label="סוג ההודעה">${APPT_TPLS.map(t => `<button type="button" class="chip" role="radio" aria-checked="${t.k === spec.tpl}" data-act="tpl" data-k="${t.k}">${t.label}</button>`).join('')}</div>`
+    : c ? `<div class="chips wrap" role="radiogroup" aria-label="סוג ההודעה">${TPLS.filter(t => t.k !== 'redeem' || c.rewards > 0).map(t => `<button type="button" class="chip" role="radio" aria-checked="${t.k === spec.tpl}" data-act="tpl" data-k="${t.k}">${t.label}</button>`).join('')}</div>` : '';
+  const bubble = spec.editing
+    ? `<label class="sr" for="wa-text">נוסח ההודעה</label><textarea class="bubble bubble-edit" id="wa-text" rows="10">${esc(text)}</textarea>`
+    : `<div class="bubble" id="wa-preview">${fmtWa(text)}</div>`;
+  const to = waNumber(phone)
+    ? `נשלח אל <span class="phone" dir="ltr">${esc(fmtPhone(phone))}</span>`
+    : (c || ap) ? 'אין מספר שמור, וואטסאפ יבקש לבחור איש קשר.' : 'לא הוגדר מספר, וואטסאפ יבקש לבחור צ׳אט.';
+  const title = ap ? `הודעה ל${esc(firstName(ap.name))}` : c ? `הודעה ל${esc(firstName(c.name))}` : 'סיכום לוואטסאפ';
+  return sheetHead(spec, title) + `<div class="sheet-body wa-body">
+    ${chips}
+    <div class="bubble-wrap">${bubble}</div>
+    <div class="wa-meta"><span>${to}</span><button type="button" class="text-btn" data-act="wa-edit">${spec.editing ? 'חזרה לנוסח המוכן' : 'עריכת הנוסח'}</button></div>
+    <div class="actions-row">
+      <a class="btn wa" id="wa-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${IC.chat}<span>פתיחה בוואטסאפ</span></a>
+      <button type="button" class="btn ghost" data-act="wa-copy">${IC.copy}<span>העתקה</span></button>
+    </div>
+    <p class="fine">ההודעה נשלחת רק מתוך וואטסאפ, אחרי לחיצה על שליחה.${/\/k\/\d{1,2}\/\d{1,2}\//.test(text) ? ' כדאי לחכות שנייה עד שתמונת הכרטיסייה מופיעה מעל ההודעה, ורק אז לשלוח.' : ''}</p>
+    ${href.length > 7000 ? '<p class="fine warn-txt">ההודעה ארוכה. אם וואטסאפ לא מציג את כל הטקסט, עדיף להעתיק ולהדביק.</p>' : ''}
+  </div>`;
+}
+function updateWaLink(spec) {
+  const a = $('#wa-link', spec.inner);
+  if (a) a.href = waHref(waPhone(spec), waText(spec));
+}
+
+/* ---------- toasts & copy ---------- */
+function toast(msg, actions = []) {
+  const box = $('#toasts');
+  while (box.children.length >= 2) box.firstChild.remove();
+  const el = document.createElement('div');
+  el.className = 'toast';
+  const span = document.createElement('span');
+  span.className = 't-msg';
+  span.textContent = msg;
+  el.appendChild(span);
+  span.addEventListener('click', () => el.remove());
+  actions.forEach(a => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = a.label;
+    b.addEventListener('click', () => { el.remove(); a.fn(); });
+    el.appendChild(b);
+  });
+  box.appendChild(el);
+  setTimeout(() => el.remove(), actions.length ? 7000 : 4000);
+}
+function copyText(text, fallbackEl) {
+  const fallback = () => {
+    if (!fallbackEl) return toast('ההעתקה לא הצליחה');
+    if (fallbackEl.select) { fallbackEl.focus(); fallbackEl.select(); }
+    else { const r = document.createRange(); r.selectNodeContents(fallbackEl); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+    toast('הטקסט מסומן, אפשר להעתיק ידנית');
+  };
+  try {
+    navigator.clipboard.writeText(text).then(() => toast('הועתק'), fallback);
+  } catch (_) { fallback(); }
+}
+
+/* ---------- data writes ---------- */
+const queues = new Map();
+function writeDoc(path, body) {
+  const run = async () => {
+    const ref = S.db.doc(path);
+    try { await ref.set(body); }
+    catch (e) {
+      if (e && e.code === 'unavailable') { await sleep(300 + Math.random() * 500); await ref.set(body); }
+      else throw e;
+    }
+  };
+  const p = (queues.get(path) || Promise.resolve()).catch(() => {}).then(run);
+  queues.set(path, p);
+  return p;
+}
+function handleWriteError(e) {
+  const code = e && e.code;
+  if (code === 'invalid_argument' || code === 'not_granted' || code === 'revoked' || code === 'capability_disabled' || code === 'capability_removed') {
+    S.canWrite = false; render();
+    toast('השינוי לא נשמר: צריך להתחבר מחדש עם הסיסמה.');
+  } else if (code === 'quota_exceeded') {
+    toast('נגמר המקום לרשומות חדשות. מחיקת לקוחות ישנות תפנה מקום.');
+  } else {
+    toast('השינוי לא נשמר. בדיקת החיבור לאינטרנט ואז ניסיון נוסף.');
+  }
+}
+function commit(prevC, nextC) {
+  S.clients.set(nextC.id, nextC);
+  render();
+  return writeDoc('clients/' + nextC.id, toDoc(nextC)).catch(err => {
+    if (prevC) S.clients.set(prevC.id, prevC); else S.clients.delete(nextC.id);
+    render();
+    handleWriteError(err);
+    throw err;
+  });
+}
+function guardWrite() {
+  if (!S.db || S.status !== 'ready') { toast('אין חיבור לאחסון הנתונים כרגע.'); return false; }
+  if (!S.canWrite) { toast('אין הרשאת עריכה בדף הזה.'); return false; }
+  return true;
+}
+const prevOf = c => ({ p: c.punches, r: c.rewards, v: c.visits, lv: c.lastVisit });
+
+function punch(id, fromList) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  if (!c) return;
+  const N = S.settings.cardSize, now = Date.now();
+  if (c.punches >= N) { openSheet({ type: 'client', id }); return; }
+  if (S.lastPunch && S.lastPunch.id === id && now - S.lastPunch.t < 700) return;
+  S.lastPunch = { id, t: now };
+  const np = c.punches + 1;
+  const next = { ...c, punches: np, visits: c.visits + 1, lastVisit: now, updatedAt: now,
+    log: [...c.log, { t: now, a: 'punch', p: np, prev: prevOf(c) }].slice(-LOG_MAX) };
+  S.justPainted = { id, idx: c.punches, at: now };
+  setTimeout(() => { if (S.justPainted && S.justPainted.at === now) S.justPainted = null; }, 1200);
+  commit(c, next).catch(() => {});
+  if (fromList) {
+    if (np >= N) toast(`הכרטיסייה של ${firstName(c.name)} התמלאה. הטיפול הבא מתנה`, [{ label: 'וואטסאפ', fn: () => openWa(id, 'visit') }]);
+    else toast(`ניקוב ל${firstName(c.name)} · ${np}/${N}`, [{ label: 'וואטסאפ', fn: () => openWa(id, 'visit') }, { label: 'ביטול', fn: () => undo(id, now) }]);
+  }
+}
+function redeem(id) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  const N = S.settings.cardSize;
+  if (!c || c.punches < N) return;
+  const now = Date.now(), np = Math.max(0, c.punches - N);
+  const next = { ...c, punches: np, rewards: c.rewards + 1, visits: c.visits + 1, lastVisit: now, updatedAt: now,
+    log: [...c.log, { t: now, a: 'redeem', p: np, prev: prevOf(c) }].slice(-LOG_MAX) };
+  commit(c, next).catch(() => {});
+  toast(`טיפול המתנה מומש ונפתחה כרטיסייה חדשה ל${firstName(c.name)}`, [{ label: 'וואטסאפ', fn: () => openWa(id, 'redeem') }]);
+}
+function undo(id, expectT) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  if (!c) return;
+  const e = c.log[c.log.length - 1];
+  if (!e || !e.prev || !UNDO_LABEL[e.a]) return;
+  if (expectT && e.t !== expectT) { toast('בינתיים היה שינוי נוסף. אפשר לבטל מתוך הכרטיסייה.'); return; }
+  const next = { ...c,
+    punches: num(e.prev.p, c.punches), rewards: num(e.prev.r, c.rewards), visits: num(e.prev.v, c.visits),
+    lastVisit: Number.isFinite(e.prev.lv) ? e.prev.lv : null, updatedAt: Date.now(), log: c.log.slice(0, -1) };
+  commit(c, next).catch(() => {});
+  toast(e.a === 'punch' ? 'הניקוב בוטל' : e.a === 'redeem' ? 'מימוש המתנה בוטל' : 'העדכון בוטל');
+}
+async function deleteClient(id) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  try {
+    await S.db.doc('clients/' + id).delete();
+    S.clients.delete(id);
+    closeAll();
+    toast(`${c ? c.name : 'הלקוחה'} ${gw(c, 'נמחקה', 'נמחק')} מהכרטיסייה`);
+  } catch (e) { handleWriteError(e); }
+}
+function openWa(id, tpl) {
+  const c = S.clients.get(id);
+  if (!c) return;
+  openSheet({ type: 'wa', id, tpl: tpl || defaultTpl(c), custom: null, editing: false });
+}
+
+async function submitClient(spec) {
+  if (!guardWrite()) return;
+  const r = spec.inner;
+  const name = $('#f-name', r).value.trim().replace(/\s+/g, ' ');
+  const phone = $('#f-phone', r).value.trim();
+  const g = $('#f-g-m', r).checked ? 'm' : 'f';
+  const notes = $('#f-notes', r).value.trim();
+  const punches = clamp(parseInt($('#f-p', r).textContent, 10) || 0, 0, S.settings.cardSize);
+  const nameErr = $('#f-name-err', r), phoneErr = $('#f-phone-err', r);
+  nameErr.hidden = !!name;
+  if (!name) { $('#f-name', r).focus(); return; }
+  if (phone && phone.replace(/\D/g, '').length < 9) {
+    phoneErr.textContent = 'מספר הטלפון קצר מדי. צריך מספר מלא, למשל 050-123-4567.';
+    phoneErr.hidden = false; return;
+  }
+  const wn = waNumber(phone);
+  const dup = wn ? [...S.clients.values()].find(x => x.id !== spec.id && waNumber(x.phone) === wn) : null;
+  if (dup && spec.dupAck !== wn) {
+    phoneErr.textContent = `המספר כבר שמור אצל ${dup.name}. לחיצה נוספת על השמירה תשמור בכל זאת.`;
+    phoneErr.hidden = false; spec.dupAck = wn; return;
+  }
+  phoneErr.hidden = true;
+  const btn = $('#f-save', r);
+  btn.disabled = true;
+  const now = Date.now();
+  try {
+    if (spec.id) {
+      const c = S.clients.get(spec.id);
+      if (!c) { closeTop(); return; }
+      const next = { ...c, name, phone, g, notes, updatedAt: now };
+      if (punches !== Math.min(c.punches, S.settings.cardSize)) {
+        next.punches = punches;
+        next.log = [...c.log, { t: now, a: 'adjust', p: punches, prev: prevOf(c) }].slice(-LOG_MAX);
+      }
+      await commit(c, next);
+      closeTop();
+      toast('הפרטים נשמרו');
+    } else {
+      const ref = S.db.collection('clients').doc();
+      const c = { id: ref.id, name, phone, g, notes, punches, rewards: 0, visits: punches, createdAt: now, lastVisit: null, updatedAt: now, log: [{ t: now, a: 'join', p: punches }] };
+      await commit(null, c);
+      openSheet({ type: 'client', id: c.id });
+      toast(`${firstName(name)} ${g === 'm' ? 'נוסף' : 'נוספה'} לכרטיסייה`, [{ label: 'הודעת הצטרפות', fn: () => openWa(c.id, 'welcome') }]);
+    }
+  } catch (_) {
+    if (document.contains(btn)) btn.disabled = false;
+  }
+}
+async function submitSettings(spec) {
+  if (!guardWrite()) return;
+  const r = spec.inner;
+  const next = {
+    studioName: $('#s-name', r).value.trim().slice(0, 40),
+    cardSize: clamp(parseInt($('#s-n', r).textContent, 10) || DEFAULTS.cardSize, 3, 12),
+    ownerPhone: $('#s-owner', r).value.trim().slice(0, 20),
+    siteUrl: $('#s-site', r).value.trim().slice(0, 200),
+    updatedAt: Date.now(),
+  };
+  const prev = S.settings;
+  S.settings = normSettings(next);
+  $('#s-save', r).disabled = true;
+  render();
+  try {
+    await writeDoc('meta/settings', next);
+    closeTop();
+    toast('ההגדרות נשמרו');
+  } catch (e) {
+    S.settings = prev; render(); handleWriteError(e);
+    const b = $('#s-save', r); if (b) b.disabled = false;
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const act = el.dataset.act, id = el.dataset.id, spec = topSheet();
+  switch (act) {
+    case 'add': if (guardWrite()) openSheet({ type: 'edit', id: null }); break;
+    case 'open': openSheet({ type: 'client', id }); break;
+    case 'qpunch': punch(id, true); break;
+    case 'punch': punch(id, false); break;
+    case 'redeem': redeem(id); break;
+    case 'undo': undo(id); break;
+    case 'wa': openWa(id); break;
+    case 'edit': if (guardWrite()) openSheet({ type: 'edit', id }); break;
+    case 'close': closeTop(); break;
+    case 'settings': openSheet({ type: 'settings' }); break;
+    case 'summary': openSheet({ type: 'wa', id: null, tpl: 'summary', custom: null, editing: false }); break;
+    case 'filter': S.filter = el.dataset.f; render(); break;
+    case 'tpl':
+      if (spec && spec.type === 'wa') { spec.tpl = el.dataset.k; spec.custom = null; spec.editing = false; fillSheet(spec, true); }
+      break;
+    case 'wa-edit':
+      if (spec && spec.type === 'wa') {
+        if (spec.editing) { spec.editing = false; spec.custom = null; }
+        else { spec.custom = waText(spec); spec.editing = true; }
+        fillSheet(spec, true);
+        const ta = $('#wa-text', spec.inner);
+        if (ta) ta.focus({ preventScroll: true });
+      }
+      break;
+    case 'wa-copy':
+      if (spec && spec.type === 'wa') {
+        const ta = $('#wa-text', spec.inner);
+        copyText(ta ? ta.value : waText(spec), ta || $('#wa-preview', spec.inner));
+      }
+      break;
+    case 'copy-phone': {
+      const c = S.clients.get(id);
+      if (c) copyText(fmtPhone(c.phone), el.parentElement.querySelector('.phone'));
+      break;
+    }
+    case 'delete-ask': if (spec) { spec.confirmDelete = true; fillSheet(spec, false); } break;
+    case 'delete-no': if (spec) { spec.confirmDelete = false; fillSheet(spec, false); } break;
+    case 'delete-yes': deleteClient(id); break;
+    case 'step': {
+      const out = document.getElementById(el.dataset.t);
+      if (!out) break;
+      const v = clamp((parseInt(out.textContent, 10) || 0) + Number(el.dataset.d), Number(out.dataset.min), Number(out.dataset.max));
+      out.textContent = v;
+      if (el.dataset.t === 's-n') {
+        $('#s-preview').innerHTML = nailRow(v, v, 'mid');
+        $('#s-n-help').textContent = cardHelp(v);
+      }
+      break;
+    }
+    case 'appt-new-for': {
+      const c = S.clients.get(id);
+      if (c && guardWrite()) openSheet({ type: 'apptForm', id: null, name: c.name, phone: c.phone });
+      break;
+    }
+    default: extraClick(act, el);
+  }
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const spec = topSheet();
+  if (e.target.id === 'clientForm' && spec) submitClient(spec);
+  else if (e.target.id === 'settingsForm' && spec) submitSettings(spec);
+  else extraSubmit(e.target.id, spec, e.target);
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { S.q = e.target.value; renderMain(); }
+  else if (e.target.id === 'wa-text') { const spec = topSheet(); if (spec) { spec.custom = e.target.value; updateWaLink(spec); } }
+  else if (e.target.id === 'f-phone') { const spec = topSheet(); if (spec) spec.dupAck = null; }
+  else extraInput(e);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.stack.length) closeTop(); });
+
+/* ---------- data subscription ---------- */
+let subTries = 0;
+function subscribe() {
+  if (S.unsubC) S.unsubC();
+  if (S.unsubS) S.unsubS();
+  S.unsubC = S.db.collection('clients').onSnapshot(snap => {
+    const m = new Map();
+    snap.docs.forEach(d => { if (d.exists) { const data = d.data(); if (data) m.set(d.id, normClient(d.id, data)); } });
+    S.clients = m;
+    S.status = 'ready';
+    S.slow = false;
+    render();
+  }, onSubError);
+  S.unsubS = S.db.doc('meta/settings').onSnapshot(snap => {
+    S.settings = normSettings(snap.exists ? snap.data() : null);
+    S.full = (snap.exists && snap.data()) || {};
+    if (!A.hoursDirty) A.hoursDraft = null;
+    render();
+  }, onSubError);
+}
+function onSubError(err) {
+  const code = err && err.code;
+  if (['revoked', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) {
+    S.canWrite = false;
+    if (S.status === 'loading') S.status = 'nodb';
+    render();
+    return;
+  }
+  if (subTries < 3) { subTries++; setTimeout(subscribe, 1500 * subTries); }
+}
+
+
+/* =====================================================================
+   Below: the new parts of the admin screen.
+   Backend (Supabase), login, appointments, opening hours and settings.
+   ===================================================================== */
+const CFG = window.SAPI || {};
+const sb = window.supabase.createClient(CFG.url, CFG.key, {
+  auth: { persistSession: true, autoRefreshToken: true, storageKey: 'sapinails-admin' },
+});
+S.view = 'agenda';
+S.full = {};
+
+/* ---------- time, always in Israel ---------- */
+const ZONE = CFG.zone || 'Asia/Jerusalem';
+const T = (() => {
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const parts = ms => { const o = {}; for (const p of fmt.formatToParts(new Date(ms))) o[p.type] = p.value; return { y: +o.year, m: +o.month, d: +o.day, h: (+o.hour) % 24, mi: +o.minute }; };
+  const offsetAt = ms => { const p = parts(ms); return Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi) - Math.floor(ms / 60000) * 60000; };
+  const zoned = (key, min) => { const [y, m, d] = key.split('-').map(Number); const g = Date.UTC(y, m - 1, d, 0, min); let t = g - offsetAt(g); t = g - offsetAt(t); return t; };
+  const key = ms => { const p = parts(ms); return `${p.y}-${pad(p.m)}-${pad(p.d)}`; };
+  const add = (k, n) => { const [y, m, d] = k.split('-').map(Number); const dt = new Date(Date.UTC(y, m - 1, d + n)); return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`; };
+  const wd = k => { const [y, m, d] = k.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).getUTCDay(); };
+  const min = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
+  const mod = ms => { const p = parts(ms); return p.h * 60 + p.mi; };
+  const hm = ms => { const p = parts(ms); return `${pad(p.h)}:${pad(p.mi)}`; };
+  const hhmm = m => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+  const long = ms => new Intl.DateTimeFormat('he-IL', { timeZone: ZONE, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(ms));
+  const short = ms => new Intl.DateTimeFormat('he-IL', { timeZone: ZONE, day: 'numeric', month: 'numeric' }).format(new Date(ms));
+  const keyLong = k => long(zoned(k, 720));
+  const month = k => new Intl.DateTimeFormat('he-IL', { timeZone: 'UTC', month: 'long', year: 'numeric' }).format(new Date(k + 'T12:00:00Z'));
+  return { parts, zoned, key, add, wd, min, mod, hm, hhmm, long, short, keyLong, month, today: () => key(Date.now()) };
+})();
+const WD_SHORT = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+const WD_LONG = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+function fmtDur(m) {
+  m = Math.round(m || 0);
+  if (m < 60) return `${m} דק׳`;
+  const h = Math.floor(m / 60), r = m % 60;
+  const hs = h === 1 ? 'שעה' : h === 2 ? 'שעתיים' : `${h} שעות`;
+  return r === 0 ? hs : r === 30 ? `${hs} וחצי` : `${hs} ו־${r} דק׳`;
+}
+const fmtPrice = p => (p == null || p === '' ? '' : `${Number(p).toLocaleString('he-IL')}₪`);
+const iso = ms => new Date(ms).toISOString();
+function relAgo(ms) {
+  const d = Date.now() - ms;
+  if (d < 90e3) return 'עכשיו';
+  if (d < 3600e3) return `לפני ${Math.round(d / 60e3)} דק׳`;
+  if (d < 2 * 3600e3) return 'לפני שעה';
+  if (d < 24 * 3600e3) return `לפני ${Math.round(d / 3600e3)} שעות`;
+  return rel(ms);
+}
+
+/* ---------- dates under the nails ---------- */
+function punchDates(c, N) {
+  const dates = [];
+  for (const e of c.log || []) {
+    const p = Math.min(num(e.p), N);
+    if (e.a === 'punch') { if (p >= 1) dates[p - 1] = e.t; dates.length = Math.min(dates.length, p); }
+    else if (e.a === 'redeem' || e.a === 'join') { dates.length = 0; }
+    else if (e.a === 'adjust') { dates.length = Math.min(dates.length, p); }
+  }
+  return dates;
+}
+const nailDate = ms => (ms ? T.short(ms) : '');
+
+/* ---------- database adapter for the card screen ---------- */
+function dbErr(error) {
+  const e = new Error((error && error.message) || 'db error');
+  const code = error && error.code, status = error && error.status;
+  e.code = code === '42501' || status === 401 || status === 403 ? 'not_granted'
+    : code === '23P01' ? 'overlap'
+    : /fetch|network|Failed|timeout/i.test((error && error.message) || '') ? 'unavailable' : 'failed';
+  e.raw = error;
+  return e;
+}
+const newId = () => { const a = 'abcdefghijklmnopqrstuvwxyz0123456789', r = crypto.getRandomValues(new Uint8Array(20)); let s = ''; for (const x of r) s += a[x % 36]; return s; };
+const listeners = { clients: new Set(), settings: new Set() };
+const notify = kind => listeners[kind].forEach(fn => fn());
+async function fetchClients() {
+  const { data, error } = await sb.from('clients').select('id,data');
+  if (error) throw dbErr(error);
+  return data;
+}
+async function fetchSettings() {
+  const { data, error } = await sb.from('settings').select('data').eq('id', 'main').maybeSingle();
+  if (error) throw dbErr(error);
+  return data ? data.data : null;
+}
+async function mergeSettings(patch) {
+  const { data, error } = await sb.rpc('merge_settings', { p_patch: patch });
+  if (error) throw dbErr(error);
+  if (data == null) throw Object.assign(new Error('not granted'), { code: 'not_granted' });
+  S.full = data;
+  notify('settings');
+  return data;
+}
+function docRef(path) {
+  const [col, id] = path.split('/');
+  return {
+    id,
+    async set(body) {
+      if (col === 'clients') {
+        const { error } = await sb.from('clients').upsert({ id, data: body });
+        if (error) throw dbErr(error);
+        notify('clients');
+      } else if (path === 'meta/settings') {
+        await mergeSettings(body);
+      } else throw new Error('unsupported ' + path);
+    },
+    async delete() {
+      const { error } = await sb.from('clients').delete().eq('id', id);
+      if (error) throw dbErr(error);
+      notify('clients');
+    },
+    onSnapshot(cb, onErr) {
+      const fn = () => fetchSettings().then(d => cb({ exists: !!d, data: () => d })).catch(e => onErr && onErr(e));
+      listeners.settings.add(fn); fn();
+      return () => listeners.settings.delete(fn);
+    },
+  };
+}
+const DB = {
+  doc: docRef,
+  collection: () => ({
+    doc: () => docRef('clients/' + newId()),
+    onSnapshot(cb, onErr) {
+      const fn = () => fetchClients().then(rows => cb({ docs: rows.map(r => ({ id: r.id, exists: true, data: () => r.data })), size: rows.length, empty: !rows.length })).catch(e => onErr && onErr(e));
+      listeners.clients.add(fn); fn();
+      return () => listeners.clients.delete(fn);
+    },
+  }),
+};
+
+/* ---------- appointments state ---------- */
+const A = { list: [], blocks: [], services: [], loaded: false, error: false, day: null, seenPending: null, hoursDraft: null, hoursDirty: false };
+const ST_LABEL = { pending: 'ממתין לאישור', confirmed: 'מאושר', done: 'בוצע', noshow: 'לא הגיעה', cancelled: 'בוטל' };
+const apptById = id => A.list.find(a => a.id === id) || null;
+const svcById = id => A.services.find(s => s.id === id) || null;
+const normP = p => { let d = String(p || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2); if (d.startsWith('972')) d = '0' + d.slice(3); if (/^5\d{8}$/.test(d)) d = '0' + d; return d; };
+function clientForAppt(a) {
+  if (!a) return null;
+  if (a.client_id && S.clients.has(a.client_id)) return S.clients.get(a.client_id);
+  const p = normP(a.phone);
+  if (!p) return null;
+  return [...S.clients.values()].find(c => normP(c.phone) === p) || null;
+}
+function nextApptFor(c) {
+  const p = normP(c.phone), now = Date.now();
+  return A.list.filter(a => (a.status === 'pending' || a.status === 'confirmed') && a.e > now && (a.client_id === c.id || (p && normP(a.phone) === p))).sort((x, y) => x.s - y.s)[0] || null;
+}
+function siteBase() {
+  let base = String((S.settings && S.settings.siteUrl) || '').replace(/[#?].*$/, '').replace(/\/+$/, '');
+  if (!base || /claude\.ai\//i.test(base)) return '';
+  if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
+  return base;
+}
+const bookLink = () => (siteBase() ? siteBase() + '/book/' : '');
+
+async function refreshBooking() {
+  const today = T.today();
+  const from = iso(T.zoned(T.add(today, -60), 0)), to = iso(T.zoned(T.add(today, 200), 0));
+  const [a, b, s] = await Promise.all([
+    sb.from('appointments').select('*').gte('starts_at', from).lt('starts_at', to).order('starts_at'),
+    sb.from('blocks').select('*').gte('ends_at', from).order('starts_at'),
+    sb.from('services').select('*').order('sort').order('name'),
+  ]);
+  const err = a.error || b.error || s.error;
+  if (err) { A.error = true; render(); throw dbErr(err); }
+  A.list = a.data.map(r => ({ ...r, s: Date.parse(r.starts_at), e: Date.parse(r.ends_at) }));
+  A.blocks = b.data.map(r => ({ ...r, s: Date.parse(r.starts_at), e: Date.parse(r.ends_at) }));
+  A.services = s.data;
+  A.loaded = true; A.error = false;
+  const pend = A.list.filter(x => x.status === 'pending');
+  if (A.seenPending) {
+    const fresh = pend.filter(x => !A.seenPending.has(x.id));
+    if (fresh.length === 1) toast(`בקשה חדשה מ${firstName(fresh[0].name)}`, [{ label: 'פתיחה', fn: () => openSheet({ type: 'appt', id: fresh[0].id }) }]);
+    else if (fresh.length > 1) toast(`${fresh.length} בקשות חדשות לתורים`);
+  }
+  A.seenPending = new Set(pend.map(x => x.id));
+  render();
+}
+let refreshTimer = null;
+const refreshSoon = () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(() => refreshBooking().catch(() => {}), 250); };
+
+/* ---------- availability (same rules as the booking page) ---------- */
+function dayWindows(key) {
+  const hours = (S.full && S.full.hours) || {};
+  return (hours[String(T.wd(key))] || []).map(w => [T.min(w.from), T.min(w.to)]).filter(([a, b]) => a != null && b != null && b > a);
+}
+function busyFor(ignoreId) {
+  return [
+    ...A.list.filter(a => (a.status === 'pending' || a.status === 'confirmed') && a.id !== ignoreId).map(a => [a.s, a.e]),
+    ...A.blocks.map(b => [b.s, b.e]),
+  ];
+}
+function freeStarts(key, minutes, ignoreId) {
+  const st = S.full || {};
+  const step = Math.max(5, +st.slotMinutes || 30), buf = (+st.bufferMinutes || 0) * 60000;
+  const busy = busyFor(ignoreId), now = Date.now(), out = [];
+  for (const [ws, we] of dayWindows(key)) {
+    for (let t = ws; t + minutes <= we; t += step) {
+      const s = T.zoned(key, t), e = s + minutes * 60000;
+      if (s < now) continue;
+      if (busy.every(([bs, be]) => e + buf <= bs || s >= be + buf)) out.push(s);
+    }
+  }
+  return out;
+}
+
+/* ---------- views ---------- */
+const TAB_ICONS = {
+  agenda: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  cards: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M7.5 15.5c0-2.4 1-4.6 2-5.5 1 .9 2 3.1 2 5.5M13.5 15.5c0-2.4 1-4.6 2-5.5 1 .9 2 3.1 2 5.5"/></svg>',
+  hours: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  more: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>',
+};
+function render() {
+  const authed = !!S.authed;
+  $('#vLogin').hidden = authed;
+  $('#tabbar').hidden = !authed;
+  ['agenda', 'cards', 'hours', 'more'].forEach(v => { $('#v' + v[0].toUpperCase() + v.slice(1)).hidden = !authed || S.view !== v; });
+  if (authed) {
+    if (S.view === 'cards') renderCards();
+    else if (S.view === 'agenda') renderAgenda();
+    else if (S.view === 'hours') renderHours();
+    else if (S.view === 'more') renderMore();
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-current', t.dataset.v === S.view ? 'page' : 'false'));
+    const pend = A.list.filter(a => a.status === 'pending' && a.e > Date.now()).length;
+    const badge = $('#pendBadge');
+    badge.hidden = !pend; badge.textContent = pend;
+  }
+  updateSheets();
+  const fab = $('#addBtn');
+  const sheetOpen = S.stack.length > 0;
+  let fabAct = null;
+  if (authed && !sheetOpen && S.canWrite) {
+    if (S.view === 'cards' && S.status === 'ready' && S.clients.size > 0) fabAct = ['add', 'לקוחה חדשה'];
+    else if (S.view === 'agenda' && A.loaded) fabAct = ['appt-new', 'תור חדש'];
+  }
+  fab.hidden = !fabAct;
+  if (fabAct && fab.dataset.act !== fabAct[0]) { fab.dataset.act = fabAct[0]; fab.innerHTML = `${IC.plus}<span>${fabAct[1]}</span>`; }
+  root.classList.toggle('locked', sheetOpen);
+}
+function setView(v) {
+  S.view = v;
+  try { localStorage.setItem('sapinails.view', v); } catch (_) {}
+  render();
+  window.scrollTo(0, 0);
+}
+function paint(el, html) { if (el._last !== html) { el.innerHTML = html; el._last = html; } }
+
+/* ---------- agenda ---------- */
+function renderAgenda() {
+  const v = $('#vAgenda');
+  if (A.error && !A.loaded) { paint(v, `<div class="err-box">היומן לא נטען. בדיקת החיבור לאינטרנט ואז <button type="button" class="text-btn" data-act="reload">ניסיון נוסף</button></div>`); return; }
+  if (!A.loaded) { paint(v, '<div class="skel-list" aria-hidden="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>'); return; }
+  const today = T.today(), now = Date.now();
+  if (!A.day) A.day = today;
+  const key = A.day;
+  const pend = A.list.filter(a => a.status === 'pending' && a.e > now).sort((x, y) => x.s - y.s);
+  const toClose = A.list.filter(a => a.status === 'confirmed' && a.e <= now && a.e > now - 21 * DAY).sort((x, y) => x.s - y.s);
+  const dayItems = A.list.filter(a => T.key(a.s) === key && a.status !== 'cancelled').sort((x, y) => x.s - y.s);
+  const active = dayItems.filter(a => a.status !== 'noshow');
+  const mins = active.reduce((t, a) => t + (a.minutes || 0), 0), money = active.reduce((t, a) => t + (Number(a.price) || 0), 0);
+  const wins = dayWindows(key);
+  const dayStart = T.zoned(key, 0), dayEnd = T.zoned(T.add(key, 1), 0);
+  const blocks = A.blocks.filter(b => b.s < dayEnd && b.e > dayStart);
+  const allDay = blocks.find(b => b.s <= dayStart && b.e >= dayEnd);
+  let meta = active.length ? `${plural(active.length, 'תור אחד', 'תורים')} · ${fmtDur(mins)}${money ? ' · ' + fmtPrice(money) : ''}` : allDay ? 'יום חסום' : wins.length ? 'אין תורים' : 'יום סגור';
+  if (key === today) {
+    const nx = active.find(a => a.s >= now);
+    if (nx) meta += ` · הבא ב־${T.hm(nx.s)} ${firstName(nx.name)}`;
+  }
+
+  const hr = T.parts(now).h;
+  const hello = hr < 5 ? 'לילה טוב' : hr < 12 ? 'בוקר טוב' : hr < 17 ? 'צהריים טובים' : hr < 21 ? 'ערב טוב' : 'לילה טוב';
+  const todays = A.list.filter(a => T.key(a.s) === today && (a.status === 'confirmed' || a.status === 'done'));
+  const nextToday = todays.filter(a => a.s >= now && a.status === 'confirmed').sort((x, y) => x.s - y.s)[0];
+  const headSub = todays.length ? `${plural(todays.length, 'תור אחד', 'תורים')} היום${nextToday ? ` · הבא ב־${T.hm(nextToday.s)} ${firstName(nextToday.name)}` : ''}` : 'אין תורים היום';
+  let html = `<header class="top"><div class="brand"><div class="eyebrow">יומן התורים</div><h1 class="studio">${esc(hello)}${(S.full && S.full.ownerName) ? ', ' + esc(S.full.ownerName) : ''}</h1><div class="sub">${esc(headSub)}</div></div></header>`;
+  if (pend.length) {
+    html += `<div class="section-title"><h2>ממתינות לאישור</h2><span class="hint">${pend.length}</span></div><div class="pending">${pend.map(a => `
+      <div class="req">
+        <button type="button" class="req-top" data-act="appt-open" data-id="${esc(a.id)}">
+          <span class="who">${esc(a.name)}${a.is_new ? '<span class="tag-new">לקוחה חדשה</span>' : ''}</span>
+          <span class="what">${esc(a.service_name)} · ${esc(T.long(a.s))} · ${T.hm(a.s)}</span>
+          <span class="when">ביקשה ${esc(relAgo(Date.parse(a.created_at)))}${a.addons && a.addons.length ? ' · ' + esc(a.addons.join(', ')) : ''}${a.note ? ' · ' + esc(a.note) : ''}</span>
+        </button>
+        <div class="req-actions">
+          <button type="button" class="btn wa" data-act="appt-wa" data-id="${esc(a.id)}" data-tpl="photo">${IC.chat}<span>וואטסאפ</span></button>
+          <button type="button" class="btn primary" data-act="appt-approve" data-id="${esc(a.id)}"${S.canWrite ? '' : ' disabled'}>אישור</button>
+          <button type="button" class="btn ghost" data-act="appt-decline" data-id="${esc(a.id)}"${S.canWrite ? '' : ' disabled'}>דחייה</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+  if (toClose.length) {
+    html += `<div class="section-title"><h2>לסגור תורים שעברו</h2><span class="hint">כדי שהניקובים יתעדכנו</span></div><div class="toclose">${toClose.map(a => `
+      <div class="req close">
+        <button type="button" class="req-top" data-act="appt-open" data-id="${esc(a.id)}">
+          <span class="who">${esc(a.name)}</span>
+          <span class="what">${esc(a.service_name)} · ${esc(T.long(a.s))} · ${T.hm(a.s)}</span>
+        </button>
+        <div class="req-actions">
+          <button type="button" class="btn primary" data-act="appt-done" data-id="${esc(a.id)}"${S.canWrite ? '' : ' disabled'}>הגיעה ✓</button>
+          <button type="button" class="btn ghost" data-act="appt-noshow" data-id="${esc(a.id)}"${S.canWrite ? '' : ' disabled'}>לא הגיעה</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  const weekStart = T.add(key, -T.wd(key));
+  const days = [0, 1, 2, 3, 4, 5, 6].map(i => T.add(weekStart, i));
+  html += `<div class="weeknav">
+      <button type="button" class="icon-btn" data-act="week" data-d="-7" aria-label="שבוע קודם"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <span class="lbl">${esc(T.month(key))}</span>
+      ${key !== today ? '<button type="button" class="head-btn" data-act="go-today">היום</button>' : ''}
+      <button type="button" class="icon-btn" data-act="week" data-d="7" aria-label="שבוע הבא"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    </div>
+    <div class="week">${days.map(k => {
+      const n = A.list.filter(a => T.key(a.s) === k && (a.status === 'pending' || a.status === 'confirmed' || a.status === 'done')).length;
+      const cls = ['wd', k === today ? 'today' : '', dayWindows(k).length ? '' : 'closed'].join(' ');
+      return `<button type="button" class="${cls}" data-act="day" data-k="${k}" aria-pressed="${k === key}" aria-label="${esc(T.keyLong(k))}${n ? ', ' + n + ' תורים' : ''}"><span class="w">${WD_SHORT[T.wd(k)]}</span><span class="n">${+k.slice(8)}</span><span class="c">${n || ''}</span></button>`;
+    }).join('')}</div>
+    <div class="dayhead"><h2>${esc(T.keyLong(key))}${key === today ? ' <span class="st confirmed">היום</span>' : ''}</h2><div class="meta">${esc(meta)}</div></div>`;
+
+  const rows = [];
+  for (const a of dayItems) {
+    const past = a.e <= now && a.status === 'confirmed';
+    rows.push({ t: a.s, html: `<button type="button" class="ap ${a.status}${past ? ' past' : ''}" data-act="appt-open" data-id="${esc(a.id)}"><span class="t">${T.hm(a.s)}<small>${T.hm(a.e)}</small></span><span class="mid"><span class="who">${esc(a.name)}</span><br><span class="svc">${esc(a.service_name)} · ${fmtDur(a.minutes)}${a.price != null ? ' · ' + fmtPrice(a.price) : ''}</span></span><span class="st ${a.status}">${ST_LABEL[a.status]}</span></button>` });
+  }
+  for (const b of blocks) {
+    if (b === allDay) continue;
+    rows.push({ t: b.s, html: `<div class="blockrow"><span>חסום · <span dir="ltr">${T.hm(Math.max(b.s, dayStart))}–${T.hm(Math.min(b.e, dayEnd))}</span>${b.reason ? ' · ' + esc(b.reason) : ''}</span><button type="button" class="mini-btn" data-act="block-open" data-id="${esc(b.id)}">עריכה</button></div>` });
+  }
+  if (!allDay) {
+    const busy = [...A.list.filter(a => T.key(a.s) === key && (a.status === 'pending' || a.status === 'confirmed')).map(a => [T.mod(a.s), T.mod(a.e) || 1440]), ...blocks.map(b => [b.s <= dayStart ? 0 : T.mod(b.s), b.e >= dayEnd ? 1440 : T.mod(b.e)])].sort((x, y) => x[0] - y[0]);
+    const nowMin = key === today ? T.mod(now) : key < today ? 1440 : -1;
+    for (const [ws, we] of wins) {
+      let cur = Math.max(ws, nowMin);
+      for (const [s, e] of busy) {
+        if (s >= we) break;
+        if (e <= cur) continue;
+        if (s > cur && s - cur >= 20) rows.push({ t: T.zoned(key, cur), html: gapRow(key, cur, s) });
+        cur = Math.max(cur, e);
+      }
+      if (we - cur >= 20) rows.push({ t: T.zoned(key, cur), html: gapRow(key, cur, we) });
+    }
+  }
+  rows.sort((x, y) => x.t - y.t);
+  let body;
+  if (allDay) body = `<div class="blockrow"><span>היום חסום${allDay.reason ? ' · ' + esc(allDay.reason) : ''}</span><button type="button" class="mini-btn" data-act="block-open" data-id="${esc(allDay.id)}">עריכה</button></div>` + rows.map(r => r.html).join('');
+  else if (rows.length) body = rows.map(r => r.html).join('');
+  else body = wins.length ? '<div class="empty-day"><b>אין תורים</b>אפשר להוסיף תור בכפתור למטה.</div>' : '<div class="empty-day"><b>יום סגור</b>שעות הפעילות נקבעות בלשונית «שעות».</div>';
+  html += `<div class="agenda">${body}</div>`;
+  paint(v, html);
+}
+function gapRow(key, s, e) {
+  return `<div class="gap"><span>פנוי · <span dir="ltr">${T.hhmm(s)}–${T.hhmm(e)}</span> · ${fmtDur(e - s)}</span><button type="button" class="mini-btn" data-act="appt-new" data-k="${key}" data-m="${Math.ceil(s / 5) * 5}">+ תור</button></div>`;
+}
+
+/* ---------- appointment sheet ---------- */
+function apptSheetHTML(spec) {
+  const a = apptById(spec.id);
+  if (!a) return sheetHead(spec, 'התור לא נמצא') + '<div class="sheet-body"><p class="help">ייתכן שהתור נמחק ממכשיר אחר.</p></div>';
+  const c = clientForAppt(a), N = S.settings.cardSize, dis = S.canWrite ? '' : ' disabled';
+  const svc = svcById(a.service_id), counts = svc ? svc.counts !== false : true;
+  const id = esc(a.id), now = Date.now();
+  const phoneRow = a.phone
+    ? `<span class="phone" dir="ltr">${esc(fmtPhone(a.phone))}</span><button type="button" class="mini-btn" data-act="copy-text" data-v="${esc(fmtPhone(a.phone))}">${IC.copy}<span>העתקה</span></button>`
+    : '<span class="muted">לא הוזן</span>';
+  let actions = '';
+  if (a.status === 'pending') {
+    actions = `<button type="button" class="btn primary big" data-act="appt-approve" data-id="${id}"${dis}>אישור התור</button>
+      <div class="actions-row"><button type="button" class="btn wa" data-act="appt-wa" data-id="${id}" data-tpl="photo">${IC.chat}<span>וואטסאפ</span></button><button type="button" class="btn ghost" data-act="appt-decline" data-id="${id}"${dis}>דחייה</button></div>
+      <div class="text-row"><button type="button" class="text-btn" data-act="appt-edit" data-id="${id}"${dis}>${IC.edit}<span>שינוי שעה או פרטים</span></button></div>`;
+  } else if (a.status === 'confirmed') {
+    const full = c && c.punches >= N;
+    const doneLabel = !counts ? 'הטיפול בוצע' : full ? 'הטיפול בוצע · מימוש המתנה 🎁' : c ? 'הטיפול בוצע · ניקוב' : 'הטיפול בוצע · פתיחת כרטיסייה';
+    actions = `<button type="button" class="btn ${full && counts ? 'chrome' : 'primary'} big" data-act="appt-done" data-id="${id}"${dis}>${doneLabel}</button>
+      <div class="actions-row"><button type="button" class="btn wa" data-act="appt-wa" data-id="${id}" data-tpl="${a.s - now < 2 * DAY && a.s > now ? 'reminder' : 'confirm'}">${IC.chat}<span>וואטסאפ</span></button><button type="button" class="btn ghost" data-act="appt-edit" data-id="${id}"${dis}>${IC.edit}<span>עריכה</span></button></div>
+      <div class="text-row"><button type="button" class="text-btn" data-act="appt-noshow" data-id="${id}"${dis}>לא הגיעה</button><button type="button" class="text-btn danger-txt" data-act="appt-cancel" data-id="${id}"${dis}>ביטול התור</button></div>`;
+  } else if (a.status === 'done') {
+    actions = `<p class="help">${a.punched ? 'הטיפול סומן כבוצע ונוסף ניקוב בכרטיסייה.' : 'הטיפול סומן כבוצע.'}</p>
+      <div class="actions-row">${c ? `<button type="button" class="btn wa" data-act="wa" data-id="${esc(c.id)}">${IC.chat}<span>עדכון כרטיסייה</span></button>` : ''}<button type="button" class="btn ghost" data-act="appt-reopen" data-id="${id}"${dis}>החזרה לתור פעיל</button></div>`;
+  } else {
+    actions = `<div class="actions-row"><button type="button" class="btn ghost" data-act="appt-reopen" data-id="${id}"${dis}>החזרה לתור פעיל</button><button type="button" class="btn wa" data-act="appt-wa" data-id="${id}" data-tpl="${a.status === 'cancelled' ? 'cancel' : 'confirm'}">${IC.chat}<span>וואטסאפ</span></button></div>
+      ${spec.confirmDelete
+        ? `<div class="confirm confirm-inline" role="alert"><p>למחוק את התור לגמרי?</p><div class="actions-row"><button type="button" class="btn danger" data-act="appt-delete-yes" data-id="${id}">מחיקה</button><button type="button" class="btn ghost" data-act="appt-delete-no">ביטול</button></div></div>`
+        : `<div class="text-row"><button type="button" class="text-btn danger-txt" data-act="appt-delete-ask"${dis}>${IC.trash}<span>מחיקת התור</span></button></div>`}`;
+  }
+  const card = c
+    ? `<div class="mini-card"><div><div>${nailRow(c.punches, N, 'mid')}</div><div class="lbl">${c.punches >= N ? 'הכרטיסייה מלאה, הטיפול הזה מתנה' : `${Math.min(c.punches, N)} מתוך ${N} ניקובים`}</div></div><button type="button" class="mini-btn" data-act="open" data-id="${esc(c.id)}">לכרטיסייה</button></div>`
+    : counts ? '<p class="help" style="margin-top:12px">עדיין אין לה כרטיסיית מועדון. כשהטיפול יסומן כבוצע תיפתח לה כרטיסייה עם ניקוב ראשון.</p>' : '';
+  return sheetHead(spec, esc(a.name)) + `<div class="sheet-body">
+    <div class="appt-tags"><span class="st ${a.status}">${ST_LABEL[a.status]}</span>${a.is_new ? '<span class="tag-new">לקוחה חדשה</span>' : ''}${a.source === 'online' ? '<span class="tag-new">נקבע באתר</span>' : ''}</div>
+    <dl class="info">
+      <div class="info-row"><dt>מתי</dt><dd>${esc(T.long(a.s))} · <span dir="ltr">${T.hm(a.s)}–${T.hm(a.e)}</span></dd></div>
+      <div class="info-row"><dt>טיפול</dt><dd>${esc(a.service_name || '—')} · ${fmtDur(a.minutes)}</dd></div>
+      ${a.price != null ? `<div class="info-row"><dt>מחיר</dt><dd>${fmtPrice(a.price)}</dd></div>` : ''}
+      <div class="info-row"><dt>טלפון</dt><dd>${phoneRow}</dd></div>
+      ${a.addons && a.addons.length ? `<div class="info-row"><dt>תוספות</dt><dd>${esc(a.addons.join(', '))}</dd></div>` : ''}
+      ${a.note ? `<div class="info-row notes"><dt>הערה</dt><dd>${esc(a.note)}</dd></div>` : ''}
+      <div class="info-row"><dt>נקבע</dt><dd>${a.source === 'online' ? 'באתר' : 'ידנית'} · ${esc(relAgo(Date.parse(a.created_at)))}</dd></div>
+    </dl>
+    ${card}
+    <div class="actions">${actions}</div>
+  </div>`;
+}
+
+/* ---------- appointment form ---------- */
+function apptFormHTML(spec) {
+  const a = spec.id ? apptById(spec.id) : null;
+  const svcs = A.services.filter(s => s.active || (a && s.id === a.service_id));
+  const svc0 = a ? svcById(a.service_id) : svcs[0];
+  let key = a ? T.key(a.s) : (spec.k || A.day || T.today());
+  if (!a && !spec.k && svc0) {
+    for (let i = 0, k = key; i < 45; i++, k = T.add(k, 1)) { if (freeStarts(k, svc0.minutes).length) { key = k; break; } }
+  }
+  const m = a ? T.mod(a.s) : (spec.m != null ? +spec.m : null);
+  const minutes = a ? a.minutes : (svc0 ? svc0.minutes : 60);
+  const price = a ? a.price : (svc0 ? svc0.price : '');
+  const names = [...S.clients.values()].map(c => `<option value="${esc(c.name)}"></option>`).join('');
+  return sheetHead(spec, a ? 'עריכת תור' : 'תור חדש') + `<div class="sheet-body">
+    <form class="form" id="apptForm" novalidate>
+      <div class="field">
+        <label for="a-name">שם הלקוחה</label>
+        <input class="input" id="a-name" list="a-names" autocomplete="off" maxlength="60" value="${esc(a ? a.name : (spec.name || ''))}">
+        <datalist id="a-names">${names}</datalist>
+        <div class="err" id="a-name-err" hidden>צריך שם כדי לשמור.</div>
+      </div>
+      <div class="field">
+        <label for="a-phone">טלפון <span class="opt">(לוואטסאפ ולכרטיסייה)</span></label>
+        <input class="input ltr" id="a-phone" type="tel" inputmode="tel" autocomplete="off" dir="ltr" maxlength="20" placeholder="050-000-0000" value="${esc(a ? a.phone : (spec.phone || ''))}">
+      </div>
+      <div class="field">
+        <label for="a-svc">טיפול</label>
+        <select class="input" id="a-svc">${svcs.map(s => `<option value="${esc(s.id)}"${svc0 && s.id === svc0.id ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}<option value=""${!svc0 ? ' selected' : ''}>אחר</option></select>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="a-date">תאריך</label><input class="input" id="a-date" type="date" value="${key}"></div>
+        <div class="field"><label for="a-time">שעה</label><input class="input" id="a-time" type="time" step="300" value="${m != null ? T.hhmm(m) : ''}"></div>
+      </div>
+      <div class="field"><span class="legend">שעות פנויות ביום הזה</span><div class="chips wrap" id="a-free"></div></div>
+      <div class="row2">
+        <div class="field"><label for="a-min">משך בדקות</label><input class="input" id="a-min" type="number" inputmode="numeric" min="5" max="480" step="5" value="${minutes}"></div>
+        <div class="field"><label for="a-price">מחיר</label><input class="input" id="a-price" type="number" inputmode="numeric" min="0" step="1" value="${price == null ? '' : esc(price)}"></div>
+      </div>
+      <div class="field"><label for="a-note">הערה <span class="opt">(לא חובה)</span></label><textarea class="input" id="a-note" rows="2" maxlength="300">${esc(a ? a.note : '')}</textarea></div>
+      <div class="err-box" id="a-err" hidden></div>
+      <button type="submit" class="btn primary big" id="a-save">${a ? 'שמירת שינויים' : 'שמירת התור'}</button>
+    </form>
+  </div>`;
+}
+function updateFreeChips(spec) {
+  const r = spec.inner, box = $('#a-free', r);
+  if (!box) return;
+  const key = $('#a-date', r).value, minutes = clamp(parseInt($('#a-min', r).value, 10) || 0, 5, 480);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) { box.innerHTML = ''; return; }
+  const starts = freeStarts(key, minutes, spec.id);
+  const cur = $('#a-time', r).value;
+  box.innerHTML = starts.length
+    ? starts.map(s => `<button type="button" class="chip" role="radio" aria-checked="${T.hm(s) === cur}" data-act="pick-time" data-v="${T.hm(s)}">${T.hm(s)}</button>`).join('')
+    : `<span class="help">${dayWindows(key).length ? 'אין זמן פנוי באורך הזה. אפשר לבחור שעה ידנית.' : 'היום הזה סגור. אפשר לבחור שעה ידנית.'}</span>`;
+}
+async function submitAppt(spec) {
+  if (!guardWrite()) return;
+  const r = spec.inner;
+  const name = $('#a-name', r).value.trim().replace(/\s+/g, ' ');
+  const phone = $('#a-phone', r).value.trim();
+  const key = $('#a-date', r).value, time = T.min($('#a-time', r).value);
+  const minutes = clamp(parseInt($('#a-min', r).value, 10) || 0, 5, 480);
+  const priceRaw = $('#a-price', r).value.trim();
+  const svc = svcById($('#a-svc', r).value);
+  const err = $('#a-err', r);
+  $('#a-name-err', r).hidden = name.length >= 2;
+  if (name.length < 2) { $('#a-name', r).focus(); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || time == null) { err.textContent = 'צריך תאריך ושעה.'; err.hidden = false; return; }
+  const start = T.zoned(key, time), end = start + minutes * 60000;
+  const p = normP(phone);
+  const match = p ? [...S.clients.values()].find(c => normP(c.phone) === p) : [...S.clients.values()].find(c => c.name === name);
+  const row = {
+    starts_at: iso(start), ends_at: iso(end), minutes,
+    service_id: svc ? svc.id : null, service_name: svc ? svc.name : 'טיפול',
+    price: priceRaw === '' ? null : Number(priceRaw),
+    name, phone: phone || (match ? match.phone : ''), note: $('#a-note', r).value.trim(),
+  };
+  if (match) row.client_id = match.id;
+  const btn = $('#a-save', r);
+  btn.disabled = true; err.hidden = true;
+  let res;
+  if (spec.id) res = await sb.from('appointments').update(row).eq('id', spec.id).select().single();
+  else res = await sb.from('appointments').insert({ ...row, status: 'confirmed', source: 'admin', is_new: false }).select().single();
+  if (res.error) {
+    const e = dbErr(res.error);
+    err.textContent = e.code === 'overlap' ? 'יש כבר תור שחופף לשעה הזו. בחרי שעה אחרת או קצרי את המשך.' : e.code === 'not_granted' ? 'אין הרשאה לשמור. צריך להתחבר מחדש.' : 'השמירה לא הצליחה. בדיקת החיבור לאינטרנט ואז ניסיון נוסף.';
+    err.hidden = false; btn.disabled = false;
+    return;
+  }
+  const saved = res.data;
+  closeTop();
+  A.day = T.key(start);
+  await refreshBooking().catch(() => {});
+  toast(spec.id ? 'התור עודכן' : 'התור נשמר', saved.phone ? [{ label: 'וואטסאפ', fn: () => openApptWa(saved.id, 'confirm') }] : []);
+}
+
+/* ---------- appointment actions ---------- */
+async function setApptStatus(id, patch) {
+  const { data, error } = await sb.from('appointments').update(patch).eq('id', id).select().single();
+  if (error) throw dbErr(error);
+  const i = A.list.findIndex(a => a.id === id);
+  const row = { ...data, s: Date.parse(data.starts_at), e: Date.parse(data.ends_at) };
+  if (i >= 0) A.list[i] = row; else A.list.push(row);
+  render();
+  return row;
+}
+function apptFail(e) {
+  if (e && e.code === 'overlap') toast('יש כבר תור אחר בשעה הזו, אז אי אפשר להחזיר אותו.');
+  else handleWriteError(e);
+}
+async function approveAppt(id) {
+  if (!guardWrite()) return;
+  try { await setApptStatus(id, { status: 'confirmed' }); closeAll(true); render(); openApptWa(id, 'confirm'); toast('התור אושר'); }
+  catch (e) { apptFail(e); }
+}
+async function declineAppt(id) {
+  if (!guardWrite()) return;
+  try { await setApptStatus(id, { status: 'cancelled' }); closeAll(true); render(); openApptWa(id, 'decline'); toast('הבקשה נדחתה והשעה התפנתה'); }
+  catch (e) { apptFail(e); }
+}
+async function cancelAppt(id) {
+  if (!guardWrite()) return;
+  try { await setApptStatus(id, { status: 'cancelled' }); closeAll(true); render(); toast('התור בוטל והשעה התפנתה', [{ label: 'הודעה ללקוחה', fn: () => openApptWa(id, 'cancel') }]); }
+  catch (e) { apptFail(e); }
+}
+async function noShowAppt(id) {
+  if (!guardWrite()) return;
+  try { await setApptStatus(id, { status: 'noshow' }); toast('סומן שהלקוחה לא הגיעה', [{ label: 'ביטול', fn: () => setApptStatus(id, { status: 'confirmed' }).catch(apptFail) }]); }
+  catch (e) { apptFail(e); }
+}
+async function reopenAppt(id) {
+  if (!guardWrite()) return;
+  try { await setApptStatus(id, { status: 'confirmed', punched: false }); toast('התור חזר להיות פעיל'); }
+  catch (e) { apptFail(e); }
+}
+async function deleteAppt(id) {
+  if (!guardWrite()) return;
+  const { error } = await sb.from('appointments').delete().eq('id', id);
+  if (error) { apptFail(dbErr(error)); return; }
+  A.list = A.list.filter(a => a.id !== id);
+  closeAll(); toast('התור נמחק');
+}
+async function completeAppt(id) {
+  if (!guardWrite()) return;
+  const a = apptById(id);
+  if (!a || a.status !== 'confirmed') return;
+  const svc = svcById(a.service_id), counts = svc ? svc.counts !== false : true;
+  const N = S.settings.cardSize, now = Date.now();
+  let c = clientForAppt(a), kind = null;
+  try {
+    if (counts) {
+      if (!c) {
+        c = { id: newId(), name: a.name, phone: a.phone, g: 'f', notes: '', punches: 0, rewards: 0, visits: 0, createdAt: now, lastVisit: null, updatedAt: now, log: [{ t: now, a: 'join', p: 0 }] };
+        await commit(null, c);
+      }
+      const prev = S.clients.get(c.id) || c;
+      let next;
+      if (prev.punches >= N) {
+        const np = Math.max(0, prev.punches - N);
+        next = { ...prev, punches: np, rewards: prev.rewards + 1, visits: prev.visits + 1, lastVisit: now, updatedAt: now, log: [...prev.log, { t: now, a: 'redeem', p: np, prev: prevOf(prev) }].slice(-LOG_MAX) };
+        kind = 'redeem';
+      } else {
+        const np = prev.punches + 1;
+        next = { ...prev, punches: np, visits: prev.visits + 1, lastVisit: now, updatedAt: now, log: [...prev.log, { t: now, a: 'punch', p: np, prev: prevOf(prev) }].slice(-LOG_MAX) };
+        kind = 'punch';
+        S.justPainted = { id: c.id, idx: prev.punches, at: now };
+        setTimeout(() => { if (S.justPainted && S.justPainted.at === now) S.justPainted = null; }, 1200);
+      }
+      await commit(prev, next);
+      c = next;
+    }
+    await setApptStatus(id, { status: 'done', punched: !!kind, client_id: c ? c.id : a.client_id });
+    closeAll(true);
+    if (c && kind) openWa(c.id, kind === 'redeem' ? 'redeem' : 'visit');
+    else render();
+    const msg = !kind ? 'הטיפול סומן כבוצע'
+      : kind === 'redeem' ? `טיפול המתנה מומש ונפתחה כרטיסייה חדשה ל${firstName(a.name)}`
+      : `ניקוב ל${firstName(a.name)} · ${Math.min(c.punches, N)}/${N}`;
+    toast(msg, [{ label: 'ביטול', fn: () => undoComplete(id, kind ? c.id : null, now) }]);
+  } catch (e) { handleWriteError(e); }
+}
+async function undoComplete(apptId, clientId, t) {
+  try {
+    if (clientId) undo(clientId, t);
+    await setApptStatus(apptId, { status: 'confirmed', punched: false });
+  } catch (e) { handleWriteError(e); }
+}
+
+/* ---------- appointment WhatsApp messages ---------- */
+const APPT_TPLS = [
+  { k: 'confirm', label: 'אישור תור' },
+  { k: 'photo', label: 'בקשת תמונה' },
+  { k: 'reminder', label: 'תזכורת' },
+  { k: 'decline', label: 'השעה לא מתאימה' },
+  { k: 'cancel', label: 'ביטול' },
+];
+function apptMessage(tpl, a) {
+  if (!a) return '';
+  const st = S.full || {}, first = firstName(a.name), studio = studioName();
+  const when = `${T.long(a.s)} בשעה ${T.hm(a.s)}`;
+  const addr = st.address ? `\n📍 ${st.address}` : '';
+  const book = bookLink();
+  const sign = studio ? `\n${studio} 💅` : '';
+  switch (tpl) {
+    case 'photo':
+      return `היי ${first} 💕\nקיבלתי את הבקשה שלך לתור ל${a.service_name}, ב${when}.\nאפשר לשלוח לי תמונה עדכנית של הציפורניים? ככה אדע איך להתכונן ✨${a.is_new ? '\n\nללקוחות חדשות יש מקדמה של 50₪ (ביט או פייבוקס) שמתקזזת ממחיר הטיפול, ואחריה התור מאושר.' : ''}`;
+    case 'reminder':
+      return `היי ${first} 💕\nתזכורת לתור שלך ✨\n${a.service_name}\n${when}${addr}\n\nאם משהו משתנה, אפשר לכתוב לי עד 24 שעות לפני.${sign}`;
+    case 'decline':
+      return `היי ${first} 💕\nלצערי השעה שביקשת (${when}) לא מתאימה לי.${book ? `\nאפשר לבחור מועד אחר כאן:\n${book}` : '\nאשמח למצוא לך מועד אחר.'}${sign}`;
+    case 'cancel':
+      return `היי ${first},\nהתור שלך ב${when} בוטל.${book ? `\nלקביעת מועד חדש:\n${book}` : ''}${sign}`;
+    default:
+      return `היי ${first} 💕\nהתור שלך מאושר ✨\n${a.service_name}\n${when}${addr}\n\nמחכה לך!${sign}`;
+  }
+}
+function openApptWa(id, tpl) {
+  if (!apptById(id)) return;
+  openSheet({ type: 'wa', id: null, apptId: id, tpl: tpl || 'confirm', custom: null, editing: false });
+}
+
+/* ---------- opening hours & blocks ---------- */
+function renderHours() {
+  const v = $('#vHours');
+  if (!A.loaded) { paint(v, '<div class="skel-list" aria-hidden="true"><div class="skel"></div><div class="skel"></div></div>'); return; }
+  if (!A.hoursDraft) A.hoursDraft = JSON.parse(JSON.stringify((S.full && S.full.hours) || {}));
+  const d = A.hoursDraft, now = Date.now();
+  const upcoming = A.blocks.filter(b => b.e > now).sort((x, y) => x.s - y.s);
+  const html = `<header class="top"><div class="brand"><div class="eyebrow">זמינות</div><h1 class="studio">שעות וחופשות</h1><div class="sub">הלקוחות רואות באתר רק שעות פנויות בתוך השעות האלה.</div></div></header>
+    <div class="list-plain">${[0, 1, 2, 3, 4, 5, 6].map(wd => {
+      const wins = d[String(wd)] || [];
+      return `<div class="hours-day">
+        <label class="switch"><span class="lbl">יום ${WD_LONG[wd]}<small>${wins.length ? wins.map(w => `<span dir="ltr">${esc(w.from)}–${esc(w.to)}</span>`).join(', ') : 'סגור'}</small></span><input type="checkbox" data-hours-toggle="${wd}"${wins.length ? ' checked' : ''} aria-label="יום ${WD_LONG[wd]} פתוח"></label>
+        ${wins.map((w, i) => `<div class="hours-win"><input class="input" type="time" step="300" value="${esc(w.from)}" data-hours="${wd}" data-i="${i}" data-f="from" aria-label="משעה"><span class="sep">עד</span><input class="input" type="time" step="300" value="${esc(w.to)}" data-hours="${wd}" data-i="${i}" data-f="to" aria-label="עד שעה"><button type="button" class="rm" data-act="hours-rm" data-wd="${wd}" data-i="${i}" aria-label="הסרת טווח">×</button></div>`).join('')}
+        ${wins.length && wins.length < 3 ? `<button type="button" class="addwin" data-act="hours-add" data-wd="${wd}">+ טווח נוסף (למשל אחרי הפסקה)</button>` : ''}
+      </div>`;
+    }).join('')}</div>
+    <button type="button" class="btn primary big" id="hoursSave" data-act="hours-save"${A.hoursDirty && S.canWrite ? '' : ' disabled'}>שמירת שעות הפעילות</button>
+    <div class="section-title"><h2>חסימות וחופשות</h2><button type="button" class="head-btn" data-act="block-new">${IC.plus}<span>חסימה</span></button></div>
+    <p class="help">חופשה, יום מקוצר או סידורים. השעות האלה לא יוצעו ללקוחות.</p>
+    ${upcoming.length ? `<div class="list-plain">${upcoming.map(b => `<button type="button" class="lrow" data-act="block-open" data-id="${esc(b.id)}"><span class="grow"><span class="title">${b.all_day ? 'כל היום' : `<span dir="ltr">${T.hm(b.s)}–${T.hm(b.e)}</span>`}${b.reason ? ' · ' + esc(b.reason) : ''}</span><br><span class="sub2">${esc(T.long(b.s))}${b.all_day && T.key(b.e - 1) !== T.key(b.s) ? ' עד ' + esc(T.long(b.e - 1)) : ''}</span></span><span class="muted">›</span></button>`).join('')}</div>` : '<div class="empty-day">אין חסימות קרובות.</div>'}`;
+  paint(v, html);
+}
+function blockFormHTML(spec) {
+  const b = spec.id ? A.blocks.find(x => x.id === spec.id) : null;
+  const allDay = b ? b.all_day : true;
+  const from = b ? T.key(b.s) : (A.day || T.today());
+  const to = b ? T.key(b.all_day ? b.e - 1 : b.s) : from;
+  return sheetHead(spec, b ? 'עריכת חסימה' : 'חסימה חדשה') + `<div class="sheet-body">
+    <form class="form" id="blockForm" novalidate>
+      <div class="row2">
+        <div class="field"><label for="b-from">מתאריך</label><input class="input" id="b-from" type="date" value="${from}"></div>
+        <div class="field"><label for="b-to">עד תאריך</label><input class="input" id="b-to" type="date" value="${to}"></div>
+      </div>
+      <label class="switch"><span class="lbl">כל היום</span><input type="checkbox" id="b-all"${allDay ? ' checked' : ''}></label>
+      <div class="row2" id="b-times"${allDay ? ' hidden' : ''}>
+        <div class="field"><label for="b-s">משעה</label><input class="input" id="b-s" type="time" step="300" value="${b && !b.all_day ? T.hm(b.s) : '12:00'}"></div>
+        <div class="field"><label for="b-e">עד שעה</label><input class="input" id="b-e" type="time" step="300" value="${b && !b.all_day ? T.hm(b.e) : '14:00'}"></div>
+      </div>
+      <div class="field"><label for="b-reason">סיבה <span class="opt">(רק את רואה)</span></label><input class="input" id="b-reason" maxlength="60" value="${esc(b ? b.reason : '')}" placeholder="למשל: חופשה"></div>
+      <div class="err-box" id="b-err" hidden></div>
+      <button type="submit" class="btn primary big" id="b-save">${b ? 'שמירת שינויים' : 'הוספת חסימה'}</button>
+      ${b ? `<button type="button" class="text-btn danger-txt" data-act="block-delete" data-id="${esc(b.id)}">${IC.trash}<span>מחיקת החסימה</span></button>` : ''}
+    </form>
+  </div>`;
+}
+async function submitBlock(spec) {
+  if (!guardWrite()) return;
+  const r = spec.inner, err = $('#b-err', r);
+  const from = $('#b-from', r).value, to = $('#b-to', r).value || from, all = $('#b-all', r).checked;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || to < from) { err.textContent = 'צריך תאריכים תקינים.'; err.hidden = false; return; }
+  let s, e;
+  if (all) { s = T.zoned(from, 0); e = T.zoned(T.add(to, 1), 0); }
+  else {
+    const a = T.min($('#b-s', r).value), b = T.min($('#b-e', r).value);
+    if (a == null || b == null || b <= a) { err.textContent = 'שעת הסיום צריכה להיות אחרי שעת ההתחלה.'; err.hidden = false; return; }
+    if (to !== from) { err.textContent = 'חסימה של שעות היא ליום אחד. לכמה ימים, סמני «כל היום».'; err.hidden = false; return; }
+    s = T.zoned(from, a); e = T.zoned(from, b);
+  }
+  const row = { starts_at: iso(s), ends_at: iso(e), all_day: all, reason: $('#b-reason', r).value.trim() };
+  $('#b-save', r).disabled = true;
+  const res = spec.id ? await sb.from('blocks').update(row).eq('id', spec.id) : await sb.from('blocks').insert(row);
+  if (res.error) { err.textContent = 'השמירה לא הצליחה. בדיקת החיבור ואז ניסיון נוסף.'; err.hidden = false; $('#b-save', r).disabled = false; return; }
+  closeTop();
+  await refreshBooking().catch(() => {});
+  const clash = A.list.filter(x => (x.status === 'pending' || x.status === 'confirmed') && x.s < e && x.e > s).length;
+  toast(clash ? `החסימה נשמרה. שימי לב: יש ${plural(clash, 'תור אחד', 'תורים')} בזמן הזה.` : 'החסימה נשמרה');
+}
+
+/* ---------- settings ("more" tab) ---------- */
+const sel = (id, opts, cur) => `<select class="input" id="${id}">${opts.map(([v, l]) => `<option value="${v}"${String(v) === String(cur) ? ' selected' : ''}>${l}</option>`).join('')}</select>`;
+function renderMore() {
+  const v = $('#vMore');
+  const st = S.full || {}, link = bookLink();
+  const svcs = A.services;
+  const html = `<header class="top"><div class="brand"><div class="eyebrow">הגדרות</div><h1 class="studio">${esc(studioName())}</h1></div></header>
+    <div class="section-title"><h2>דף קביעת התורים</h2></div>
+    ${link ? `<div class="card-box"><div class="linkbox"><span>${esc(link)}</span></div><div class="actions-row"><button type="button" class="btn ghost" data-act="copy-text" data-v="${esc(link)}">${IC.copy}<span>העתקה</span></button><a class="btn ghost" href="${esc(link)}" target="_blank" rel="noopener">פתיחה</a></div><p class="help">אפשר לשים את הקישור בביו של האינסטגרם ובסטורי.</p></div>` : '<p class="help">כשתוגדר כתובת האתר בהגדרות הכרטיסייה, הקישור יופיע כאן.</p>'}
+
+    <div class="section-title"><h2>טיפולים</h2><button type="button" class="head-btn" data-act="svc-new">${IC.plus}<span>טיפול</span></button></div>
+    <div class="list-plain">${svcs.length ? svcs.map(s => `<button type="button" class="lrow${s.active ? '' : ' off'}" data-act="svc-open" data-id="${esc(s.id)}"><span class="grow"><span class="title">${esc(s.name)}</span><br><span class="sub2">${fmtDur(s.minutes)}${s.active ? '' : ' · מוסתר מהאתר'}${s.counts === false ? ' · לא נחשב לכרטיסייה' : ''}</span></span><span class="price">${fmtPrice(s.price)}</span></button>`).join('') : '<div class="empty-day">אין עדיין טיפולים.</div>'}</div>
+
+    <div class="section-title"><h2>כללי קביעת תורים</h2></div>
+    <form class="card-box form" id="rulesForm" novalidate>
+      <div class="row2">
+        <div class="field"><label for="r-step">שעות לבחירה</label>${sel('r-step', [[15, 'כל רבע שעה'], [20, 'כל 20 דק׳'], [30, 'כל חצי שעה'], [60, 'כל שעה']], st.slotMinutes || 30)}</div>
+        <div class="field"><label for="r-buf">הפסקה בין תורים</label>${sel('r-buf', [[0, 'בלי'], [5, '5 דק׳'], [10, '10 דק׳'], [15, '15 דק׳'], [30, '30 דק׳']], st.bufferMinutes == null ? 10 : st.bufferMinutes)}</div>
+        <div class="field"><label for="r-notice">התראה מינימלית</label>${sel('r-notice', [[0, 'בלי'], [60, 'שעה'], [120, 'שעתיים'], [240, '4 שעות'], [720, '12 שעות'], [1440, 'יום מראש']], st.minNoticeMinutes == null ? 120 : st.minNoticeMinutes)}</div>
+        <div class="field"><label for="r-ahead">כמה זמן קדימה</label>${sel('r-ahead', [[14, 'שבועיים'], [30, 'חודש'], [60, 'חודשיים'], [90, '3 חודשים']], st.maxDaysAhead || 30)}</div>
+      </div>
+      <div class="field"><label for="r-appr">אישור תורים</label>${sel('r-appr', [['new', 'רק לקוחות חדשות מחכות לאישור'], ['all', 'כל תור מחכה לאישור שלי']], st.approval || 'new')}</div>
+      <p class="help">לקוחה שכבר יש לה כרטיסייה או תור קודם מזוהה לפי הטלפון.</p>
+      <button type="submit" class="btn primary" id="r-save"${S.canWrite ? '' : ' disabled'}>שמירה</button>
+    </form>
+
+    <div class="section-title"><h2>פרטי הסטודיו</h2></div>
+    <form class="card-box form" id="studioForm" novalidate>
+      <div class="field"><label for="d-owner">שם פרטי בהודעות</label><input class="input" id="d-owner" maxlength="30" value="${esc(st.ownerName || '')}"></div>
+      <div class="field"><label for="d-phone">הוואטסאפ של הסטודיו</label><input class="input ltr" id="d-phone" type="tel" inputmode="tel" dir="ltr" maxlength="20" value="${esc(st.ownerPhone || '')}"><p class="help">לכאן מגיעות הודעות מהלקוחות מדף התורים.</p></div>
+      <div class="field"><label for="d-addr">כתובת</label><input class="input" id="d-addr" maxlength="80" value="${esc(st.address || '')}"><p class="help">מופיעה ללקוחה אחרי קביעת התור ובהודעות האישור.</p></div>
+      <div class="field"><label for="d-intro">משפט פתיחה בדף התורים</label><textarea class="input" id="d-intro" rows="2" maxlength="160">${esc(st.intro || '')}</textarea></div>
+      <button type="submit" class="btn primary" id="d-save"${S.canWrite ? '' : ' disabled'}>שמירה</button>
+    </form>
+
+    <div class="section-title"><h2>כרטיסיית המועדון</h2></div>
+    <div class="card-box"><p class="help">כמה טיפולים עד מתנה, שם הסטודיו וכתובת האתר.</p><button type="button" class="btn ghost" data-act="settings">הגדרות הכרטיסייה</button><button type="button" class="btn wa" data-act="summary">${IC.chat}<span>סיכום כרטיסיות לוואטסאפ</span></button></div>
+
+    <div class="section-title"><h2>חשבון</h2></div>
+    <form class="card-box form" id="pwForm" novalidate>
+      <input type="email" autocomplete="username" value="${esc(CFG.adminEmail || '')}" hidden>
+      <div class="field"><label for="p-new">סיסמה חדשה</label><input class="input ltr" id="p-new" type="password" autocomplete="new-password" minlength="8"></div>
+      <div class="field"><label for="p-new2">שוב את הסיסמה החדשה</label><input class="input ltr" id="p-new2" type="password" autocomplete="new-password" minlength="8"></div>
+      <div class="err" id="p-err" hidden></div>
+      <button type="submit" class="btn ghost" id="p-save">החלפת סיסמה</button>
+    </form>
+    <button type="button" class="btn ghost" data-act="logout">יציאה מהחשבון</button>`;
+  paint(v, html);
+}
+function svcFormHTML(spec) {
+  const s = spec.id ? svcById(spec.id) : null;
+  return sheetHead(spec, s ? 'עריכת טיפול' : 'טיפול חדש') + `<div class="sheet-body">
+    <form class="form" id="svcForm" novalidate>
+      <div class="field"><label for="v-name">שם הטיפול</label><input class="input" id="v-name" maxlength="60" value="${esc(s ? s.name : '')}"><div class="err" id="v-name-err" hidden>צריך שם.</div></div>
+      <div class="row2">
+        <div class="field"><label for="v-min">משך בדקות</label><input class="input" id="v-min" type="number" inputmode="numeric" min="5" max="480" step="5" value="${s ? s.minutes : 60}"></div>
+        <div class="field"><label for="v-price">מחיר</label><input class="input" id="v-price" type="number" inputmode="numeric" min="0" step="1" value="${s && s.price != null ? esc(s.price) : ''}"></div>
+      </div>
+      <label class="switch"><span class="lbl">מוצג באתר<small>לקוחות יכולות לקבוע אותו לבד</small></span><input type="checkbox" id="v-active"${!s || s.active ? ' checked' : ''}></label>
+      <label class="switch"><span class="lbl">נחשב לכרטיסייה<small>בסיום הטיפול מתווסף ניקוב</small></span><input type="checkbox" id="v-counts"${!s || s.counts !== false ? ' checked' : ''}></label>
+      <div class="err-box" id="v-err" hidden></div>
+      <button type="submit" class="btn primary big" id="v-save">${s ? 'שמירת שינויים' : 'הוספת הטיפול'}</button>
+      ${s ? `<button type="button" class="text-btn danger-txt" data-act="svc-delete" data-id="${esc(s.id)}">${IC.trash}<span>מחיקת הטיפול</span></button>` : ''}
+    </form>
+  </div>`;
+}
+async function submitSvc(spec) {
+  if (!guardWrite()) return;
+  const r = spec.inner, err = $('#v-err', r);
+  const name = $('#v-name', r).value.trim();
+  $('#v-name-err', r).hidden = !!name;
+  if (!name) return;
+  const priceRaw = $('#v-price', r).value.trim();
+  const row = { name, minutes: clamp(parseInt($('#v-min', r).value, 10) || 60, 5, 480), price: priceRaw === '' ? null : Number(priceRaw), active: $('#v-active', r).checked, counts: $('#v-counts', r).checked };
+  $('#v-save', r).disabled = true;
+  const res = spec.id ? await sb.from('services').update(row).eq('id', spec.id)
+    : await sb.from('services').insert({ ...row, id: 's' + newId().slice(0, 9), sort: (A.services.reduce((m, s) => Math.max(m, s.sort || 0), 0) + 1) });
+  if (res.error) { err.textContent = 'השמירה לא הצליחה.'; err.hidden = false; $('#v-save', r).disabled = false; return; }
+  closeTop();
+  await refreshBooking().catch(() => {});
+  toast('הטיפול נשמר');
+}
+async function submitRules(form) {
+  if (!guardWrite()) return;
+  const patch = {
+    slotMinutes: +$('#r-step').value, bufferMinutes: +$('#r-buf').value,
+    minNoticeMinutes: +$('#r-notice').value, maxDaysAhead: +$('#r-ahead').value, approval: $('#r-appr').value,
+  };
+  try { $('#r-save').disabled = true; await mergeSettings(patch); toast('הכללים נשמרו'); }
+  catch (e) { handleWriteError(e); }
+  finally { const b = $('#r-save'); if (b) b.disabled = false; }
+}
+async function submitStudio(form) {
+  if (!guardWrite()) return;
+  const patch = { ownerName: $('#d-owner').value.trim(), ownerPhone: $('#d-phone').value.trim(), address: $('#d-addr').value.trim(), intro: $('#d-intro').value.trim() };
+  try { $('#d-save').disabled = true; await mergeSettings(patch); toast('הפרטים נשמרו'); }
+  catch (e) { handleWriteError(e); }
+  finally { const b = $('#d-save'); if (b) b.disabled = false; }
+}
+async function submitPassword() {
+  const a = $('#p-new').value, b = $('#p-new2').value, err = $('#p-err');
+  err.hidden = true;
+  if (a.length < 8) { err.textContent = 'צריך לפחות 8 תווים.'; err.hidden = false; return; }
+  if (a !== b) { err.textContent = 'שתי הסיסמאות לא זהות.'; err.hidden = false; return; }
+  $('#p-save').disabled = true;
+  const { error } = await sb.auth.updateUser({ password: a });
+  $('#p-save').disabled = false;
+  if (error) { err.textContent = 'ההחלפה לא הצליחה. נסי שוב.'; err.hidden = false; return; }
+  $('#p-new').value = ''; $('#p-new2').value = '';
+  toast('הסיסמה הוחלפה. בפעם הבאה נכנסים עם הסיסמה החדשה.');
+}
+
+/* ---------- login ---------- */
+async function doLogin() {
+  const pw = $('#lPass').value, btn = $('#lBtn'), err = $('#lErr');
+  if (!pw) { $('#lPass').focus(); return; }
+  btn.disabled = true; err.hidden = true;
+  let res;
+  try { res = await sb.auth.signInWithPassword({ email: CFG.adminEmail, password: pw }); }
+  catch (_) { res = { error: { message: 'network' } }; }
+  btn.disabled = false;
+  if (res.error) {
+    err.textContent = /invalid|credentials/i.test(res.error.message || '') ? 'הסיסמה לא נכונה.' : 'אין חיבור כרגע. בדקי את האינטרנט ונסי שוב.';
+    err.hidden = false;
+    return;
+  }
+  $('#lPass').value = '';
+  startApp();
+}
+async function logout() {
+  try { await sb.auth.signOut(); } catch (_) {}
+  location.reload();
+}
+
+/* ---------- events for the new parts ---------- */
+function extraClick(act, el) {
+  const id = el.dataset.id, spec = topSheet();
+  switch (act) {
+    case 'tab': setView(el.dataset.v); break;
+    case 'day': A.day = el.dataset.k; render(); break;
+    case 'week': A.day = T.add(A.day || T.today(), +el.dataset.d); render(); break;
+    case 'go-today': A.day = T.today(); render(); break;
+    case 'reload': refreshBooking().catch(() => {}); break;
+    case 'appt-open': openSheet({ type: 'appt', id }); break;
+    case 'appt-new': if (guardWrite()) openSheet({ type: 'apptForm', id: null, k: el.dataset.k, m: el.dataset.m }); break;
+    case 'appt-edit': if (guardWrite()) openSheet({ type: 'apptForm', id }); break;
+    case 'appt-approve': approveAppt(id); break;
+    case 'appt-decline': declineAppt(id); break;
+    case 'appt-cancel': cancelAppt(id); break;
+    case 'appt-noshow': noShowAppt(id); break;
+    case 'appt-reopen': reopenAppt(id); break;
+    case 'appt-done': completeAppt(id); break;
+    case 'appt-wa': openApptWa(id, el.dataset.tpl); break;
+    case 'appt-delete-ask': if (spec) { spec.confirmDelete = true; fillSheet(spec, false); } break;
+    case 'appt-delete-no': if (spec) { spec.confirmDelete = false; fillSheet(spec, false); } break;
+    case 'appt-delete-yes': deleteAppt(id); break;
+    case 'pick-time': if (spec) { $('#a-time', spec.inner).value = el.dataset.v; updateFreeChips(spec); } break;
+    case 'copy-text': copyText(el.dataset.v, el.parentElement.querySelector('.phone')); break;
+    case 'hours-add': {
+      const d = A.hoursDraft, w = d[el.dataset.wd] || (d[el.dataset.wd] = []);
+      const last = w[w.length - 1];
+      w.push(last ? { from: last.to, to: T.hhmm(Math.min(1439, (T.min(last.to) || 0) + 120)) } : { from: '09:00', to: '17:00' });
+      A.hoursDirty = true; render(); break;
+    }
+    case 'hours-rm': { const w = A.hoursDraft[el.dataset.wd] || []; w.splice(+el.dataset.i, 1); A.hoursDirty = true; render(); break; }
+    case 'hours-save': saveHours(); break;
+    case 'block-new': if (guardWrite()) openSheet({ type: 'blockForm', id: null }); break;
+    case 'block-open': if (guardWrite()) openSheet({ type: 'blockForm', id }); break;
+    case 'block-delete': deleteBlock(id); break;
+    case 'svc-new': if (guardWrite()) openSheet({ type: 'svcForm', id: null }); break;
+    case 'svc-open': if (guardWrite()) openSheet({ type: 'svcForm', id }); break;
+    case 'svc-delete': deleteSvc(id); break;
+    case 'logout': logout(); break;
+  }
+}
+async function saveHours() {
+  if (!guardWrite()) return;
+  const d = A.hoursDraft, clean = {};
+  for (let wd = 0; wd < 7; wd++) {
+    const wins = (d[String(wd)] || []).filter(w => T.min(w.from) != null && T.min(w.to) != null);
+    for (const w of wins) if (T.min(w.to) <= T.min(w.from)) { toast(`ביום ${WD_LONG[wd]} שעת הסיום מוקדמת מההתחלה.`); return; }
+    clean[String(wd)] = wins.map(w => ({ from: w.from, to: w.to })).sort((a, b) => T.min(a.from) - T.min(b.from));
+  }
+  try { await mergeSettings({ hours: clean }); A.hoursDraft = null; A.hoursDirty = false; render(); toast('שעות הפעילות נשמרו'); }
+  catch (e) { handleWriteError(e); }
+}
+async function deleteBlock(id) {
+  if (!guardWrite()) return;
+  const { error } = await sb.from('blocks').delete().eq('id', id);
+  if (error) { handleWriteError(dbErr(error)); return; }
+  closeAll(true);
+  await refreshBooking().catch(() => {});
+  toast('החסימה נמחקה');
+}
+async function deleteSvc(id) {
+  if (!guardWrite()) return;
+  const { error } = await sb.from('services').delete().eq('id', id);
+  if (error) { handleWriteError(dbErr(error)); return; }
+  closeAll(true);
+  await refreshBooking().catch(() => {});
+  toast('הטיפול נמחק');
+}
+function extraSubmit(id, spec, form) {
+  if (id === 'loginForm') doLogin();
+  else if (id === 'apptForm' && spec) submitAppt(spec);
+  else if (id === 'blockForm' && spec) submitBlock(spec);
+  else if (id === 'svcForm' && spec) submitSvc(spec);
+  else if (id === 'rulesForm') submitRules(form);
+  else if (id === 'studioForm') submitStudio(form);
+  else if (id === 'pwForm') submitPassword();
+}
+function extraInput(e) {
+  const t = e.target, spec = topSheet();
+  if (t.matches && t.matches('[data-hours]')) {
+    const w = (A.hoursDraft[t.dataset.hours] || [])[+t.dataset.i];
+    if (w) { w[t.dataset.f] = t.value; A.hoursDirty = true; const b = $('#hoursSave'); if (b) b.disabled = !S.canWrite; }
+    return;
+  }
+  if (!spec) return;
+  if (spec.type === 'apptForm') {
+    if (t.id === 'a-svc') {
+      const s = svcById(t.value);
+      if (s) { $('#a-min', spec.inner).value = s.minutes; $('#a-price', spec.inner).value = s.price == null ? '' : s.price; }
+    }
+    if (t.id === 'a-name') {
+      const c = [...S.clients.values()].find(x => x.name === t.value.trim());
+      const ph = $('#a-phone', spec.inner);
+      if (c && c.phone && !ph.value) ph.value = c.phone;
+    }
+    if (['a-svc', 'a-date', 'a-min', 'a-time'].includes(t.id)) updateFreeChips(spec);
+  }
+}
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.matches && t.matches('[data-hours-toggle]')) {
+    const wd = t.dataset.hoursToggle;
+    A.hoursDraft[wd] = t.checked ? [{ from: '09:00', to: '19:00' }] : [];
+    A.hoursDirty = true; render();
+  } else if (t.id === 'b-all') {
+    const box = $('#b-times'); if (box) box.hidden = t.checked;
+  } else extraInput(e);
+});
+
+/* ---------- start ---------- */
+let started = false;
+async function startApp() {
+  if (started) return;
+  started = true;
+  S.authed = true;
+  try { const v = localStorage.getItem('sapinails.view'); if (['agenda', 'cards', 'hours', 'more'].includes(v)) S.view = v; } catch (_) {}
+  render();
+  let ok = false;
+  try { const { data, error } = await sb.rpc('is_admin'); ok = !error && data === true; } catch (_) {}
+  S.canWrite = ok;
+  S.db = DB;
+  if (!ok) {
+    S.status = 'nodb';
+    toast('החשבון הזה לא מורשה לנהל את הסטודיו.');
+    render();
+    return;
+  }
+  subscribe();
+  refreshBooking().catch(() => {});
+  sb.channel('sapinails-admin')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, () => notify('clients'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => notify('settings'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, refreshSoon)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'blocks' }, refreshSoon)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, refreshSoon)
+    .subscribe();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') { refreshSoon(); notify('clients'); }
+  });
+  setInterval(() => { if (document.visibilityState === 'visible') refreshSoon(); }, 120000);
+}
+async function boot() {
+  $('#tabbar .in').innerHTML = [['agenda', 'יומן'], ['cards', 'כרטיסיות'], ['hours', 'שעות'], ['more', 'הגדרות']]
+    .map(([k, l]) => `<button type="button" class="tab" data-act="tab" data-v="${k}">${TAB_ICONS[k]}<span>${l}</span>${k === 'agenda' ? '<span class="badge" id="pendBadge" hidden></span>' : ''}</button>`).join('');
+  let session = null;
+  try { const { data } = await sb.auth.getSession(); session = data && data.session; } catch (_) {}
+  if (session) startApp();
+  else { render(); setTimeout(() => { const p = $('#lPass'); if (p) p.focus(); }, 50); }
+  sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT' && started) location.reload(); });
+}
+boot();
+
+})();
+</script>
+</body>
+</html>
