@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ספיר · ניהול">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&amp;family=Frank+Ruhl+Libre:wght@400;500&amp;family=Playpen+Sans+Hebrew:wght@400&amp;family=Ms+Madi&amp;display=swap">
@@ -368,7 +370,9 @@ input[type=date].input,input[type=time].input,input[type=number].input{direction
 .wd.today .n{color:var(--accent)}
 .wd[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .wd[aria-pressed="true"] .w,.wd[aria-pressed="true"] .c,.wd[aria-pressed="true"] .n{color:var(--accent-ink)}
-.dayhead{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+.dayhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:2px}
+.dayhead .dh-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dayhead .head-btn{height:36px;padding:0 12px;font-size:13.5px;margin-top:2px}
 .dayhead h2{margin:0;font-family:var(--font-display);font-weight:400;font-size:23px}
 .dayhead .meta{font-size:14px;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .agenda{display:flex;flex-direction:column;gap:8px}
@@ -417,6 +421,32 @@ input[type=date].input,input[type=time].input,input[type=number].input{direction
 /* dates under the nails */
 .nailcell{display:flex;flex-direction:column;align-items:center;gap:4px}
 .nd{font-size:10.5px;font-weight:700;line-height:13px;min-height:13px;color:var(--card-ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* free gaps: close hours or add an appointment */
+.gap-acts{display:flex;gap:6px;flex:none}
+.mini-btn.ghost{background:transparent;border-color:var(--line-strong)}
+
+/* reminders for tomorrow */
+.remind{display:flex;flex-direction:column;gap:8px}
+.rem{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line-strong);border-inline-start:4px solid var(--wa);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow-sm)}
+.rem .req-top{flex:1;min-width:0}
+.rem .who{font-weight:800;font-size:15.5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rem .what{font-size:13.5px;color:var(--ink-2);overflow-wrap:anywhere}
+.rem .rem-btn{flex:none;min-height:42px;padding:0 14px;font-size:14.5px}
+.rem.sent{border-inline-start-color:var(--ok-line);box-shadow:none}
+.rem.sent .who{color:var(--ink-2)}
+.small{font-size:13px}
+
+/* appointment sheet: more time */
+.extend{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+
+/* message wording */
+.group-lbl{font-size:13px;font-weight:800;color:var(--ink-3);margin:2px 2px -4px}
+textarea.tpl-text{min-height:230px;resize:vertical;line-height:1.55;font-family:var(--font-ui)}
+
+/* phone alerts */
+.steps{margin:0;padding-inline-start:22px;display:flex;flex-direction:column;gap:6px;font-size:14.5px;line-height:1.5}
+.ok-line{margin:0;font-weight:800;color:var(--ok-ink)}
 </style>
 </head>
 <body>
@@ -516,7 +546,7 @@ const IC = {
 const TPLS = [
   { k: 'visit', label: 'אחרי טיפול' },
   { k: 'status', label: 'מצב הכרטיסייה' },
-  { k: 'reminder', label: 'תזכורת לתור' },
+  { k: 'reminder', label: 'הזמנה לחזור' },
   { k: 'welcome', label: 'הודעת הצטרפות' },
   { k: 'redeem', label: 'אחרי טיפול מתנה' },
 ];
@@ -701,7 +731,8 @@ function statusLine(p, N) {
   if (left <= 0) return '*הכרטיסייה מלאה!* הטיפול הבא שלך מתנה ממני 🎁';
   return `*${f} מתוך ${N}* · עוד ${left === 1 ? 'טיפול אחד' : left + ' טיפולים'} ואז טיפול מתנה ממני 🎁`;
 }
-function buildMessage(tpl, c) {
+function buildMessage(tpl, c) { return cardMessage(tpl, c); }
+function buildMessageBuiltin(tpl, c) {
   const N = S.settings.cardSize, p = c.punches, name = firstName(c.name), studio = studioName();
   const prog = progressLines(p, N), st = statusLine(p, N);
   const link = cardLink(c);
@@ -919,12 +950,14 @@ function fillSheet(spec, first) {
   let html;
   if (spec.type === 'client') html = clientSheetHTML(spec);
   else if (spec.type === 'appt') html = apptSheetHTML(spec);
+  else if (spec.type === 'tplList') html = tplListSheetHTML(spec);
   else if (spec.type === 'wa') {
     if (!first && spec.editing) { updateWaLink(spec); return; }
     html = waSheetHTML(spec);
   } else if (first) {
     html = spec.type === 'edit' ? editFormHTML(spec) : spec.type === 'settings' ? settingsHTML(spec)
-      : spec.type === 'apptForm' ? apptFormHTML(spec) : spec.type === 'blockForm' ? blockFormHTML(spec) : svcFormHTML(spec);
+      : spec.type === 'apptForm' ? apptFormHTML(spec) : spec.type === 'blockForm' ? blockFormHTML(spec)
+      : spec.type === 'tplForm' ? tplFormHTML(spec) : svcFormHTML(spec);
   } else return;
   if (html === spec.lastHTML) return;
   const body = $('.sheet-body', spec.inner);
@@ -1106,9 +1139,10 @@ function waSheetHTML(spec) {
   return sheetHead(spec, title) + `<div class="sheet-body wa-body">
     ${chips}
     <div class="bubble-wrap">${bubble}</div>
-    <div class="wa-meta"><span>${to}</span><button type="button" class="text-btn" data-act="wa-edit">${spec.editing ? 'חזרה לנוסח המוכן' : 'עריכת הנוסח'}</button></div>
+    <div class="wa-meta"><span>${to}</span><button type="button" class="text-btn" data-act="wa-edit">${spec.editing ? 'חזרה לנוסח המוכן' : 'עריכה חד־פעמית'}</button></div>
+    ${waTplLink(spec)}
     <div class="actions-row">
-      <a class="btn wa" id="wa-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${IC.chat}<span>פתיחה בוואטסאפ</span></a>
+      <a class="btn wa" id="wa-link" data-act="wa-open" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${IC.chat}<span>פתיחה בוואטסאפ</span></a>
       <button type="button" class="btn ghost" data-act="wa-copy">${IC.copy}<span>העתקה</span></button>
     </div>
     <p class="fine">ההודעה נשלחת רק מתוך וואטסאפ, אחרי לחיצה על שליחה.${/\/k\/\d{1,2}\/\d{1,2}\//.test(text) ? ' כדאי לחכות שנייה עד שתמונת הכרטיסייה מופיעה מעל ההודעה, ורק אז לשלוח.' : ''}</p>
@@ -1745,6 +1779,13 @@ function renderAgenda() {
         </div>
       </div>`).join('')}</div>`;
   }
+  const tmr = T.add(today, 1);
+  const rem = A.list.filter(a => a.status === 'confirmed' && T.key(a.s) === tmr).sort((x, y) => x.s - y.s);
+  if (rem.length) {
+    const left = rem.filter(a => !a.reminded_at).length;
+    html += `<div class="section-title" id="remindSec"><h2>תזכורות למחר</h2><span class="hint">${left ? `${left} מתוך ${rem.length} לשליחה` : 'כולן נשלחו ✓'}</span></div>`;
+    if (left) html += `<div class="remind">${rem.map(remRow).join('')}</div>`;
+  }
 
   const weekStart = T.add(key, -T.wd(key));
   const days = [0, 1, 2, 3, 4, 5, 6].map(i => T.add(weekStart, i));
@@ -1759,7 +1800,7 @@ function renderAgenda() {
       const cls = ['wd', k === today ? 'today' : '', dayWindows(k).length ? '' : 'closed'].join(' ');
       return `<button type="button" class="${cls}" data-act="day" data-k="${k}" aria-pressed="${k === key}" aria-label="${esc(T.keyLong(k))}${n ? ', ' + n + ' תורים' : ''}"><span class="w">${WD_SHORT[T.wd(k)]}</span><span class="n">${+k.slice(8)}</span><span class="c">${n || ''}</span></button>`;
     }).join('')}</div>
-    <div class="dayhead"><h2>${esc(T.keyLong(key))}${key === today ? ' <span class="st confirmed">היום</span>' : ''}</h2><div class="meta">${esc(meta)}</div></div>`;
+    <div class="dayhead"><div class="dh-text"><h2>${esc(T.keyLong(key))}${key === today ? ' <span class="st confirmed">היום</span>' : ''}</h2><div class="meta">${esc(meta)}</div></div>${key >= today && !allDay && wins.length && S.canWrite ? `<button type="button" class="head-btn" data-act="block-day" data-k="${key}">סגירת שעות</button>` : ''}</div>`;
 
   const rows = [];
   for (const a of dayItems) {
@@ -1793,7 +1834,23 @@ function renderAgenda() {
   paint(v, html);
 }
 function gapRow(key, s, e) {
-  return `<div class="gap"><span>פנוי · <span dir="ltr">${T.hhmm(s)}–${T.hhmm(e)}</span> · ${fmtDur(e - s)}</span><button type="button" class="mini-btn" data-act="appt-new" data-k="${key}" data-m="${Math.ceil(s / 5) * 5}">+ תור</button></div>`;
+  const s5 = Math.ceil(s / 5) * 5;
+  return `<div class="gap"><span>פנוי · <span dir="ltr">${T.hhmm(s)}–${T.hhmm(e)}</span> · ${fmtDur(e - s)}</span><span class="gap-acts"><button type="button" class="mini-btn ghost" data-act="block-gap" data-k="${key}" data-s="${s5}" data-e="${e}" aria-label="סגירת השעות ${T.hhmm(s5)}–${T.hhmm(e)}">סגירה</button><button type="button" class="mini-btn" data-act="appt-new" data-k="${key}" data-m="${s5}">+ תור</button></span></div>`;
+}
+function remRow(a) {
+  const sent = !!a.reminded_at;
+  return `<div class="rem${sent ? ' sent' : ''}">
+    <button type="button" class="req-top" data-act="appt-open" data-id="${esc(a.id)}"><span class="who">${T.hm(a.s)} · ${esc(a.name)}</span><span class="what">${esc(a.service_name)}${sent ? ' · נשלחה ✓' : ''}</span></button>
+    ${a.phone ? `<button type="button" class="btn ${sent ? 'ghost' : 'wa'} rem-btn" data-act="appt-wa" data-id="${esc(a.id)}" data-tpl="reminder">${sent ? 'שוב' : `${IC.chat}<span>תזכורת</span>`}</button>` : '<span class="muted small">אין טלפון</span>'}
+  </div>`;
+}
+async function markReminded(id) {
+  const a = apptById(id);
+  if (!a || a.reminded_at || !S.canWrite) return;
+  a.reminded_at = new Date().toISOString();
+  render();
+  const { error } = await sb.from('appointments').update({ reminded_at: a.reminded_at }).eq('id', id);
+  if (error) { a.reminded_at = null; render(); }
 }
 
 /* ---------- appointment sheet ---------- */
@@ -1828,7 +1885,8 @@ function apptSheetHTML(spec) {
   }
   const card = c
     ? `<div class="mini-card"><div><div>${nailRow(c.punches, N, 'mid')}</div><div class="lbl">${c.punches >= N ? 'הכרטיסייה מלאה, הטיפול הזה מתנה' : `${Math.min(c.punches, N)} מתוך ${N} ניקובים`}</div></div><button type="button" class="mini-btn" data-act="open" data-id="${esc(c.id)}">לכרטיסייה</button></div>`
-    : counts ? '<p class="help" style="margin-top:12px">עדיין אין לה כרטיסיית מועדון. כשהטיפול יסומן כבוצע תיפתח לה כרטיסייה עם ניקוב ראשון.</p>' : '';
+    : a.status === 'pending' ? '<p class="help" style="margin-top:12px">עדיין אין לה כרטיסיית מועדון. כשהתור יאושר היא תצורף לכרטיסיות.</p>'
+    : a.status === 'confirmed' && counts ? '<p class="help" style="margin-top:12px">עדיין אין לה כרטיסיית מועדון. כשהטיפול יסומן כבוצע תיפתח לה כרטיסייה עם ניקוב ראשון.</p>' : '';
   return sheetHead(spec, esc(a.name)) + `<div class="sheet-body">
     <div class="appt-tags"><span class="st ${a.status}">${ST_LABEL[a.status]}</span>${a.is_new ? '<span class="tag-new">לקוחה חדשה</span>' : ''}${a.source === 'online' ? '<span class="tag-new">נקבע באתר</span>' : ''}</div>
     <dl class="info">
@@ -1839,7 +1897,9 @@ function apptSheetHTML(spec) {
       ${a.addons && a.addons.length ? `<div class="info-row"><dt>תוספות</dt><dd>${esc(a.addons.join(', '))}</dd></div>` : ''}
       ${a.note ? `<div class="info-row notes"><dt>הערה</dt><dd>${esc(a.note)}</dd></div>` : ''}
       <div class="info-row"><dt>נקבע</dt><dd>${a.source === 'online' ? 'באתר' : 'ידנית'} · ${esc(relAgo(Date.parse(a.created_at)))}</dd></div>
+      ${a.reminded_at ? `<div class="info-row"><dt>תזכורת</dt><dd>נשלחה ${esc(relAgo(Date.parse(a.reminded_at)))}</dd></div>` : ''}
     </dl>
+    ${(a.status === 'pending' || a.status === 'confirmed') && a.e > now - 3600e3 ? `<div class="extend"><span class="legend">צריך יותר זמן?</span><div class="chips">${[[15, 'עוד רבע שעה'], [30, 'עוד חצי שעה'], [60, 'עוד שעה']].map(([d, l]) => `<button type="button" class="chip" data-act="appt-extend" data-id="${id}" data-d="${d}"${dis}>${l}</button>`).join('')}</div></div>` : ''}
     ${card}
     <div class="actions">${actions}</div>
   </div>`;
@@ -1935,18 +1995,32 @@ async function submitAppt(spec) {
     return;
   }
   const saved = res.data;
+  const newCard = !!(saved.client_id && !S.clients.has(saved.client_id) && await loadClient(saved.client_id));
   closeTop();
   A.day = T.key(start);
   await refreshBooking().catch(() => {});
-  toast(spec.id ? 'התור עודכן' : 'התור נשמר', saved.phone ? [{ label: 'וואטסאפ', fn: () => openApptWa(saved.id, 'confirm') }] : []);
+  const msg = spec.id ? 'התור עודכן' : newCard ? `התור נשמר ו${firstName(name)} נוספה לכרטיסיות` : 'התור נשמר';
+  toast(msg, saved.phone ? [{ label: 'וואטסאפ', fn: () => openApptWa(saved.id, 'confirm') }] : []);
 }
 
 /* ---------- appointment actions ---------- */
+// The database opens a club card by itself when a booking is confirmed (see supabase/schema.sql).
+// This brings that card into the screen right away, without waiting for the live update.
+async function loadClient(id) {
+  if (!id) return null;
+  if (S.clients.has(id)) return S.clients.get(id);
+  const { data, error } = await sb.from('clients').select('id,data').eq('id', id).maybeSingle();
+  if (error || !data) return null;
+  const c = normClient(data.id, data.data);
+  S.clients.set(c.id, c);
+  return c;
+}
 async function setApptStatus(id, patch) {
   const { data, error } = await sb.from('appointments').update(patch).eq('id', id).select().single();
   if (error) throw dbErr(error);
   const i = A.list.findIndex(a => a.id === id);
   const row = { ...data, s: Date.parse(data.starts_at), e: Date.parse(data.ends_at) };
+  row.newCard = !!(row.client_id && !S.clients.has(row.client_id) && await loadClient(row.client_id));
   if (i >= 0) A.list[i] = row; else A.list.push(row);
   render();
   return row;
@@ -1957,8 +2031,11 @@ function apptFail(e) {
 }
 async function approveAppt(id) {
   if (!guardWrite()) return;
-  try { await setApptStatus(id, { status: 'confirmed' }); closeAll(true); render(); openApptWa(id, 'confirm'); toast('התור אושר'); }
-  catch (e) { apptFail(e); }
+  try {
+    const row = await setApptStatus(id, { status: 'confirmed' });
+    closeAll(true); render(); openApptWa(id, 'confirm');
+    toast(row.newCard ? `התור אושר ו${firstName(row.name)} נוספה לכרטיסיות` : 'התור אושר');
+  } catch (e) { apptFail(e); }
 }
 async function declineAppt(id) {
   if (!guardWrite()) return;
@@ -1993,8 +2070,9 @@ async function completeAppt(id) {
   if (!a || a.status !== 'confirmed') return;
   const svc = svcById(a.service_id), counts = svc ? svc.counts !== false : true;
   const N = S.settings.cardSize, now = Date.now();
-  let c = clientForAppt(a), kind = null;
+  let c = null, kind = null;
   try {
+    c = (a.client_id && await loadClient(a.client_id)) || clientForAppt(a);
     if (counts) {
       if (!c) {
         c = { id: newId(), name: a.name, phone: a.phone, g: 'f', notes: '', punches: 0, rewards: 0, visits: 0, createdAt: now, lastVisit: null, updatedAt: now, log: [{ t: now, a: 'join', p: 0 }] };
@@ -2026,6 +2104,21 @@ async function completeAppt(id) {
     toast(msg, [{ label: 'ביטול', fn: () => undoComplete(id, kind ? c.id : null, now) }]);
   } catch (e) { handleWriteError(e); }
 }
+async function extendAppt(id, d) {
+  if (!guardWrite()) return;
+  const a = apptById(id);
+  if (!a || !d) return;
+  const prev = { ends_at: a.ends_at, minutes: a.minutes };
+  const e = a.e + d * 60000;
+  try {
+    await setApptStatus(id, { ends_at: iso(e), minutes: (a.minutes || 0) + d });
+    const clash = A.blocks.some(b => b.s < e && b.e > a.e);
+    toast(`התור יסתיים ב־${T.hm(e)}${clash ? '. שימי לב: יש חסימה בזמן הזה' : ''}`, [{ label: 'ביטול', fn: () => setApptStatus(id, prev).catch(apptFail) }]);
+  } catch (err) {
+    if (err && err.code === 'overlap') toast('אי אפשר להאריך כל כך: מיד אחרי יש תור אחר.');
+    else handleWriteError(err);
+  }
+}
 async function undoComplete(apptId, clientId, t) {
   try {
     if (clientId) undo(clientId, t);
@@ -2041,29 +2134,198 @@ const APPT_TPLS = [
   { k: 'decline', label: 'השעה לא מתאימה' },
   { k: 'cancel', label: 'ביטול' },
 ];
-function apptMessage(tpl, a) {
-  if (!a) return '';
-  const st = S.full || {}, first = firstName(a.name), studio = studioName();
-  const when = `${T.long(a.s)} בשעה ${T.hm(a.s)}`;
-  const addr = st.address ? `\n📍 ${st.address}` : '';
-  const book = bookLink();
-  const sign = studio ? `\n${studio} 💅` : '';
-  switch (tpl) {
-    case 'photo':
-      return `היי ${first} 💕\nקיבלתי את הבקשה שלך לתור ל${a.service_name}, ב${when}.\nאפשר לשלוח לי תמונה עדכנית של הציפורניים? ככה אדע איך להתכונן ✨${a.is_new ? '\n\nללקוחות חדשות יש מקדמה של 50₪ (ביט או פייבוקס) שמתקזזת ממחיר הטיפול, ואחריה התור מאושר.' : ''}`;
-    case 'reminder':
-      return `היי ${first} 💕\nתזכורת לתור שלך ✨\n${a.service_name}\n${when}${addr}\n\nאם משהו משתנה, אפשר לכתוב לי עד 24 שעות לפני.${sign}`;
-    case 'decline':
-      return `היי ${first} 💕\nלצערי השעה שביקשת (${when}) לא מתאימה לי.${book ? `\nאפשר לבחור מועד אחר כאן:\n${book}` : '\nאשמח למצוא לך מועד אחר.'}${sign}`;
-    case 'cancel':
-      return `היי ${first},\nהתור שלך ב${when} בוטל.${book ? `\nלקביעת מועד חדש:\n${book}` : ''}${sign}`;
-    default:
-      return `היי ${first} 💕\nהתור שלך מאושר ✨\n${a.service_name}\n${when}${addr}\n\nמחכה לך!${sign}`;
-  }
-}
 function openApptWa(id, tpl) {
   if (!apptById(id)) return;
   openSheet({ type: 'wa', id: null, apptId: id, tpl: tpl || 'confirm', custom: null, editing: false });
+}
+
+/* ---------- message wording: built-in texts that Sapir can change and save ---------- */
+// {placeholders} are filled per client. A line whose placeholder is empty is left out
+// (with the "…:" line right above it), so a missing address or link leaves no gap.
+const V_CARD = [['שם', 'שם הלקוחה'], ['כרטיסייה', 'הכרטיסייה בלבבות'], ['מצב', 'כמה נשאר עד המתנה'], ['קישור לכרטיסייה', 'קישור לכרטיסייה'], ['מספר טיפולים', 'כמה טיפולים עד מתנה'], ['קישור לקביעת תור', 'קישור לקביעת תור'], ['שם הסטודיו', 'שם הסטודיו']];
+const V_APPT = [['שם', 'שם הלקוחה'], ['טיפול', 'הטיפול'], ['מועד', 'יום ושעה'], ['מתי', 'היום / מחר / ביום…'], ['שעה', 'שעה'], ['כתובת', 'כתובת'], ['קישור לקביעת תור', 'קישור לקביעת תור'], ['שם הסטודיו', 'שם הסטודיו']];
+const T_SIGN = '\n\n{שם הסטודיו} 💅';
+const T_CARD = '\n\nלצפייה בכרטיסייה שלך:\n{קישור לכרטיסייה}';
+const MSG_DEFS = [
+  { k: 'a_confirm', group: 'appt', label: 'אישור תור', help: 'נשלחת אחרי שהתור אושר.', vars: V_APPT,
+    f: 'היי {שם} 💕\nהתור שלך מאושר ✨\n{טיפול}\n{מועד}\n📍 {כתובת}\n\nמחכה לך!' + T_SIGN },
+  { k: 'a_reminder', group: 'appt', label: 'תזכורת לתור', help: 'יום לפני התור, מהרשימה «תזכורות למחר» ביומן.', vars: V_APPT,
+    f: 'היי {שם} 💕\nתזכורת לתור שלך {מתי} בשעה {שעה} ✨\n{טיפול}\n📍 {כתובת}\n\nאשמח לאישור הגעה 🙏' + T_SIGN },
+  { k: 'a_photo', group: 'appt', label: 'בקשת תמונה', help: 'לבקשה שמחכה לאישור. ללקוחה חדשה מתווספת גם שורת המקדמה.', vars: [...V_APPT, ['מקדמה', 'שורת המקדמה']],
+    f: 'היי {שם} 💕\nקיבלתי את הבקשה שלך לתור ל{טיפול}, ב{מועד}.\nאפשר לשלוח לי תמונה עדכנית של הציפורניים? ככה אדע איך להתכונן ✨\n\n{מקדמה}' },
+  { k: 'a_deposit', group: 'appt', label: 'שורת המקדמה', help: 'מופיעה בתוך «בקשת תמונה», רק ללקוחות חדשות.', vars: [],
+    f: 'ללקוחות חדשות יש מקדמה של 50₪ (ביט או פייבוקס) שמתקזזת ממחיר הטיפול, ואחריה התור מאושר.' },
+  { k: 'a_decline', group: 'appt', label: 'השעה לא מתאימה', help: 'כשבקשה לתור נדחית.', vars: V_APPT,
+    f: 'היי {שם} 💕\nלצערי השעה שביקשת ({מועד}) לא מתאימה לי.\nאפשר לבחור מועד אחר כאן:\n{קישור לקביעת תור}' + T_SIGN },
+  { k: 'a_cancel', group: 'appt', label: 'ביטול תור', help: 'כשתור מבוטל.', vars: V_APPT,
+    f: 'היי {שם},\nהתור שלך ב{מועד} בוטל.\nלקביעת מועד חדש:\n{קישור לקביעת תור}' + T_SIGN },
+  { k: 'visit', group: 'card', label: 'אחרי טיפול', help: 'אחרי ניקוב רגיל בכרטיסייה.', vars: V_CARD,
+    f: 'היי {שם} 💕\nתודה שבאת היום ✨\nהוספתי לך ניקוב בכרטיסייה:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN },
+  { k: 'visit_full', group: 'card', label: 'הכרטיסייה התמלאה', help: 'אחרי הניקוב שממלא את הכרטיסייה.', vars: V_CARD,
+    f: 'היי {שם} 🎉\nתודה שבאת היום! הכרטיסייה שלך התמלאה:\n{כרטיסייה}\n*הטיפול הבא שלך מתנה ממני* 🎁 מחכה לפנק אותך!' + T_CARD + T_SIGN },
+  { k: 'redeem', group: 'card', label: 'אחרי טיפול מתנה', help: 'אחרי מימוש המתנה, עם הכרטיסייה החדשה.', vars: V_CARD,
+    f: 'היי {שם} 💝\nתתחדשי על טיפול המתנה! תודה שאת איתי 💕\nפתחתי לך כרטיסייה חדשה:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN,
+    m: 'היי {שם} 💝\nתתחדש על טיפול המתנה! תודה שאתה איתי 💕\nפתחתי לך כרטיסייה חדשה:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN },
+  { k: 'welcome', group: 'card', label: 'הודעת הצטרפות', help: 'כשלקוחה מצטרפת לכרטיסייה.', vars: V_CARD,
+    f: 'היי {שם} 💕\nברוכה הבאה לכרטיסיית המועדון שלי!\nעל כל טיפול את מקבלת ניקוב, ואחרי {מספר טיפולים} טיפולים הטיפול הבא מתנה ממני 🎁\n\nהכרטיסייה שלך:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN,
+    m: 'היי {שם} 💕\nברוך הבא לכרטיסיית המועדון שלי!\nעל כל טיפול אתה מקבל ניקוב, ואחרי {מספר טיפולים} טיפולים הטיפול הבא מתנה ממני 🎁\n\nהכרטיסייה שלך:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN },
+  { k: 'status', group: 'card', label: 'מצב הכרטיסייה', help: 'עדכון כללי על הכרטיסייה.', vars: V_CARD,
+    f: 'היי {שם} 💕\nעדכון מהכרטיסייה שלך:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN },
+  { k: 'reminder', group: 'card', label: 'הזמנה לחזור', help: 'ללקוחה שלא הגיעה כבר זמן מה.', vars: V_CARD,
+    f: 'היי {שם} 💕\nמתגעגעת! עבר קצת זמן מאז הטיפול האחרון, אולי הגיע הזמן לחדש את הציפורניים? 💅\n\n{כרטיסייה}\n{מצב}\nהכרטיסייה שלך: {קישור לכרטיסייה}\n\nלקביעת תור:\n{קישור לקביעת תור}' + T_SIGN },
+];
+const MSG_BY_KEY = Object.fromEntries(MSG_DEFS.map(d => [d.k, d]));
+const savedTpls = () => (S.full && S.full.templates && typeof S.full.templates === 'object' ? S.full.templates : {});
+function tplText(key, g) {
+  const t = savedTpls()[key];
+  if (typeof t === 'string' && t.trim()) return t;
+  const d = MSG_BY_KEY[key];
+  return d ? (g === 'm' && d.m ? d.m : d.f) : '';
+}
+function fillTpl(text, vars) {
+  const out = [];
+  for (const line of String(text || '').replace(/\r/g, '').split('\n')) {
+    let empty = false;
+    const l = line.replace(/\{([^{}\n]{1,30})\}/g, (m, k) => {
+      const key = k.trim();
+      if (!Object.prototype.hasOwnProperty.call(vars, key)) return m;
+      const v = vars[key];
+      if (v == null || v === '') { empty = true; return ''; }
+      return String(v);
+    });
+    if (empty) { if (out.length && /:\s*$/.test(out[out.length - 1])) out.pop(); continue; }
+    out.push(l);
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+function cardVars(c) {
+  const N = S.settings.cardSize;
+  return {
+    'שם': firstName(c.name), 'כרטיסייה': progressLines(c.punches, N), 'מצב': statusLine(c.punches, N),
+    'קישור לכרטיסייה': cardLink(c), 'מספר טיפולים': String(N), 'קישור לקביעת תור': bookLink(), 'שם הסטודיו': studioName(),
+  };
+}
+const cardTplKey = (tpl, c) => (tpl === 'visit' && c.punches >= S.settings.cardSize ? 'visit_full' : MSG_BY_KEY[tpl] && MSG_BY_KEY[tpl].group === 'card' ? tpl : 'status');
+function cardMessage(tpl, c) { return fillTpl(tplText(cardTplKey(tpl, c), c.g), cardVars(c)); }
+function apptVars(a) {
+  const today = T.today(), k = T.key(a.s);
+  const v = {
+    'שם': firstName(a.name), 'טיפול': a.service_name || 'טיפול',
+    'מועד': `${T.long(a.s)} בשעה ${T.hm(a.s)}`, 'יום': T.long(a.s), 'שעה': T.hm(a.s),
+    'מתי': k === today ? 'היום' : k === T.add(today, 1) ? 'מחר' : 'ב' + T.long(a.s),
+    'כתובת': (S.full && S.full.address) || '', 'קישור לקביעת תור': bookLink(), 'שם הסטודיו': studioName(),
+  };
+  v['מקדמה'] = a.is_new ? fillTpl(tplText('a_deposit'), v) : '';
+  return v;
+}
+function apptMessage(tpl, a) { return a ? fillTpl(tplText('a_' + tpl), apptVars(a)) : ''; }
+
+// the editor
+function tplSample(d, spec) {
+  if (d.group === 'card') {
+    const N = S.settings.cardSize;
+    let c = (spec.cid && S.clients.get(spec.cid)) || [...S.clients.values()].find(x => x.punches > 0 && x.punches < N) || { ...EXAMPLE, phone: '', log: [] };
+    if (d.k === 'visit_full') c = { ...c, punches: N };
+    else if (d.k === 'welcome') c = { ...c, punches: 0 };
+    else if (d.k === 'redeem') c = { ...c, punches: 0, rewards: Math.max(1, c.rewards || 0) };
+    else if (d.k === 'visit' && c.punches >= N) c = { ...c, punches: N - 1 };
+    return { vars: cardVars(c), who: firstName(c.name) };
+  }
+  const svc = A.services.find(s => s.active);
+  let a = (spec.aid && apptById(spec.aid)) || { name: 'נועה לוי', service_name: svc ? svc.name : 'לק ג׳ל', s: T.zoned(T.add(T.today(), 1), 16 * 60 + 30), is_new: false };
+  if (d.k === 'a_photo' || d.k === 'a_deposit') a = { ...a, is_new: true };
+  return { vars: apptVars(a), who: firstName(a.name) };
+}
+const tplPreview = (d, spec, text) => fmtWa(fillTpl(text, tplSample(d, spec).vars));
+function tplUnknown(d, spec, text) {
+  const vars = tplSample(d, spec).vars, out = new Set();
+  String(text).replace(/\{([^{}\n]{1,30})\}/g, (m, k) => { if (!Object.prototype.hasOwnProperty.call(vars, k.trim())) out.add(m); return m; });
+  return out.size ? `${[...out].join(' ')} לא מוכר בהודעה הזו, ולכן יישלח כמו שהוא. אפשר להוסיף פרטים מהכפתורים למעלה.` : '';
+}
+function tplFormHTML(spec) {
+  const d = MSG_BY_KEY[spec.key];
+  if (!d) return sheetHead(spec, 'הנוסח לא נמצא') + '<div class="sheet-body"></div>';
+  const saved = savedTpls()[d.k], custom = typeof saved === 'string' && saved.trim() !== '';
+  const text = custom ? saved : d.f, who = tplSample(d, spec).who;
+  return sheetHead(spec, esc(d.label)) + `<div class="sheet-body">
+    <form class="form" id="tplForm" novalidate>
+      <p class="help">${esc(d.help)}${custom ? ' <span class="tag-new">נוסח שלך</span>' : ''}</p>
+      <div class="field"><label for="t-text">הנוסח</label><textarea class="input tpl-text" id="t-text" rows="9" maxlength="1500">${esc(text)}</textarea></div>
+      ${d.vars.length ? `<div class="field"><span class="legend">הוספת פרט שמשתנה לכל לקוחה</span><div class="chips wrap">${d.vars.map(([tok, lbl]) => `<button type="button" class="chip" data-act="tpl-ins" data-v="${esc(tok)}">${esc(lbl)}</button>`).join('')}</div><p class="help">הפרט נכנס במקום שבו הסמן עומד. בהודעה עצמה יופיע הערך האמיתי במקום הסוגריים, ושורה שהערך שלה חסר לא תופיע.</p></div>` : ''}
+      <div class="field"><span class="legend">כך זה ייראה${who ? ' אצל ' + esc(who) : ''}</span><div class="bubble" id="t-prev">${tplPreview(d, spec, text)}</div>
+        <p class="fine warn-txt" id="t-warn"${tplUnknown(d, spec, text) ? '' : ' hidden'}>${esc(tplUnknown(d, spec, text))}</p></div>
+      <div class="err-box" id="t-err" hidden></div>
+      <button type="submit" class="btn primary big" id="t-save"${S.canWrite ? '' : ' disabled'}>שמירת הנוסח</button>
+      ${custom ? `<button type="button" class="text-btn" data-act="tpl-reset" data-k="${esc(d.k)}">חזרה לנוסח המקורי</button>` : ''}
+    </form>
+  </div>`;
+}
+function updateTplPreview(spec) {
+  const d = MSG_BY_KEY[spec.key], ta = $('#t-text', spec.inner), box = $('#t-prev', spec.inner), warn = $('#t-warn', spec.inner);
+  if (!d || !ta || !box) return;
+  box.innerHTML = tplPreview(d, spec, ta.value);
+  if (warn) { const w = tplUnknown(d, spec, ta.value); warn.textContent = w; warn.hidden = !w; }
+}
+function insertTplToken(spec, tok) {
+  const ta = $('#t-text', spec.inner);
+  if (!ta) return;
+  const ins = '{' + tok + '}';
+  const s = ta.selectionStart == null ? ta.value.length : ta.selectionStart, e = ta.selectionEnd == null ? s : ta.selectionEnd;
+  ta.value = ta.value.slice(0, s) + ins + ta.value.slice(e);
+  ta.focus({ preventScroll: true });
+  ta.setSelectionRange(s + ins.length, s + ins.length);
+  updateTplPreview(spec);
+}
+async function saveTemplates(all, msg) {
+  if (!guardWrite()) return false;
+  try { await mergeSettings({ templates: all }); toast(msg); return true; }
+  catch (e) { handleWriteError(e); return false; }
+}
+async function submitTpl(spec) {
+  const d = MSG_BY_KEY[spec.key], err = $('#t-err', spec.inner), btn = $('#t-save', spec.inner);
+  const text = $('#t-text', spec.inner).value.replace(/\r/g, '').replace(/[ \t]+$/gm, '').trim();
+  if (!text) { err.textContent = 'ההודעה ריקה. אפשר לכתוב נוסח או לחזור לנוסח המקורי.'; err.hidden = false; return; }
+  err.hidden = true;
+  const all = { ...savedTpls() };
+  if (text === d.f.trim()) delete all[d.k]; else all[d.k] = text;
+  btn.disabled = true;
+  if (await saveTemplates(all, 'הנוסח נשמר. מעכשיו ההודעה יוצאת כך.')) closeTop();
+  else if (document.contains(btn)) btn.disabled = false;
+}
+async function resetTpl(key) {
+  const all = { ...savedTpls() };
+  delete all[key];
+  if (await saveTemplates(all, 'חזרנו לנוסח המקורי')) closeTop();
+}
+function tplSnippet(d) {
+  const text = fillTpl(tplText(d.k), tplSample(d, {}).vars);
+  const lines = text.split('\n').map(x => x.replace(/^‏/, '').trim()).filter(Boolean);
+  const l = lines.length > 1 && /^היי(\s|$)/.test(lines[0]) ? lines[1] : lines[0] || '';
+  return l.length > 64 ? l.slice(0, 62) + '…' : l;
+}
+// settings: one entry; the full list opens in a sheet
+function tplListHTML() {
+  const n = MSG_DEFS.filter(d => savedTpls()[d.k]).length;
+  return `<div class="section-title"><h2>נוסחי ההודעות</h2>${n ? `<span class="hint">${plural(n, 'נוסח אחד שלך', 'נוסחים שלך')}</span>` : ''}</div>
+    <div class="card-box"><p class="help">ההודעות שיוצאות ללקוחות בוואטסאפ: אישור, תזכורת, ניקוב ועוד. אפשר לשנות כל נוסח ולשמור, ותמיד אפשר לחזור לנוסח המקורי.</p><button type="button" class="btn ghost" data-act="tpl-list">${IC.edit}<span>צפייה ועריכה</span></button></div>`;
+}
+function tplListSheetHTML(spec) {
+  const saved = savedTpls();
+  const row = d => `<button type="button" class="lrow" data-act="tpl-open" data-k="${d.k}"><span class="grow"><span class="title">${esc(d.label)}</span><br><span class="sub2">${esc(tplSnippet(d))}</span></span>${saved[d.k] ? '<span class="tag-new">נוסח שלך</span>' : ''}<span class="muted">›</span></button>`;
+  return sheetHead(spec, 'נוסחי ההודעות') + `<div class="sheet-body">
+    <div class="group-lbl">על תורים</div><div class="list-plain">${MSG_DEFS.filter(d => d.group === 'appt').map(row).join('')}</div>
+    <div class="group-lbl" style="margin-top:14px">על הכרטיסייה</div><div class="list-plain">${MSG_DEFS.filter(d => d.group === 'card').map(row).join('')}</div>
+  </div>`;
+}
+// the WhatsApp sheet links to the editor of the wording it shows
+function waTplKey(spec) {
+  if (spec.apptId) return MSG_BY_KEY['a_' + spec.tpl] ? 'a_' + spec.tpl : null;
+  const c = spec.id ? S.clients.get(spec.id) : null;
+  return c ? cardTplKey(spec.tpl, c) : null;
+}
+function waTplLink(spec) {
+  const k = waTplKey(spec);
+  return k && !spec.editing ? `<div class="text-row"><button type="button" class="text-btn" data-act="tpl-open" data-k="${k}">${IC.edit}<span>שינוי הנוסח הקבוע</span></button></div>` : '';
 }
 
 /* ---------- opening hours & blocks ---------- */
@@ -2090,10 +2352,17 @@ function renderHours() {
 }
 function blockFormHTML(spec) {
   const b = spec.id ? A.blocks.find(x => x.id === spec.id) : null;
-  const allDay = b ? b.all_day : true;
-  const from = b ? T.key(b.s) : (A.day || T.today());
+  const hours = !b && spec.k ? dayWindows(spec.k) : [];
+  const fromGap = !b && spec.s != null;
+  // from a free gap: those exact hours; from a day: that day, starting with its opening hours
+  const allDay = b ? b.all_day : !fromGap && !spec.k;
+  const sMin = fromGap ? +spec.s : hours.length ? hours[0][0] : 12 * 60;
+  const eMin = fromGap ? +spec.e : hours.length ? hours[hours.length - 1][1] : 14 * 60;
+  const from = b ? T.key(b.s) : (spec.k || A.day || T.today());
   const to = b ? T.key(b.all_day ? b.e - 1 : b.s) : from;
-  return sheetHead(spec, b ? 'עריכת חסימה' : 'חסימה חדשה') + `<div class="sheet-body">
+  const title = b ? 'עריכת חסימה' : spec.k ? 'סגירת שעות' : 'חסימה חדשה';
+  return sheetHead(spec, title) + `<div class="sheet-body">
+    ${!b && spec.k ? '<p class="help">השעות האלה לא יוצעו ללקוחות באתר. למשל כשטיפול גדול צריך יותר זמן, או לסידורים.</p>' : ''}
     <form class="form" id="blockForm" novalidate>
       <div class="row2">
         <div class="field"><label for="b-from">מתאריך</label><input class="input" id="b-from" type="date" value="${from}"></div>
@@ -2101,10 +2370,10 @@ function blockFormHTML(spec) {
       </div>
       <label class="switch"><span class="lbl">כל היום</span><input type="checkbox" id="b-all"${allDay ? ' checked' : ''}></label>
       <div class="row2" id="b-times"${allDay ? ' hidden' : ''}>
-        <div class="field"><label for="b-s">משעה</label><input class="input" id="b-s" type="time" step="300" value="${b && !b.all_day ? T.hm(b.s) : '12:00'}"></div>
-        <div class="field"><label for="b-e">עד שעה</label><input class="input" id="b-e" type="time" step="300" value="${b && !b.all_day ? T.hm(b.e) : '14:00'}"></div>
+        <div class="field"><label for="b-s">משעה</label><input class="input" id="b-s" type="time" step="300" value="${b && !b.all_day ? T.hm(b.s) : T.hhmm(sMin)}"></div>
+        <div class="field"><label for="b-e">עד שעה</label><input class="input" id="b-e" type="time" step="300" value="${b && !b.all_day ? T.hm(b.e) : T.hhmm(Math.min(eMin, 1439))}"></div>
       </div>
-      <div class="field"><label for="b-reason">סיבה <span class="opt">(רק את רואה)</span></label><input class="input" id="b-reason" maxlength="60" value="${esc(b ? b.reason : '')}" placeholder="למשל: חופשה"></div>
+      <div class="field"><label for="b-reason">סיבה <span class="opt">(רק את רואה)</span></label><input class="input" id="b-reason" maxlength="60" value="${esc(b ? b.reason : '')}" placeholder="${spec.k ? 'למשל: בנייה גדולה' : 'למשל: חופשה'}"></div>
       <div class="err-box" id="b-err" hidden></div>
       <button type="submit" class="btn primary big" id="b-save">${b ? 'שמירת שינויים' : 'הוספת חסימה'}</button>
       ${b ? `<button type="button" class="text-btn danger-txt" data-act="block-delete" data-id="${esc(b.id)}">${IC.trash}<span>מחיקת החסימה</span></button>` : ''}
@@ -2144,6 +2413,8 @@ function renderMore() {
     <div class="section-title"><h2>דף קביעת התורים</h2></div>
     ${link ? `<div class="card-box"><div class="linkbox"><span>${esc(link)}</span></div><div class="actions-row"><button type="button" class="btn ghost" data-act="copy-text" data-v="${esc(link)}">${IC.copy}<span>העתקה</span></button><a class="btn ghost" href="${esc(link)}" target="_blank" rel="noopener">פתיחה</a></div><p class="help">אפשר לשים את הקישור בביו של האינסטגרם ובסטורי.</p></div>` : '<p class="help">כשתוגדר כתובת האתר בהגדרות הכרטיסייה, הקישור יופיע כאן.</p>'}
 
+    ${pushHTML()}
+
     <div class="section-title"><h2>טיפולים</h2><button type="button" class="head-btn" data-act="svc-new">${IC.plus}<span>טיפול</span></button></div>
     <div class="list-plain">${svcs.length ? svcs.map(s => `<button type="button" class="lrow${s.active ? '' : ' off'}" data-act="svc-open" data-id="${esc(s.id)}"><span class="grow"><span class="title">${esc(s.name)}</span><br><span class="sub2">${fmtDur(s.minutes)}${s.active ? '' : ' · מוסתר מהאתר'}${s.counts === false ? ' · לא נחשב לכרטיסייה' : ''}</span></span><span class="price">${fmtPrice(s.price)}</span></button>`).join('') : '<div class="empty-day">אין עדיין טיפולים.</div>'}</div>
 
@@ -2168,6 +2439,8 @@ function renderMore() {
       <div class="field"><label for="d-intro">משפט פתיחה בדף התורים</label><textarea class="input" id="d-intro" rows="2" maxlength="160">${esc(st.intro || '')}</textarea></div>
       <button type="submit" class="btn primary" id="d-save"${S.canWrite ? '' : ' disabled'}>שמירה</button>
     </form>
+
+    ${tplListHTML()}
 
     <div class="section-title"><h2>כרטיסיית המועדון</h2></div>
     <div class="card-box"><p class="help">כמה טיפולים עד מתנה, שם הסטודיו וכתובת האתר.</p><button type="button" class="btn ghost" data-act="settings">הגדרות הכרטיסייה</button><button type="button" class="btn wa" data-act="summary">${IC.chat}<span>סיכום כרטיסיות לוואטסאפ</span></button></div>
@@ -2246,6 +2519,138 @@ async function submitPassword() {
   toast('הסיסמה הוחלפה. בפעם הבאה נכנסים עם הסיסמה החדשה.');
 }
 
+/* ---------- phone alerts (Web Push through the "notify" server function) ---------- */
+const FN_URL = (CFG.url || '') + '/functions/v1/notify';
+A.push = { state: 'unknown', busy: false, devices: 0, endpoint: null, checking: false };
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = s => { const t = s.replace(/-/g, '+').replace(/_/g, '/'); return Uint8Array.from(atob(t + '==='.slice((t.length + 3) % 4)), c => c.charCodeAt(0)); };
+function notifyPrefs() {
+  const n = (S.full && S.full.notify) || {}, h = Number(n.eveningHour);
+  return { booking: n.booking !== false, eveningHour: n.eveningHour == null || !Number.isFinite(h) ? 20 : h };
+}
+async function callFn(body) {
+  const r = await fetch(FN_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: CFG.key }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error('notify ' + r.status), { code: 'unavailable' });
+  return j;
+}
+async function swReg() {
+  if (!('serviceWorker' in navigator)) return null;
+  try { return await navigator.serviceWorker.register('sw.js', { scope: './' }); } catch (_) { return null; }
+}
+const deviceLabel = () => (isIOS() ? 'iPhone' : /Android/i.test(navigator.userAgent) ? 'Android' : /Mac/.test(navigator.platform) ? 'Mac' : /Win/.test(navigator.platform) ? 'Windows' : 'דפדפן');
+async function saveSub(sub) {
+  const j = sub.toJSON();
+  const { error } = await sb.from('push_subs').upsert({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, label: deviceLabel() });
+  if (error) throw dbErr(error);
+}
+async function checkPush() {
+  if (A.push.checking) return;
+  A.push.checking = true;
+  try {
+    const ok = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    if (!ok) A.push.state = isIOS() && !isStandalone() ? 'ios' : 'unsupported';
+    else if (Notification.permission === 'denied') A.push.state = 'denied';
+    else {
+      const reg = await swReg();
+      const sub = reg ? await reg.pushManager.getSubscription() : null;
+      A.push.state = sub && Notification.permission === 'granted' ? 'on' : 'off';
+      A.push.endpoint = sub ? sub.endpoint : null;
+      if (A.push.state === 'on' && S.canWrite) await saveSub(sub).catch(() => {});
+    }
+    const { count } = await sb.from('push_subs').select('endpoint', { count: 'exact', head: true });
+    A.push.devices = count || 0;
+  } catch (_) {
+    if (A.push.state === 'unknown') A.push.state = 'off';
+  } finally { A.push.checking = false; render(); }
+}
+async function enablePush() {
+  if (!guardWrite()) return;
+  A.push.busy = true; render();
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { toast(perm === 'denied' ? 'ההתראות נחסמו. אפשר לאפשר אותן בהגדרות הדפדפן.' : 'ההתראות לא הופעלו.'); return; }
+    const reg = await swReg();
+    if (!reg) throw new Error('no service worker');
+    await navigator.serviceWorker.ready;
+    const { publicKey } = await callFn({ op: 'key' });
+    if (!publicKey) throw new Error('no key');
+    let sub = await reg.pushManager.getSubscription();
+    if (sub && sub.options && sub.options.applicationServerKey && b64u(sub.options.applicationServerKey) !== publicKey) { await sub.unsubscribe(); sub = null; }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: unb64u(publicKey) });
+    await saveSub(sub);
+    toast('ההתראות הופעלו ✓ אפשר לשלוח התראת בדיקה.');
+  } catch (_) {
+    toast('ההפעלה לא הצליחה. בדיקת החיבור לאינטרנט ואז ניסיון נוסף.');
+  } finally { A.push.busy = false; A.push.state = 'unknown'; checkPush(); }
+}
+async function testPush() {
+  A.push.busy = true; render();
+  try {
+    const r = await callFn({ op: 'test', endpoint: A.push.endpoint });
+    if (r.ok && r.sent) toast('נשלחה התראת בדיקה. היא אמורה להופיע תוך כמה שניות.');
+    else if (r.error === 'wait') toast('אפשר לשלוח בדיקה נוספת בעוד כמה שניות.');
+    else if (r.error === 'unknown') toast('הטלפון הזה לא רשום. כדאי לכבות ולהפעיל שוב.');
+    else toast('ההתראה לא נשלחה. כדאי לכבות ולהפעיל שוב.');
+  } catch (_) { toast('אין חיבור לשרת ההתראות כרגע.'); }
+  finally { A.push.busy = false; render(); }
+}
+async function disablePush() {
+  A.push.busy = true; render();
+  try {
+    const reg = await swReg(), sub = reg ? await reg.pushManager.getSubscription() : null;
+    if (sub) { await sb.from('push_subs').delete().eq('endpoint', sub.endpoint); await sub.unsubscribe(); }
+    toast('ההתראות כובו בטלפון הזה');
+  } catch (_) { toast('הכיבוי לא הצליח'); }
+  finally { A.push.busy = false; A.push.state = 'unknown'; checkPush(); }
+}
+async function savePushPrefs() {
+  if (!guardWrite()) return;
+  const notify = { booking: $('#n-booking').checked, eveningHour: +$('#n-evening').value };
+  try { await mergeSettings({ notify }); toast('נשמר'); } catch (e) { handleWriteError(e); }
+}
+function pushHTML() {
+  const P = A.push, pref = notifyPrefs(), busy = P.busy ? ' disabled' : '';
+  if (P.state === 'unknown') setTimeout(checkPush, 0);
+  let main;
+  if (P.state === 'ios') main = `<p class="help">באייפון התראות עובדות רק כשפותחים את מסך הניהול מאייקון במסך הבית:</p>
+      <ol class="steps"><li>ב־Safari לוחצים על כפתור השיתוף (ריבוע עם חץ למעלה)</li><li>בוחרים «הוספה למסך הבית» ואז «הוספה»</li><li>פותחים את «ספיר · ניהול» מהאייקון החדש, נכנסים עם הסיסמה וחוזרים לכאן</li></ol>`;
+  else if (P.state === 'unsupported') main = '<p class="help">הדפדפן הזה לא תומך בהתראות. באנדרואיד זה עובד ב־Chrome, ובאייפון מאייקון במסך הבית.</p>';
+  else if (P.state === 'denied') main = '<p class="help">ההתראות חסומות לאתר הזה בהגדרות של הדפדפן או של הטלפון. אחרי שמאפשרים אותן שם, חוזרים לכאן.</p>';
+  else if (P.state === 'on') main = `<p class="ok-line">✓ ההתראות פעילות בטלפון הזה</p><div class="actions-row"><button type="button" class="btn ghost" data-act="push-test"${busy}>התראת בדיקה</button><button type="button" class="btn ghost" data-act="push-off"${busy}>כיבוי</button></div>`;
+  else if (P.state === 'off') main = `<p class="help">התראה על כל תור חדש, גם כשמסך הניהול סגור.</p><button type="button" class="btn primary" data-act="push-on"${busy}${S.canWrite ? '' : ' disabled'}>הפעלת התראות בטלפון הזה</button>`;
+  else main = '<p class="help">בודקת…</p>';
+  return `<div class="section-title"><h2>התראות לטלפון</h2>${P.devices ? `<span class="hint">פעיל ב־${plural(P.devices, 'מכשיר אחד', 'מכשירים')}</span>` : ''}</div>
+    <div class="card-box">${main}
+      <label class="switch"><span class="lbl">תור חדש מהאתר<small>מיד כשלקוחה קובעת או מבקשת תור</small></span><input type="checkbox" id="n-booking"${pref.booking ? ' checked' : ''}${S.canWrite ? '' : ' disabled'}></label>
+      <div class="field"><label for="n-evening">רשימת התורים של מחר</label>${sel('n-evening', [[-1, 'בלי'], [18, 'כל ערב ב־18:00'], [19, 'כל ערב ב־19:00'], [20, 'כל ערב ב־20:00'], [21, 'כל ערב ב־21:00'], [22, 'כל ערב ב־22:00']], pref.eveningHour)}<p class="help">עם לחיצה ישירה לשליחת התזכורות בוואטסאפ. בערב בלי תורים למחר לא נשלח כלום.</p></div>
+    </div>`;
+}
+
+/* ---------- links from alerts: #appt=<id> opens the appointment, #remind the reminders list ---------- */
+function handleRoute(h) {
+  if (!h || !A.loaded) return false;
+  if (h === '#remind') {
+    A.day = T.today(); closeAll(true); setView('agenda');
+    setTimeout(() => { const el = $('#remindSec'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
+  } else if (h.startsWith('#appt=')) {
+    const a = apptById(decodeURIComponent(h.slice(6)));
+    if (!a) { toast('התור לא נמצא. אולי הוא כבר נמחק.'); return false; }
+    A.day = T.key(a.s); closeAll(true); setView('agenda'); openSheet({ type: 'appt', id: a.id });
+  } else return false;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (_) {}
+  return true;
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (!e.data || e.data.type !== 'open' || !S.authed) return;
+    const h = new URL(e.data.url, location.href).hash;
+    refreshBooking().catch(() => {}).then(() => handleRoute(h));
+  });
+}
+
 /* ---------- login ---------- */
 async function doLogin() {
   const pw = $('#lPass').value, btn = $('#lBtn'), err = $('#lErr');
@@ -2306,6 +2711,28 @@ function extraClick(act, el) {
     case 'svc-new': if (guardWrite()) openSheet({ type: 'svcForm', id: null }); break;
     case 'svc-open': if (guardWrite()) openSheet({ type: 'svcForm', id }); break;
     case 'svc-delete': deleteSvc(id); break;
+    case 'block-gap': if (guardWrite()) openSheet({ type: 'blockForm', id: null, k: el.dataset.k, s: +el.dataset.s, e: +el.dataset.e }); break;
+    case 'block-day': if (guardWrite()) openSheet({ type: 'blockForm', id: null, k: el.dataset.k }); break;
+    case 'appt-extend': extendAppt(id, +el.dataset.d); break;
+    case 'tpl-open': {
+      const from = spec && spec.type === 'wa' ? spec : null;
+      openSheet({ type: 'tplForm', key: el.dataset.k, cid: from ? from.id : null, aid: from ? from.apptId : null });
+      break;
+    }
+    case 'tpl-list': openSheet({ type: 'tplList' }); break;
+    case 'tpl-ins': if (spec && spec.type === 'tplForm') insertTplToken(spec, el.dataset.v); break;
+    case 'tpl-reset': resetTpl(el.dataset.k); break;
+    case 'wa-open':
+      // the reminder counts as sent once WhatsApp is opened with it
+      if (spec && spec.type === 'wa' && spec.apptId && spec.tpl === 'reminder') {
+        const aid = spec.apptId;
+        markReminded(aid);
+        setTimeout(() => { const top = topSheet(); if (top && top.apptId === aid) closeTop(); }, 400);
+      }
+      break;
+    case 'push-on': enablePush(); break;
+    case 'push-test': testPush(); break;
+    case 'push-off': disablePush(); break;
     case 'logout': logout(); break;
   }
 }
@@ -2341,6 +2768,7 @@ function extraSubmit(id, spec, form) {
   else if (id === 'apptForm' && spec) submitAppt(spec);
   else if (id === 'blockForm' && spec) submitBlock(spec);
   else if (id === 'svcForm' && spec) submitSvc(spec);
+  else if (id === 'tplForm' && spec) submitTpl(spec);
   else if (id === 'rulesForm') submitRules(form);
   else if (id === 'studioForm') submitStudio(form);
   else if (id === 'pwForm') submitPassword();
@@ -2353,6 +2781,7 @@ function extraInput(e) {
     return;
   }
   if (!spec) return;
+  if (spec.type === 'tplForm' && t.id === 't-text') { updateTplPreview(spec); return; }
   if (spec.type === 'apptForm') {
     if (t.id === 'a-svc') {
       const s = svcById(t.value);
@@ -2374,6 +2803,8 @@ document.addEventListener('change', e => {
     A.hoursDirty = true; render();
   } else if (t.id === 'b-all') {
     const box = $('#b-times'); if (box) box.hidden = t.checked;
+  } else if (t.id === 'n-booking' || t.id === 'n-evening') {
+    savePushPrefs();
   } else extraInput(e);
 });
 
@@ -2396,7 +2827,8 @@ async function startApp() {
     return;
   }
   subscribe();
-  refreshBooking().catch(() => {});
+  const route = location.hash;
+  refreshBooking().then(() => handleRoute(route)).catch(() => {});
   sb.channel('sapinails-admin')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, () => notify('clients'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => notify('settings'))
@@ -2407,6 +2839,7 @@ async function startApp() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') { refreshSoon(); notify('clients'); }
   });
+  window.addEventListener('hashchange', () => handleRoute(location.hash));
   setInterval(() => { if (document.visibilityState === 'visible') refreshSoon(); }, 120000);
 }
 async function boot() {

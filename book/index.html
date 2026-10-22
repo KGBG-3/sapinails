@@ -437,6 +437,9 @@ function icsFor(res) {
     `SUMMARY:${res.service} · sapinails.il`,
     S.st.address ? `LOCATION:${S.st.address}` : '',
     'DESCRIPTION:ביטול או שינוי עד 24 שעות לפני\\, בוואטסאפ לספיר.',
+    // the phone reminds her a day before and two hours before
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:מחר יש לך תור לציפורניים 💅', 'TRIGGER:-P1D', 'END:VALARM',
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:בעוד שעתיים יש לך תור לציפורניים 💅', 'TRIGGER:-PT2H', 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR',
   ].filter(Boolean);
   return lines.join('\r\n');
@@ -461,7 +464,7 @@ function showResult(res, name) {
         <button type="button" class="btn primary" data-act="ics">הוספה ליומן בטלפון</button>
         <a class="btn line" href="${esc(waLink(msg))}" target="_blank" rel="noopener">הודעה לספיר בוואטסאפ</a>
       </div>
-      <p class="fine">לביטול או שינוי עד 24 שעות לפני התור, כותבים לספיר בוואטסאפ.</p>`;
+      <p class="fine">ביומן תקבלי תזכורת יום לפני ושעתיים לפני. לביטול או שינוי עד 24 שעות לפני התור, כותבים לספיר בוואטסאפ.</p>`;
   } else {
     const msg = `היי ספיר 💕\nאני ${name}, ביקשתי תור ל${res.service} ב${fmtLong(start)} בשעה ${hhmm(start)}.\nמצרפת תמונה עדכנית של הציפורניים 💅`;
     html = `<h2>הבקשה נשלחה ✨</h2>
