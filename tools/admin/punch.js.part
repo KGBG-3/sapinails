@@ -1,0 +1,952 @@
+(() => {
+'use strict';
+const root = document.documentElement;
+root.setAttribute('dir', 'rtl');
+root.setAttribute('lang', 'he');
+
+const DEFAULTS = { studioName: 'הסטודיו של ספיר', cardSize: 6, ownerPhone: '', siteUrl: '' };
+const AWAY_DAYS = 35, LOG_MAX = 40, DAY = 86400000;
+const STOPS = ['#EFD4C6', '#EDBAB8', '#E39AA8', '#D5738F', '#C15075', '#A1365E', '#7E2448'];
+const NAIL = 'M16 1.6C23 5.2 29.4 14.2 29.4 26.2C29.4 36.6 23.4 42.6 16 42.6C8.6 42.6 2.6 36.6 2.6 26.2C2.6 14.2 9 5.2 16 1.6Z';
+const SHINE = 'M8.6 14.4C6.9 19.4 6.5 25.2 7.5 31C7.8 32.5 9.5 32.3 9.4 30.8C8.9 25.2 9.5 19.8 11 15.3C11.5 13.8 9.2 12.9 8.6 14.4Z';
+const SPARK = 'M16 17.4L17.5 21.2L21.3 22.7L17.5 24.2L16 28L14.5 24.2L10.7 22.7L14.5 21.2Z';
+
+const svgI = (d, extra = '') => `<svg class="i${extra}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const IC = {
+  plus: svgI('<path d="M12 5v14M5 12h14"/>'),
+  close: svgI('<path d="M6 6l12 12M18 6 6 18"/>'),
+  gift: svgI('<rect x="3.5" y="8.5" width="17" height="4.5" rx="1"/><path d="M5.5 13v6.5h13V13M12 8.5v11M12 8.5C9.6 8.5 7.6 7.7 7.6 6.1c0-1.4 1.5-2.3 2.9-1.3C11.4 5.4 12 7 12 8.5Zm0 0c2.4 0 4.4-.8 4.4-2.4 0-1.4-1.5-2.3-2.9-1.3C12.6 5.4 12 7 12 8.5Z"/>'),
+  chat: svgI('<path d="M20 11.6a8 8 0 0 1-11.7 7.1L4 20l1.3-4A8 8 0 1 1 20 11.6Z"/><path d="M9 10.5h6M9 13.5h4"/>'),
+  undo: svgI('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>', ' flip'),
+  copy: svgI('<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/>'),
+  edit: svgI('<path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>'),
+  trash: svgI('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5h10L18 7M9 7V4.5h6V7"/>'),
+};
+
+const TPLS = [
+  { k: 'visit', label: 'אחרי טיפול' },
+  { k: 'status', label: 'מצב הכרטיסייה' },
+  { k: 'reminder', label: 'תזכורת לתור' },
+  { k: 'welcome', label: 'הודעת הצטרפות' },
+  { k: 'redeem', label: 'אחרי טיפול מתנה' },
+];
+const UNDO_LABEL = { punch: 'ביטול ניקוב', redeem: 'ביטול מימוש', adjust: 'ביטול עדכון' };
+
+const S = {
+  db: null, status: 'loading', slow: false, canWrite: true,
+  clients: new Map(), settings: normSettings(null),
+  filter: 'all', q: '', stack: [], justPainted: null, lastPunch: null,
+  unsubC: null, unsubS: null,
+};
+
+/* ---------- helpers ---------- */
+const $ = (sel, r = document) => r.querySelector(sel);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
+const gw = (c, f, m) => (c && c.g === 'm' ? m : f);
+const firstName = n => (String(n || '').trim().split(/\s+/)[0] || String(n || ''));
+const plural = (n, one, many) => (n === 1 ? one : `${n} ${many}`);
+let uidSeq = 0;
+
+function normSettings(d) {
+  d = d || {};
+  const n = Math.round(Number(d.cardSize));
+  return {
+    studioName: typeof d.studioName === 'string' ? d.studioName.trim().slice(0, 40) : DEFAULTS.studioName,
+    cardSize: Number.isFinite(n) && n >= 3 && n <= 12 ? n : DEFAULTS.cardSize,
+    ownerPhone: typeof d.ownerPhone === 'string' ? d.ownerPhone.trim().slice(0, 20) : DEFAULTS.ownerPhone,
+    siteUrl: typeof d.siteUrl === 'string' ? d.siteUrl.trim().slice(0, 200) : DEFAULTS.siteUrl,
+  };
+}
+function cardLink(c) {
+  let base = S.settings.siteUrl.replace(/[#?].*$/, '').replace(/\/+$/, '');
+  if (!base) return '';
+  if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
+  const N = S.settings.cardSize, p = Math.min(c.punches, N), no = c.rewards + 1;
+  // a claude.ai page reads the card from the #hash; the public card pages read it from the path, which WhatsApp turns into a card image
+  if (/claude\.ai\/(code\/)?artifact\//i.test(base)) return `${base}#k${p}-${N}-${no}`;
+  return `${base}/k/${N}/${p}/?c=${no}`;
+}
+function normClient(id, d) {
+  const int0 = v => (Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0);
+  return {
+    id,
+    name: typeof d.name === 'string' && d.name.trim() ? d.name.trim().slice(0, 40) : 'ללא שם',
+    phone: typeof d.phone === 'string' ? d.phone.trim().slice(0, 20) : '',
+    g: d.g === 'm' ? 'm' : 'f',
+    notes: typeof d.notes === 'string' ? d.notes.slice(0, 300) : '',
+    punches: int0(d.punches), rewards: int0(d.rewards), visits: int0(d.visits),
+    createdAt: num(d.createdAt, 0),
+    lastVisit: Number.isFinite(d.lastVisit) ? d.lastVisit : null,
+    updatedAt: num(d.updatedAt, 0),
+    log: Array.isArray(d.log) ? d.log.filter(e => e && Number.isFinite(e.t) && typeof e.a === 'string').slice(-LOG_MAX) : [],
+  };
+}
+function toDoc(c) { const { id, ...rest } = c; return JSON.parse(JSON.stringify(rest)); }
+
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function shade(i, N) {
+  const t = N <= 1 ? 1 : i / (N - 1);
+  const x = t * (STOPS.length - 1);
+  const k = Math.min(STOPS.length - 2, Math.floor(x));
+  const f = x - k, a = hex2rgb(STOPS[k]), b = hex2rgb(STOPS[k + 1]);
+  return '#' + a.map((v, j) => Math.round(v + (b[j] - v) * f).toString(16).padStart(2, '0')).join('');
+}
+function avatarColors(name) {
+  let h = 0; for (const ch of String(name)) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  const idx = h % STOPS.length;
+  return { bg: STOPS[idx], ink: idx >= 4 ? '#FFFFFF' : '#3A1F2B' };
+}
+
+function localDigits(p) {
+  let d = String(p || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('972')) d = '0' + d.slice(3);
+  return d;
+}
+function fmtPhone(p) {
+  const d = localDigits(p);
+  if (/^05\d{8}$/.test(d)) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  if (/^0[2-9]\d{7}$/.test(d)) return `${d.slice(0, 2)}-${d.slice(2, 5)}-${d.slice(5)}`;
+  return String(p || '').trim();
+}
+function waNumber(p) {
+  let d = String(p || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('972')) return d;
+  if (d.startsWith('0')) return '972' + d.slice(1);
+  if (d.length === 9 && d.startsWith('5')) return '972' + d;
+  return d;
+}
+function waHref(phone, text) { return `https://wa.me/${waNumber(phone)}?text=${encodeURIComponent(text)}`; }
+
+function rel(ms) {
+  if (!ms) return '';
+  const a = new Date(); a.setHours(0, 0, 0, 0);
+  const b = new Date(ms); b.setHours(0, 0, 0, 0);
+  const days = Math.round((a - b) / DAY);
+  if (days <= 0) return 'היום';
+  if (days === 1) return 'אתמול';
+  if (days === 2) return 'שלשום';
+  if (days < 14) return `לפני ${days} ימים`;
+  if (days < 21) return 'לפני שבועיים';
+  if (days < 30) return 'לפני 3 שבועות';
+  if (days < 60) return 'לפני חודש';
+  if (days < 90) return 'לפני חודשיים';
+  return `לפני ${Math.floor(days / 30)} חודשים`;
+}
+const fmtDate = ms => new Date(ms).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: '2-digit' });
+const isAway = c => { const ref = c.lastVisit || c.createdAt; return !!ref && Date.now() - ref > AWAY_DAYS * DAY; };
+const lastSeen = c => (c.lastVisit ? rel(c.lastVisit) : 'טרם נרשם ביקור');
+const studioName = () => S.settings.studioName;
+
+function monthStats() {
+  const s = new Date(); s.setDate(1); s.setHours(0, 0, 0, 0);
+  const from = s.getTime();
+  let visits = 0, gifts = 0;
+  S.clients.forEach(c => c.log.forEach(e => {
+    if (e.t < from) return;
+    if (e.a === 'punch') visits++;
+    else if (e.a === 'redeem') { visits++; gifts++; }
+  }));
+  return { visits, gifts };
+}
+
+/* ---------- nails ---------- */
+function nail(kind, o = {}) {
+  const cls = o.cls ? ' ' + o.cls : '';
+  if (kind === 'full') {
+    return `<svg class="nail${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="edge" d="${NAIL}" style="fill:${o.color}"/><path d="${SHINE}" fill="#fff" opacity=".5"/><ellipse cx="12.6" cy="8.8" rx="1" ry="1.6" fill="#fff" opacity=".55"/></svg>`;
+  }
+  if (kind === 'empty') {
+    return `<svg class="nail${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="slot" d="${NAIL}"/>${o.n ? `<text class="num" x="16" y="29.5">${o.n}</text>` : ''}</svg>`;
+  }
+  if (kind === 'gift-on') {
+    return `<svg class="nail gift-ready${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="edge" d="${NAIL}" fill="url(#chrome)"/><path d="${SHINE}" fill="#fff" opacity=".75"/><path class="spark-on" d="${SPARK}"/></svg>`;
+  }
+  return `<svg class="nail${cls}" viewBox="0 0 32 44" aria-hidden="true"><path class="slot" d="${NAIL}"/><path class="spark-off" d="${SPARK}"/></svg>`;
+}
+function nailRow(p, N, size, paintIdx = -1) {
+  const f = Math.min(p, N), full = p >= N;
+  let out = '';
+  for (let i = 0; i < N; i++) {
+    if (i < f) {
+      const col = shade(i, N);
+      out += i === paintIdx && size === 'big'
+        ? `<span class="nailbox">${nail('empty', { n: i + 1 })}${nail('full', { color: col, cls: 'painting' })}</span>`
+        : nail('full', { color: col });
+    } else {
+      out += nail('empty', { n: size === 'big' ? i + 1 : '' });
+    }
+  }
+  out += nail(full ? 'gift-on' : 'gift-off');
+  const total = N + 1;
+  let attrs = '';
+  let cls = `nails ${size}`;
+  if (size === 'big') {
+    const cols = total <= 7 ? total : Math.ceil(total / 2);
+    attrs = ` style="grid-template-columns:repeat(${cols},auto)"`;
+    if (total > 7) cls += ' dense';
+  }
+  const label = full ? `הכרטיסייה מלאה, ${N} מתוך ${N}` : `${f} מתוך ${N} ניקובים`;
+  return `<div class="${cls}" role="img" aria-label="${label}"${attrs}>${out}</div>`;
+}
+
+/* ---------- messages ---------- */
+function progressLines(p, N) {
+  const f = Math.min(p, N), RLM = '‏';
+  const cells = [];
+  for (let i = 0; i < N; i++) cells.push(i < f ? '💖' : '🤍');
+  if (N <= 8) return RLM + cells.join('') + ' 🎁';
+  const half = Math.ceil(N / 2);
+  return RLM + cells.slice(0, half).join('') + '\n' + RLM + cells.slice(half).join('') + ' 🎁';
+}
+function statusLine(p, N) {
+  const f = Math.min(p, N), left = N - f;
+  if (p <= 0) return 'הניקוב הראשון מחכה לך בטיפול הבא ✨';
+  if (left <= 0) return '*הכרטיסייה מלאה!* הטיפול הבא שלך מתנה ממני 🎁';
+  return `*${f} מתוך ${N}* · עוד ${left === 1 ? 'טיפול אחד' : left + ' טיפולים'} ואז טיפול מתנה ממני 🎁`;
+}
+function buildMessage(tpl, c) {
+  const N = S.settings.cardSize, p = c.punches, name = firstName(c.name), studio = studioName();
+  const prog = progressLines(p, N), st = statusLine(p, N);
+  const link = cardLink(c);
+  const sig = (link ? `\n\nלצפייה בכרטיסייה שלך:\n${link}` : '') + (studio ? `\n\n${studio} 💅` : '');
+  switch (tpl) {
+    case 'welcome':
+      return `היי ${name} 💕\n${gw(c, 'ברוכה הבאה', 'ברוך הבא')} לכרטיסיית המועדון שלי!\nעל כל טיפול ${gw(c, 'את מקבלת', 'אתה מקבל')} ניקוב, ואחרי ${N} טיפולים הטיפול הבא מתנה ממני 🎁\n\nהכרטיסייה שלך:\n${prog}\n${st}${sig}`;
+    case 'visit':
+      if (p >= N) return `היי ${name} 🎉\nתודה שבאת היום! הכרטיסייה שלך התמלאה:\n${prog}\n*הטיפול הבא שלך מתנה ממני* 🎁 מחכה לפנק אותך!${sig}`;
+      return `היי ${name} 💕\nתודה שבאת היום ✨\nהוספתי לך ניקוב בכרטיסייה:\n${prog}\n${st}${sig}`;
+    case 'redeem':
+      return `היי ${name} 💝\n${gw(c, 'תתחדשי', 'תתחדש')} על טיפול המתנה! תודה ש${gw(c, 'את', 'אתה')} איתי 💕\nפתחתי לך כרטיסייה חדשה:\n${prog}\n${st}${sig}`;
+    case 'reminder':
+      return `היי ${name} 💕\nמתגעגעת! עבר קצת זמן מאז הטיפול האחרון, אולי הגיע הזמן לחדש את הציפורניים? 💅\n\n${prog}\n${st}\n\nלקביעת תור אפשר פשוט להשיב להודעה הזו ✨${link ? `\nהכרטיסייה שלך: ${link}` : ''}${studio ? `\n${studio}` : ''}`;
+    default:
+      return `היי ${name} 💕\nעדכון מהכרטיסייה שלך:\n${prog}\n${st}${sig}`;
+  }
+}
+function buildSummary() {
+  const N = S.settings.cardSize;
+  const list = [...S.clients.values()].sort((a, b) => a.name.localeCompare(b.name, 'he'));
+  const gifts = list.filter(c => c.punches >= N), away = list.filter(isAway), m = monthStats();
+  const date = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' });
+  let t = `📋 *סיכום כרטיסיות${studioName() ? ' · ' + studioName() : ''}*\n${date}\n${plural(list.length, 'לקוחה אחת', 'לקוחות')} · ${plural(m.visits, 'טיפול אחד', 'טיפולים')} החודש`;
+  if (gifts.length) t += `\n\n🎁 *מתנה מוכנה (${gifts.length})*\n` + gifts.map(c => `• ${c.name}`).join('\n');
+  if (away.length) t += `\n\n⏳ *מזמן לא הגיעו (${away.length})*\n` + away.map(c => `• ${c.name} · ${lastSeen(c)}`).join('\n');
+  if (list.length) {
+    const MAX = 60;
+    t += `\n\n💅 *כל הכרטיסיות*\n` + list.slice(0, MAX).map(c => `• ${c.name} · ${Math.min(c.punches, N)}/${N}`).join('\n');
+    if (list.length > MAX) t += `\nועוד ${list.length - MAX}`;
+  }
+  return t;
+}
+function fmtWa(text) {
+  return esc(text)
+    .replace(/\*([^*\n]+)\*/g, '<b>$1</b>')
+    .replace(/(^|\s)_([^_\n]+)_/g, '$1<i>$2</i>');
+}
+function defaultTpl(c) {
+  const last = c.log[c.log.length - 1];
+  if (last && Date.now() - last.t < 12 * 3600e3) {
+    if (last.a === 'punch') return 'visit';
+    if (last.a === 'redeem') return 'redeem';
+    if (last.a === 'join') return 'welcome';
+  }
+  return isAway(c) ? 'reminder' : 'status';
+}
+
+/* ---------- rendering ---------- */
+function pcardHTML(c, paintIdx) {
+  const N = S.settings.cardSize, f = Math.min(c.punches, N), full = c.punches >= N, left = N - f;
+  const status = full
+    ? '<b>הכרטיסייה מלאה</b> · הטיפול הבא מתנה'
+    : c.punches <= 0
+      ? `כרטיסייה חדשה · ${N} טיפולים עד המתנה`
+      : `<b>${f} מתוך ${N}</b> · עוד ${left === 1 ? 'טיפול אחד' : left + ' טיפולים'} עד טיפול מתנה`;
+  return `<article class="pcard${full ? ' is-full' : ''}">
+    ${ROSE_SVG}
+    <div class="pcard-top">
+      <div><div class="pcard-eyebrow">${MARK_SVG}<span>כרטיסיית מועדון</span></div><div class="pcard-studio" dir="ltr">sapinails.il</div></div>
+    </div>
+    ${nailRow(c.punches, N, 'big', paintIdx)}
+    <div class="pcard-foot">
+      <div class="pcard-who"><div class="pcard-name">${esc(c.name)}</div><div class="pcard-status">${status}</div></div>
+      <div class="pcard-no">כרטיסייה מס׳ ${c.rewards + 1}</div>
+    </div>
+  </article>`;
+}
+
+function rowHTML(c) {
+  const N = S.settings.cardSize, full = c.punches >= N, f = Math.min(c.punches, N);
+  const av = avatarColors(c.name), init = [...c.name.trim()][0] || '?';
+  const quick = full
+    ? `<button type="button" class="punch-quick gift" data-act="open" data-id="${esc(c.id)}" aria-label="${esc('מימוש טיפול מתנה ל' + c.name)}">${IC.gift}</button>`
+    : `<button type="button" class="punch-quick" data-act="qpunch" data-id="${esc(c.id)}" aria-label="${esc('ניקוב טיפול ל' + c.name)}"${S.canWrite ? '' : ' disabled'}>${IC.plus}</button>`;
+  return `<li class="row">
+    <button type="button" class="row-main" data-act="open" data-id="${esc(c.id)}">
+      <span class="avatar" style="--av:${av.bg};--av-ink:${av.ink}" aria-hidden="true">${esc(init)}</span>
+      <span class="row-text">
+        <span class="row-name"><span class="nm">${esc(c.name)}</span>${full ? '<span class="pill gift">מתנה מוכנה</span>' : ''}</span>
+        <span class="row-meta">${nailRow(c.punches, N, 'mini')}<span class="count">${f}/${N}</span><span class="when${isAway(c) ? ' away' : ''}">${esc(lastSeen(c))}</span></span>
+      </span>
+    </button>
+    ${quick}
+  </li>`;
+}
+
+function visibleClients() {
+  const N = S.settings.cardSize, q = S.q.trim().toLowerCase(), qd = q.replace(/\D/g, '');
+  let arr = [...S.clients.values()];
+  if (S.filter === 'gift') arr = arr.filter(c => c.punches >= N);
+  if (S.filter === 'away') arr = arr.filter(isAway);
+  if (q) arr = arr.filter(c => c.name.toLowerCase().includes(q) || (qd.length >= 3 && localDigits(c.phone).includes(qd)));
+  const ref = c => c.lastVisit || c.createdAt || 0;
+  if (S.filter === 'away') arr.sort((a, b) => ref(a) - ref(b));
+  else arr.sort((a, b) => ref(b) - ref(a) || a.name.localeCompare(b.name, 'he'));
+  return arr;
+}
+
+const ROSE_SVG = '<svg class="pc-rose" viewBox="-80 -80 200 200" aria-hidden="true" focusable="false"><g fill="none" stroke="#C4567E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M-14 -5C-15 -5 -19 -6 -21 -7C-23 -8 -25 -9 -27 -10C-29 -12 -31 -13 -33 -15C-35 -16 -37 -18 -39 -20C-42 -23 -45 -25 -46 -28C-47 -30 -47 -33 -47 -35C-46 -37 -46 -38 -45 -40C-45 -41 -44 -43 -44 -44C-43 -46 -42 -47 -41 -48C-40 -49 -39 -50 -38 -51C-36 -52 -35 -52 -33 -53C-32 -54 -31 -55 -30 -56C-28 -57 -27 -57 -25 -58C-24 -58 -22 -58 -20 -59C-18 -59 -16 -58 -14 -58C-12 -59 -11 -59 -9 -59C-7 -58 -4 -59 -2 -57C0 -55 2 -50 3 -47C4 -44 5 -40 5 -37C5 -34 5 -31 5 -29C5 -26 4 -23 3 -20C2 -17 1 -13 -1 -12C-2 -10 -3 -12 -5 -11C-6 -11 -7 -10 -8 -10C-10 -9 -11 -9 -12 -8C-13 -7 -12 -5 -14 -5Z" fill="currentColor" stroke="none"></path><path d="M-21 -7C-22 -8 -25 -9 -27 -10C-29 -12 -31 -13 -33 -15C-35 -16 -37 -18 -39 -20C-42 -23 -45 -25 -46 -28C-47 -30 -47 -33 -47 -35C-46 -37 -46 -38 -45 -40C-45 -41 -44 -43 -44 -44C-43 -46 -42 -47 -41 -48C-40 -49 -39 -50 -38 -51C-36 -52 -35 -52 -33 -53C-32 -54 -31 -55 -30 -56C-28 -57 -27 -57 -25 -58C-24 -58 -22 -58 -20 -59C-18 -59 -16 -58 -14 -58C-12 -59 -11 -59 -9 -59C-7 -58 -4 -59 -2 -57C0 -55 2 -50 3 -47C4 -44 5 -40 5 -37C5 -34 5 -31 5 -29C5 -26 4 -22 3 -20"></path><path stroke-width="1" d="M-40 -25C-40 -26 -38 -27 -38 -28C-37 -29 -36 -30 -35 -31C-34 -32 -33 -33 -32 -34C-31 -35 -30 -35 -29 -36C-28 -37 -27 -38 -26 -38C-24 -39 -23 -40 -22 -40C-21 -41 -19 -41 -18 -42C-16 -42 -15 -43 -14 -43C-12 -44 -11 -44 -9 -44C-8 -44 -6 -44 -5 -45C-3 -45 -1 -45 -1 -45"></path><path d="M3 -10C2 -12 0 -16 0 -19C-1 -22 -1 -24 -1 -27C-1 -30 -1 -33 0 -36C1 -38 1 -42 3 -45C4 -48 7 -52 9 -54C11 -55 13 -55 15 -55C17 -56 19 -55 21 -55C23 -55 25 -55 26 -55C28 -54 30 -54 31 -53C32 -53 34 -52 35 -51C36 -50 36 -49 37 -48C39 -47 40 -47 41 -46C42 -45 43 -44 44 -43C44 -42 45 -41 45 -39C45 -38 45 -36 45 -34C45 -33 46 -31 45 -29C45 -27 45 -25 43 -23C42 -20 39 -18 37 -16C34 -14 32 -12 30 -11C29 -9 27 -8 25 -7C23 -6 21 -5 19 -4C17 -3 15 -2 13 -3C12 -3 12 -4 12 -5C11 -6 10 -7 9 -8C9 -8 7 -9 6 -9C5 -10 4 -9 3 -10Z" fill="currentColor" stroke="none"></path><path d="M0 -19C0 -20 -1 -24 -1 -27C-1 -30 -1 -33 0 -36C1 -38 1 -42 3 -45C4 -48 7 -52 9 -54C11 -55 13 -55 15 -55C17 -56 19 -55 21 -55C23 -55 25 -55 26 -55C28 -54 30 -54 31 -53C32 -53 34 -52 35 -51C36 -50 36 -49 37 -48C39 -47 40 -47 41 -46C42 -45 43 -44 44 -43C44 -42 45 -41 45 -39C45 -38 45 -36 45 -34C45 -33 46 -31 45 -29C45 -27 45 -25 43 -23C42 -20 39 -18 37 -16C34 -14 32 -12 30 -11C29 -9 27 -8 25 -7C23 -6 20 -5 19 -4"></path><path stroke-width="1" d="M6 -42C6 -42 8 -42 9 -42C11 -41 12 -41 13 -41C15 -40 16 -40 17 -39C18 -39 20 -38 21 -38C22 -37 23 -36 24 -36C25 -35 26 -34 27 -33C28 -33 29 -32 30 -31C31 -30 31 -29 32 -28C33 -27 33 -27 34 -26C35 -25 35 -24 35 -23C36 -22 37 -20 37 -20"></path><path d="M-7 -7C-8 -7 -11 -9 -12 -11C-14 -12 -15 -14 -16 -15C-17 -17 -18 -19 -19 -21C-20 -23 -21 -25 -21 -28C-22 -30 -23 -34 -23 -36C-23 -39 -22 -40 -21 -42C-20 -44 -19 -45 -18 -46C-16 -47 -15 -49 -14 -49C-13 -50 -12 -51 -10 -52C-9 -52 -8 -52 -6 -52C-5 -52 -4 -52 -2 -52C-1 -52 0 -52 2 -52C3 -52 4 -52 6 -51C7 -51 8 -50 10 -49C11 -48 12 -47 14 -46C15 -45 16 -43 17 -42C18 -40 20 -38 20 -35C20 -33 19 -30 19 -28C18 -26 18 -23 17 -22C16 -20 15 -18 14 -16C13 -14 12 -13 11 -11C9 -10 7 -8 6 -7C4 -7 4 -8 3 -8C2 -8 0 -9 -1 -9C-2 -8 -3 -8 -4 -8C-5 -8 -6 -6 -7 -7Z" fill="currentColor" stroke="none"></path><path d="M-16 -15C-16 -16 -18 -19 -19 -21C-20 -23 -21 -25 -21 -28C-22 -30 -23 -34 -23 -36C-23 -39 -22 -40 -21 -42C-20 -44 -19 -45 -18 -46C-16 -47 -15 -49 -14 -49C-13 -50 -12 -51 -10 -52C-9 -52 -8 -52 -6 -52C-5 -52 -4 -52 -2 -52C-1 -52 0 -52 2 -52C3 -52 4 -52 6 -51C7 -51 8 -50 10 -49C11 -48 12 -47 14 -46C15 -45 16 -43 17 -42C18 -40 20 -38 20 -35C20 -33 19 -30 19 -28C18 -26 18 -23 17 -22C16 -20 14 -17 14 -16"></path><g stroke-width="1"><path d="M-19 -29C-19 -30 -18 -31 -17 -31C-16 -32 -15 -32 -14 -33C-13 -33 -12 -34 -10 -34C-9 -34 -8 -35 -7 -35C-6 -35 -5 -36 -3 -36C-2 -36 -1 -36 0 -36C1 -36 3 -36 4 -36C5 -35 6 -35 7 -35C9 -35 10 -34 11 -34C12 -34 13 -33 14 -33C15 -32 16 -31 17 -31"></path><path d="M3 -24C3 -25 3 -26 3 -26C3 -27 3 -28 3 -28C3 -29 3 -30 3 -30"></path><path d="M5 -25C5 -26 5 -26 5 -27C5 -28 5 -28 5 -29C5 -29 5 -30 5 -30"></path><path d="M7 -23C7 -23 7 -24 8 -25C8 -26 8 -26 8 -27C8 -28 8 -29 8 -30"></path><path d="M10 -23C11 -23 11 -24 11 -24C11 -25 11 -25 11 -26C11 -26 12 -27 12 -27"></path><path d="M12 -21C13 -21 13 -22 13 -23C13 -23 13 -24 14 -24C14 -25 14 -25 14 -26"></path></g><path d="M-1 -5C-2 -6 -4 -7 -5 -9C-6 -10 -6 -11 -7 -12C-7 -14 -8 -15 -8 -17C-9 -18 -9 -19 -9 -21C-9 -23 -10 -25 -9 -26C-9 -28 -7 -29 -6 -31C-5 -32 -4 -33 -3 -34C-2 -35 -1 -35 0 -36C1 -36 2 -36 3 -36C4 -36 5 -36 6 -36C7 -36 8 -35 9 -35C10 -34 10 -34 11 -34C12 -34 13 -33 13 -32C14 -32 14 -31 15 -30C15 -29 16 -28 16 -26C16 -25 16 -24 16 -22C15 -21 15 -19 15 -17C14 -16 13 -14 13 -12C12 -11 11 -10 11 -9C10 -7 10 -6 9 -5C9 -5 9 -4 8 -3C8 -2 7 -1 6 -1C6 -1 6 -3 5 -3C5 -4 4 -4 3 -4C3 -5 2 -5 1 -5C0 -5 0 -4 -1 -5Z" fill="currentColor" stroke="none"></path><path d="M-7 -12C-7 -13 -8 -15 -8 -17C-9 -18 -9 -19 -9 -21C-9 -23 -10 -25 -9 -26C-9 -28 -7 -29 -6 -31C-5 -32 -4 -33 -3 -34C-2 -35 -1 -35 0 -36C1 -36 2 -36 3 -36C4 -36 5 -36 6 -36C7 -36 8 -35 9 -35C10 -34 10 -34 11 -34C12 -34 13 -33 13 -32C14 -32 14 -31 15 -30C15 -29 16 -28 16 -26C16 -25 16 -24 16 -22C15 -21 15 -19 15 -17C14 -16 13 -14 13 -12C12 -11 11 -10 11 -9C10 -7 10 -6 9 -5"></path><g stroke-width="1"><path d="M8 -16C8 -16 8 -17 8 -18C8 -18 8 -19 8 -19C8 -20 9 -20 9 -21"></path><path d="M9 -15C9 -15 10 -15 10 -16C10 -16 10 -17 10 -17C10 -18 10 -19 10 -19"></path><path d="M10 -11C10 -11 10 -12 10 -12C10 -13 10 -13 10 -13C11 -14 11 -14 11 -14"></path></g><path d="M-11 5C-12 5 -13 5 -14 5C-15 5 -16 5 -17 5C-18 4 -20 4 -22 3C-23 3 -25 2 -28 1C-31 0 -35 -1 -37 -2C-40 -3 -41 -4 -42 -6C-44 -7 -44 -8 -45 -9C-46 -10 -47 -11 -48 -13C-49 -14 -49 -15 -50 -16C-50 -17 -50 -18 -50 -19C-49 -21 -49 -22 -48 -23C-48 -24 -48 -25 -48 -26C-48 -27 -47 -28 -46 -29C-46 -30 -45 -31 -43 -32C-42 -33 -40 -34 -39 -35C-37 -36 -36 -37 -34 -37C-32 -37 -29 -38 -27 -37C-25 -37 -23 -34 -21 -32C-19 -31 -17 -29 -16 -27C-15 -25 -14 -23 -13 -20C-12 -18 -12 -16 -11 -14C-11 -11 -10 -8 -10 -6C-10 -4 -11 -5 -12 -4C-12 -3 -13 -2 -13 -1C-13 0 -13 1 -13 2C-12 3 -11 4 -11 5Z" fill="currentColor" stroke="none"></path><path d="M-14 5C-14 5 -16 5 -17 5C-18 4 -20 4 -22 3C-23 3 -25 2 -28 1C-31 0 -35 -1 -37 -2C-40 -3 -41 -4 -42 -6C-44 -7 -44 -8 -45 -9C-46 -10 -47 -11 -48 -13C-49 -14 -49 -15 -50 -16C-50 -17 -50 -18 -50 -19C-49 -21 -49 -22 -48 -23C-48 -24 -48 -25 -48 -26C-48 -27 -47 -28 -46 -29C-46 -30 -45 -31 -43 -32C-42 -33 -40 -34 -39 -35C-37 -36 -36 -37 -34 -37C-32 -37 -29 -38 -27 -37C-25 -37 -23 -34 -21 -32C-19 -31 -17 -29 -16 -27C-15 -25 -14 -23 -13 -20C-12 -18 -11 -15 -11 -14"></path><g stroke-width="1"><path d="M-28 -1C-28 -1 -29 -2 -29 -3C-30 -4 -31 -5 -31 -6C-31 -7 -32 -8 -32 -9C-32 -10 -33 -11 -33 -12C-33 -13 -33 -14 -33 -15C-33 -16 -33 -17 -32 -18C-32 -19 -32 -20 -32 -21C-31 -22 -31 -23 -30 -24C-30 -25 -29 -26 -29 -27C-28 -28 -27 -29 -26 -29C-26 -30 -25 -31 -24 -32"></path><path d="M-24 -13C-24 -14 -25 -14 -25 -14C-25 -15 -26 -15 -26 -15C-27 -16 -27 -16 -27 -16"></path><path d="M-25 -17C-25 -17 -26 -18 -26 -19C-27 -20 -28 -20 -28 -21C-29 -21 -30 -22 -30 -22"></path><path d="M-23 -18C-23 -19 -24 -20 -25 -21C-25 -21 -26 -22 -27 -23C-27 -23 -28 -24 -29 -25"></path></g><path d="M-8 1C-8 1 -9 1 -9 0C-10 0 -10 -1 -11 -2C-11 -3 -12 -4 -13 -5C-13 -6 -14 -7 -15 -8C-16 -9 -17 -11 -18 -12C-19 -14 -21 -16 -22 -17C-23 -19 -24 -21 -24 -22C-25 -24 -25 -25 -25 -26C-25 -28 -25 -29 -25 -30C-25 -31 -25 -32 -25 -33C-24 -33 -23 -34 -23 -35C-22 -35 -22 -37 -22 -37C-21 -38 -20 -39 -19 -39C-18 -40 -17 -40 -16 -40C-15 -41 -14 -41 -12 -41C-11 -40 -10 -40 -8 -40C-6 -39 -4 -38 -3 -37C-1 -36 -1 -33 0 -31C0 -29 0 -27 1 -25C1 -23 1 -21 0 -19C0 -17 0 -15 -1 -13C-1 -10 -2 -7 -3 -6C-4 -5 -5 -5 -6 -5C-6 -4 -7 -4 -7 -3C-8 -2 -8 -2 -8 -1C-8 0 -8 1 -8 1Z" fill="currentColor" stroke="none"></path><path d="M-11 -2C-11 -3 -12 -4 -13 -5C-13 -6 -14 -7 -15 -8C-16 -9 -17 -11 -18 -12C-19 -14 -21 -16 -22 -17C-23 -19 -24 -21 -24 -22C-25 -24 -25 -25 -25 -26C-25 -28 -25 -29 -25 -30C-25 -31 -25 -32 -25 -33C-24 -33 -23 -34 -23 -35C-22 -35 -22 -37 -22 -37C-21 -38 -20 -39 -19 -39C-18 -40 -17 -40 -16 -40C-15 -41 -14 -41 -12 -41C-11 -40 -10 -40 -8 -40C-6 -39 -4 -38 -3 -37C-1 -36 -1 -33 0 -31C0 -29 0 -27 1 -25C1 -23 0 -20 0 -19"></path><g stroke-width="1"><path d="M-14 -13C-14 -14 -15 -14 -15 -15C-15 -15 -15 -16 -16 -16C-16 -17 -16 -17 -16 -18"></path><path d="M-14 -11C-15 -11 -15 -12 -15 -12C-15 -13 -16 -13 -16 -14C-16 -14 -16 -15 -17 -15"></path><path d="M-14 -9C-14 -9 -14 -9 -15 -10C-15 -10 -15 -10 -15 -11C-15 -11 -16 -11 -16 -11"></path><path d="M-14 -8C-14 -8 -15 -8 -15 -9C-15 -9 -16 -9 -16 -10C-16 -10 -16 -11 -16 -11"></path></g><path d="M-1 -1C-1 -1 -1 -3 -1 -4C-1 -6 -1 -7 -1 -8C-2 -9 -2 -10 -2 -11C-2 -13 -2 -14 -2 -15C-2 -16 -2 -18 -2 -19C-2 -19 -2 -20 -2 -20C-2 -21 -3 -21 -2 -22C-2 -22 -1 -23 -1 -23C0 -24 0 -24 1 -24C1 -24 2 -24 2 -24C3 -23 3 -23 3 -23C3 -22 4 -22 4 -21C4 -21 4 -20 4 -20C3 -19 3 -19 3 -18C2 -17 2 -17 1 -16C1 -16 1 -16 1 -15C1 -14 1 -14 1 -13C1 -12 1 -11 1 -10C1 -9 1 -8 1 -8C1 -7 1 -6 1 -5C1 -4 1 -3 1 -2C1 -1 0 1 1 1C1 1 1 1 1 0C1 0 1 0 1 -1C1 -1 0 -1 0 -1C0 -1 -1 0 -1 -1Z" fill="currentColor" stroke="none"></path><path d="M-2 -11C-2 -12 -2 -14 -2 -15C-2 -16 -2 -18 -2 -19C-2 -19 -2 -20 -2 -20C-2 -21 -3 -21 -2 -22C-2 -22 -1 -23 -1 -23C0 -24 0 -24 1 -24C1 -24 2 -24 2 -24C3 -23 3 -23 3 -23C3 -22 4 -22 4 -21C4 -21 4 -20 4 -20C3 -19 3 -19 3 -18C2 -17 2 -17 1 -16C1 -16 1 -16 1 -15C1 -14 1 -14 1 -13C1 -12 1 -11 1 -10C1 -9 1 -8 1 -8"></path><path d="M-4 0C-4 0 -3 -1 -3 -2C-3 -2 -4 -3 -4 -4C-4 -5 -4 -7 -4 -8C-4 -9 -4 -10 -4 -11C-4 -12 -4 -13 -5 -14C-5 -14 -5 -15 -5 -16C-5 -16 -5 -17 -6 -18C-6 -19 -6 -20 -6 -21C-6 -22 -6 -23 -6 -23C-5 -24 -5 -25 -4 -25C-4 -26 -3 -26 -3 -27C-2 -27 -1 -27 0 -27C0 -27 1 -27 2 -27C2 -26 3 -26 4 -25C4 -25 5 -24 5 -23C6 -22 6 -21 6 -21C6 -20 6 -20 6 -19C5 -18 5 -16 5 -15C5 -14 5 -13 5 -11C5 -10 5 -9 4 -8C4 -7 4 -5 4 -4C4 -3 3 -3 2 -2C1 -2 1 -3 0 -3C0 -3 -1 -3 -2 -3C-2 -2 -3 -2 -3 -2C-3 -1 -4 0 -4 0Z" fill="currentColor" stroke="none"></path><path d="M-4 -8C-4 -8 -4 -10 -4 -11C-4 -12 -4 -13 -5 -14C-5 -14 -5 -15 -5 -16C-5 -16 -5 -17 -6 -18C-6 -19 -6 -20 -6 -21C-6 -22 -6 -23 -6 -23C-5 -24 -5 -25 -4 -25C-4 -26 -3 -26 -3 -27C-2 -27 -1 -27 0 -27C0 -27 1 -27 2 -27C2 -26 3 -26 4 -25C4 -25 5 -24 5 -23C6 -22 6 -21 6 -21C6 -20 6 -20 6 -19C5 -18 5 -16 5 -15C5 -14 5 -12 5 -11"></path><path d="M2 1C2 0 3 -2 3 -3C3 -4 3 -5 3 -7C3 -8 3 -9 3 -10C3 -11 3 -12 3 -13C3 -14 4 -16 4 -16C4 -17 4 -18 4 -18C4 -19 4 -19 4 -19C4 -20 4 -20 4 -19C3 -19 3 -19 3 -19C2 -18 2 -18 1 -18C0 -18 0 -18 -1 -18C-2 -18 -2 -18 -3 -19C-3 -19 -3 -19 -4 -19C-4 -20 -4 -20 -4 -20C-4 -20 -3 -20 -3 -20C-3 -19 -3 -19 -3 -18C-3 -18 -3 -17 -3 -16C-3 -15 -3 -14 -3 -13C-3 -12 -3 -11 -3 -10C-3 -9 -3 -8 -3 -7C-3 -6 -3 -5 -3 -4C-3 -3 -3 -1 -3 0C-3 1 -2 1 -2 1C-2 2 -1 2 -1 2C0 2 0 2 1 2C1 2 2 2 2 1Z" fill="currentColor" stroke="none"></path><path d="M3 -10C3 -10 3 -12 3 -13C3 -14 4 -16 4 -16C4 -17 4 -18 4 -18C4 -19 4 -19 4 -19C4 -20 4 -20 4 -19C3 -19 3 -19 3 -19C2 -18 2 -18 1 -18C0 -18 0 -18 -1 -18C-2 -18 -2 -18 -3 -19C-3 -19 -3 -19 -4 -19C-4 -20 -4 -20 -4 -20C-4 -20 -3 -20 -3 -20C-3 -19 -3 -19 -3 -18C-3 -18 -3 -17 -3 -16C-3 -15 -3 -14 -3 -13C-3 -12 -3 -11 -3 -10"></path><path d="M4 -2C4 -3 3 -5 3 -7C2 -8 2 -10 1 -11C1 -12 1 -13 1 -15C2 -16 2 -17 2 -18C2 -19 2 -21 2 -22C2 -23 2 -24 3 -24C4 -24 5 -24 6 -24C6 -24 7 -24 7 -24C8 -24 8 -23 8 -23C9 -22 9 -22 8 -21C8 -21 8 -20 8 -20C8 -19 7 -19 7 -18C6 -18 5 -17 5 -17C4 -16 3 -16 2 -16C1 -15 1 -15 0 -15C-1 -14 -2 -14 -3 -14C-4 -14 -4 -14 -4 -13C-5 -12 -4 -11 -4 -10C-4 -9 -4 -8 -4 -7C-4 -6 -4 -5 -3 -3C-3 -2 -3 -1 -2 0C-1 1 0 3 1 3C2 4 3 3 3 3C4 2 4 2 4 1C5 1 5 0 5 0C5 -1 5 -1 4 -2Z" fill="currentColor" stroke="none"></path><path d="M1 -15C2 -15 2 -17 2 -18C2 -19 2 -21 2 -22C2 -23 2 -24 3 -24C4 -24 5 -24 6 -24C6 -24 7 -24 7 -24C8 -24 8 -23 8 -23C9 -22 9 -22 8 -21C8 -21 8 -20 8 -20C8 -19 7 -19 7 -18C6 -18 5 -17 5 -17C4 -16 3 -16 2 -16C1 -15 1 -15 0 -15C-1 -14 -2 -14 -3 -14C-4 -14 -4 -14 -4 -13C-5 -12 -4 -11 -4 -10C-4 -9 -4 -7 -4 -7"></path><g stroke-width="1"><path d="M5 -6C5 -6 5 -6 5 -7C5 -7 5 -8 5 -8C5 -9 5 -9 5 -10"></path><path d="M3 -4C3 -4 3 -4 3 -5C3 -5 3 -5 3 -6C3 -6 3 -6 3 -7"></path><path d="M2 -4C2 -4 2 -4 2 -5C2 -5 2 -5 2 -6C2 -6 2 -7 2 -7"></path><path d="M0 -4C0 -4 0 -4 0 -4C0 -5 0 -5 0 -5C0 -5 0 -6 0 -6"></path></g><path d="M6 -5C6 -7 5 -10 5 -12C5 -15 4 -17 4 -19C4 -21 5 -23 5 -25C5 -27 6 -29 7 -31C7 -33 8 -35 10 -36C11 -38 14 -38 15 -38C17 -38 18 -38 20 -38C21 -37 22 -37 23 -37C24 -36 25 -35 26 -35C26 -34 27 -33 27 -32C27 -31 27 -30 27 -29C27 -28 28 -28 28 -27C28 -26 28 -25 28 -24C27 -23 27 -22 26 -20C26 -19 25 -18 24 -17C23 -15 22 -14 20 -12C19 -11 17 -9 16 -8C14 -7 13 -6 12 -5C11 -4 10 -3 10 -2C9 -1 9 0 9 1C8 1 8 2 8 3C8 3 8 4 8 3C8 3 9 2 9 1C9 0 9 0 9 -1C9 -2 9 -3 8 -3C8 -4 7 -4 6 -5Z" fill="currentColor" stroke="none"></path><path d="M4 -19C4 -20 5 -23 5 -25C5 -27 6 -29 7 -31C7 -33 8 -35 10 -36C11 -38 14 -38 15 -38C17 -38 18 -38 20 -38C21 -37 22 -37 23 -37C24 -36 25 -35 26 -35C26 -34 27 -33 27 -32C27 -31 27 -30 27 -29C27 -28 28 -28 28 -27C28 -26 28 -25 28 -24C27 -23 27 -22 26 -20C26 -19 25 -18 24 -17C23 -15 22 -14 20 -12C19 -11 17 -9 16 -8C14 -7 13 -6 12 -5C11 -4 10 -3 10 -2C9 -1 9 0 9 1"></path><g stroke-width="1"><path d="M9 -30C10 -30 11 -29 12 -29C13 -28 14 -28 14 -27C15 -27 16 -26 16 -25C17 -24 17 -24 18 -23C18 -22 19 -21 19 -21C19 -20 19 -19 19 -18C20 -17 20 -16 19 -16C19 -15 19 -14 19 -13C19 -12 18 -12 18 -11C17 -10 17 -9 16 -9C16 -8 15 -7 14 -7"></path><path d="M15 -10C16 -10 16 -11 16 -11C17 -12 17 -13 17 -13C18 -14 18 -15 19 -15"></path><path d="M15 -8C15 -8 16 -9 16 -9C16 -10 17 -10 17 -11C17 -11 18 -12 18 -13"></path><path d="M15 -6C15 -7 16 -7 16 -8C16 -8 17 -9 17 -9C17 -10 18 -11 18 -11"></path></g><path d="M-3 4C-2 4 -1 2 0 2C0 1 1 0 1 -1C1 -2 2 -3 2 -4C2 -5 2 -6 2 -7C2 -7 2 -8 1 -9C0 -10 -1 -10 -2 -11C-4 -12 -5 -12 -6 -13C-7 -14 -8 -15 -9 -15C-9 -16 -10 -17 -11 -18C-11 -18 -12 -19 -13 -20C-13 -21 -13 -21 -14 -22C-14 -23 -14 -23 -14 -24C-14 -25 -14 -26 -14 -26C-14 -27 -14 -27 -13 -28C-13 -28 -13 -29 -12 -29C-11 -29 -11 -29 -10 -29C-9 -29 -7 -29 -6 -28C-6 -28 -5 -26 -5 -24C-4 -22 -4 -21 -4 -19C-3 -17 -3 -16 -3 -14C-3 -12 -4 -11 -4 -9C-4 -7 -5 -4 -5 -2C-5 -1 -6 -1 -6 -1C-6 0 -6 1 -5 1C-5 2 -5 2 -4 3C-4 3 -3 4 -3 4Z" fill="currentColor" stroke="none"></path><path d="M1 -1C1 -2 2 -3 2 -4C2 -5 2 -6 2 -7C2 -7 2 -8 1 -9C0 -10 -1 -10 -2 -11C-4 -12 -5 -12 -6 -13C-7 -14 -8 -15 -9 -15C-9 -16 -10 -17 -11 -18C-11 -18 -12 -19 -13 -20C-13 -21 -13 -21 -14 -22C-14 -23 -14 -23 -14 -24C-14 -25 -14 -26 -14 -26C-14 -27 -14 -27 -13 -28C-13 -28 -13 -29 -12 -29C-11 -29 -11 -29 -10 -29C-9 -29 -7 -29 -6 -28C-6 -28 -5 -26 -5 -24C-4 -22 -4 -21 -4 -19C-3 -17 -3 -15 -3 -14"></path><path d="M6 3C7 2 8 -1 9 -3C10 -4 10 -6 11 -8C12 -9 12 -11 13 -12C13 -13 14 -15 14 -16C15 -17 16 -18 16 -18C16 -18 16 -17 16 -17C16 -16 15 -16 15 -15C14 -15 14 -14 13 -14C12 -14 11 -13 11 -13C10 -12 9 -12 8 -12C7 -11 6 -11 5 -11C4 -10 3 -10 2 -10C1 -10 -1 -10 -2 -10C-3 -10 -4 -10 -5 -10C-6 -10 -7 -10 -8 -11C-9 -11 -10 -11 -11 -11C-12 -12 -13 -12 -13 -12C-13 -12 -13 -11 -12 -10C-12 -9 -11 -8 -11 -7C-10 -6 -10 -5 -9 -3C-9 -2 -8 -1 -7 1C-6 2 -4 4 -3 5C-2 6 -2 6 -1 6C0 6 1 6 2 6C3 5 4 5 4 5C5 4 5 5 6 3Z" fill="currentColor" stroke="none"></path><path d="M11 -8C11 -8 12 -11 13 -12C13 -13 14 -15 14 -16C15 -17 16 -18 16 -18C16 -18 16 -17 16 -17C16 -16 15 -16 15 -15C14 -15 14 -14 13 -14C12 -14 11 -13 11 -13C10 -12 9 -12 8 -12C7 -11 6 -11 5 -11C4 -10 3 -10 2 -10C1 -10 -1 -10 -2 -10C-3 -10 -4 -10 -5 -10C-6 -10 -7 -10 -8 -11C-9 -11 -10 -11 -11 -11C-12 -12 -13 -12 -13 -12C-13 -12 -13 -11 -12 -10C-12 -9 -11 -8 -11 -7C-10 -6 -9 -4 -9 -3"></path><path d="M12 1C13 -1 15 -4 16 -6C17 -8 18 -9 20 -11C21 -12 22 -14 24 -15C25 -16 27 -17 28 -18C30 -19 33 -20 34 -20C36 -20 36 -18 37 -17C37 -16 37 -15 37 -14C37 -13 38 -12 38 -11C37 -9 37 -8 37 -7C36 -6 36 -5 35 -5C34 -4 33 -3 32 -2C31 -1 31 0 30 0C29 1 28 2 26 3C25 3 24 4 22 4C21 5 19 5 17 6C15 6 14 7 12 7C10 7 7 8 6 8C4 8 2 7 1 7C0 7 0 7 0 7C-1 7 -1 8 -1 8C0 8 0 8 1 9C1 9 2 9 3 9C4 9 6 8 7 8C8 7 8 7 9 6C10 5 11 4 11 4C12 3 11 2 12 1Z" fill="currentColor" stroke="none"></path><path d="M16 -6C16 -6 18 -9 20 -11C21 -12 22 -14 24 -15C25 -16 27 -17 28 -18C30 -19 33 -20 34 -20C36 -20 36 -18 37 -17C37 -16 37 -15 37 -14C37 -13 38 -12 38 -11C37 -9 37 -8 37 -7C36 -6 36 -5 35 -5C34 -4 33 -3 32 -2C31 -1 31 0 30 0C29 1 28 2 26 3C25 3 24 4 22 4C21 5 19 5 17 6C15 6 14 7 12 7C10 7 7 8 6 8C4 8 2 7 1 7C0 7 0 7 0 7C-1 7 -1 8 -1 8C0 8 0 8 1 9"></path><path stroke-width="1" d="M29 -16C29 -15 28 -14 28 -13C28 -12 28 -11 28 -10C27 -9 27 -8 27 -7C26 -7 26 -6 25 -5C24 -4 24 -3 23 -2C22 -2 21 -1 21 0C20 1 19 1 18 2C17 2 16 3 15 4C14 4 13 5 11 5C10 5 9 6 8 6C7 6 5 7 4 7"></path><path d="M0 8C2 8 3 6 4 6C5 5 6 4 7 4C7 3 8 3 8 2C8 2 8 1 8 1C8 1 8 1 7 1C6 1 4 1 2 1C0 1 -1 1 -3 1C-4 1 -6 1 -7 1C-9 0 -10 0 -12 0C-13 -1 -14 -1 -15 -1C-16 -2 -17 -2 -18 -3C-19 -3 -21 -4 -21 -5C-22 -5 -23 -6 -24 -7C-25 -7 -26 -8 -26 -9C-27 -10 -27 -11 -27 -12C-27 -13 -28 -13 -28 -14C-28 -15 -27 -16 -27 -17C-26 -17 -24 -16 -23 -15C-22 -14 -21 -13 -20 -12C-18 -11 -17 -10 -16 -8C-15 -7 -14 -5 -13 -3C-12 -1 -10 1 -10 3C-9 4 -9 4 -8 5C-7 5 -7 6 -6 7C-5 7 -4 7 -3 8C-2 8 -1 8 0 8Z" fill="currentColor" stroke="none"></path><path d="M7 4C7 3 8 3 8 2C8 2 8 1 8 1C8 1 8 1 7 1C6 1 4 1 2 1C0 1 -1 1 -3 1C-4 1 -6 1 -7 1C-9 0 -10 0 -12 0C-13 -1 -14 -1 -15 -1C-16 -2 -17 -2 -18 -3C-19 -3 -21 -4 -21 -5C-22 -5 -23 -6 -24 -7C-25 -7 -26 -8 -26 -9C-27 -10 -27 -11 -27 -12C-27 -13 -28 -13 -28 -14C-28 -15 -27 -16 -27 -17C-26 -17 -24 -16 -23 -15C-22 -14 -21 -13 -20 -12C-18 -11 -17 -9 -16 -8"></path><g stroke-width="1"><path d="M5 2C5 2 3 2 2 2C1 2 0 2 -1 2C-2 2 -4 2 -5 2C-6 1 -7 1 -8 1C-9 1 -10 0 -11 0C-12 -1 -13 -1 -14 -2C-15 -2 -16 -3 -17 -4C-17 -4 -18 -5 -19 -6C-19 -6 -20 -7 -20 -8C-21 -9 -21 -9 -22 -10C-22 -11 -22 -12 -23 -13"></path><path d="M-7 3C-7 3 -7 2 -7 2C-8 2 -8 2 -8 2C-8 1 -9 1 -9 1"></path><path d="M-5 3C-5 3 -5 3 -5 3C-5 3 -5 3 -5 2C-5 2 -6 2 -6 2"></path><path d="M-2 4C-2 4 -2 4 -2 3C-2 3 -2 3 -2 3C-2 3 -2 2 -2 2"></path></g><path d="M7 10C8 10 11 9 13 10C15 10 16 10 18 10C19 10 20 10 21 11C22 12 23 13 24 14C24 16 25 18 24 20C24 22 21 23 20 24C18 25 17 25 15 26C13 27 12 28 10 29C9 30 7 30 5 30C4 31 2 31 1 31C-1 31 -3 30 -4 30C-6 29 -7 30 -9 30C-11 29 -12 29 -14 28C-15 28 -17 27 -18 26C-20 25 -21 23 -23 22C-24 21 -25 20 -27 19C-28 18 -30 16 -30 14C-30 13 -29 11 -28 10C-27 9 -25 9 -24 8C-23 8 -22 8 -20 8C-18 8 -17 8 -15 8C-13 8 -10 9 -9 9C-7 9 -6 10 -5 10C-4 11 -2 11 -1 11C0 11 2 11 3 11C4 11 5 10 7 10Z" fill="currentColor" stroke="none"></path><path d="M13 10C14 10 16 10 18 10C19 10 20 10 21 11C22 12 23 13 24 14C24 16 25 18 24 20C24 22 21 23 20 24C18 25 17 25 15 26C13 27 12 28 10 29C9 30 7 30 5 30C4 31 2 31 1 31C-1 31 -3 30 -4 30C-6 29 -7 30 -9 30C-11 29 -12 29 -14 28C-15 28 -17 27 -18 26C-20 25 -21 23 -23 22C-24 21 -25 20 -27 19C-28 18 -30 16 -30 14C-30 13 -29 11 -28 10C-27 9 -25 9 -24 8C-23 8 -22 8 -20 8C-18 8 -16 8 -15 8"></path><g stroke-width="1"><path d="M20 15C20 15 18 16 16 16C15 16 14 17 12 17C11 18 9 18 8 18C6 18 5 18 4 18C2 19 1 19 -1 19C-2 19 -4 18 -5 18C-7 18 -8 18 -10 18C-11 18 -12 17 -14 17C-15 16 -16 16 -18 16C-19 15 -20 14 -22 14C-23 14 -25 13 -25 13"></path><path d="M2 15C2 15 2 16 2 16C3 16 3 16 3 16C3 17 3 17 3 17"></path><path d="M5 15C5 15 5 16 5 16C5 16 5 16 5 16C5 16 5 17 5 17"></path><path d="M9 15C9 15 9 15 9 15C9 16 9 16 9 16C10 16 10 16 10 16"></path><path d="M11 14C11 14 12 14 12 14C12 15 12 15 12 15C12 15 12 15 13 15"></path><path d="M14 13C14 13 15 13 15 13C15 13 16 14 16 14C16 14 16 14 17 14"></path></g></g></svg>';
+const MARK_SVG = '<svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="mk" d="M36 17C40 17 50 18 57 18C64 19 72 19 79 19C86 19 93 18 100 18C107 18 114 18 121 17C128 17 136 17 143 17C150 17 157 17 164 17C171 17 178 18 185 18C193 18 200 18 207 18C214 19 221 18 228 18C235 18 242 17 249 17C257 16 264 15 271 15C278 14 285 13 292 13C299 12 306 12 314 12C321 11 328 11 335 11C342 12 349 12 356 12C363 12 370 13 378 13C385 13 392 13 399 13C406 13 413 13 420 13C427 13 434 13 442 12C449 12 456 12 463 12C470 12 477 12 484 13C491 13 498 13 506 14C513 15 520 15 527 16C534 16 541 17 548 18C555 18 563 18 570 18C577 18 587 15 591 18C595 20 595 26 596 32C598 38 599 45 599 52C598 59 596 66 595 72C593 78 595 83 591 85C587 88 577 87 570 87C563 88 555 89 548 89C541 89 534 90 527 90C520 90 513 90 506 90C498 90 491 90 484 90C477 89 470 89 463 89C456 88 449 88 442 88C434 88 427 88 420 88C413 88 406 88 399 88C392 88 385 88 378 88C370 88 363 89 356 89C349 89 342 88 335 88C328 88 321 88 314 87C306 87 299 86 292 86C285 85 278 84 271 84C264 84 257 83 249 83C242 83 235 83 228 83C221 83 214 83 207 84C200 84 193 85 185 85C178 86 171 86 164 86C157 87 150 87 143 87C136 88 128 88 121 88C114 88 107 88 100 88C93 87 86 87 79 87C72 87 64 87 57 88C50 88 40 88 36 88L28 82L45 76L28 67L43 62L19 55L39 48L32 40L42 34L26 24L42 19Z"></path><path d="M59 40C59 40 104 39 127 39C149 39 194 40 194 40C194 41 149 42 127 42C104 42 59 41 59 40ZM107 70C107 70 144 69 163 69C181 69 218 70 218 70C218 71 181 72 163 72C144 72 107 71 107 70Z" fill="#fff" opacity=".2"></path></svg>';
+const EXAMPLE = { id: 'example', name: 'נועה לוי', punches: 4, rewards: 1, g: 'f' };
+function emptyHTML() {
+  const canAdd = S.status === 'ready' && S.canWrite;
+  return `<section class="empty">
+    <div class="example"><span class="example-tag">דוגמה</span>${pcardHTML(EXAMPLE, -1)}</div>
+    <div class="empty-copy">
+      <h2 class="empty-title">${S.status === 'ready' ? 'הכרטיסייה מוכנה ללקוחה הראשונה' : 'ככה עובדת הכרטיסייה'}</h2>
+      <ol class="steps">
+        <li><span><b>מוסיפים לקוחה</b> עם שם וטלפון.</span></li>
+        <li><span><b>אחרי כל טיפול לוחצים ניקוב.</b> כשהכרטיסייה מתמלאת, הטיפול הבא מתנה.</span></li>
+        <li><span><b>שולחים לה עדכון בוואטסאפ</b> עם מצב הכרטיסייה, בלחיצה אחת.</span></li>
+      </ol>
+      ${canAdd ? `<button type="button" class="btn primary big" data-act="add">${IC.plus}<span>הוספת לקוחה ראשונה</span></button>` : ''}
+    </div>
+  </section>`;
+}
+
+function renderHeader() {
+  const name = studioName();
+  $('#studio').textContent = name || 'כרטיסיית מועדון';
+  $('#eyebrow').hidden = !name;
+  let sub = '';
+  if (S.status === 'ready') {
+    const m = monthStats();
+    const month = new Intl.DateTimeFormat('he-IL', { month: 'long' }).format(new Date());
+    sub = m.visits === 0
+      ? `עוד אין טיפולים ב${month}`
+      : `${plural(m.visits, 'טיפול אחד', 'טיפולים')} ב${month}${m.gifts ? ' · ' + plural(m.gifts, 'מתנה אחת', 'מתנות') : ''}`;
+  }
+  $('#sub').textContent = sub;
+}
+function renderBanner() {
+  const b = $('#banner');
+  let html = '';
+  if (S.status === 'nodb') html = '<strong>רשימת הלקוחות לא נטענה בתצוגה הזו.</strong> הנתונים נשמרים בתוך Claude, ולכן הכרטיסייה עובדת כשפותחים את הדף מתוך Claude, בחשבון שקיבל גישה אליו.';
+  else if (S.status === 'ready' && !S.canWrite) html = '<strong>מצב צפייה בלבד.</strong> כדי לנקב ולעדכן לקוחות צריך הרשאת עריכה בדף.';
+  else if (S.status === 'loading' && S.slow) html = 'הטעינה לוקחת יותר זמן מהרגיל. אם זה נמשך, כדאי לרענן את הדף.';
+  b.hidden = !html;
+  if (b._last !== html) { b.innerHTML = html; b._last = html; }
+}
+function renderToolbar() {
+  const show = S.status === 'ready' && S.clients.size > 0;
+  $('#toolbar').hidden = !show;
+  if (!show) return;
+  const N = S.settings.cardSize;
+  let gift = 0, away = 0;
+  S.clients.forEach(c => { if (c.punches >= N) gift++; if (isAway(c)) away++; });
+  $('#n-all').textContent = S.clients.size;
+  $('#n-gift').textContent = gift;
+  $('#n-away').textContent = away;
+  document.querySelectorAll('.toolbar .chip').forEach(ch => ch.setAttribute('aria-pressed', String(ch.dataset.f === S.filter)));
+}
+function renderMain() {
+  const m = $('#main');
+  let html;
+  if (S.status === 'loading') {
+    html = '<div class="skel-list" aria-hidden="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>';
+  } else if (S.status === 'nodb' || S.clients.size === 0) {
+    html = emptyHTML();
+  } else {
+    const arr = visibleClients();
+    if (arr.length) html = `<ul class="list">${arr.map(rowHTML).join('')}</ul>`;
+    else {
+      const msg = S.q.trim() ? `לא נמצאה לקוחה שמתאימה ל„${S.q.trim()}”.`
+        : S.filter === 'gift' ? 'אין כרגע כרטיסיות מלאות.'
+        : 'כל הלקוחות ביקרו בחמשת השבועות האחרונים.';
+      html = `<div class="no-results">${esc(msg)}</div>`;
+    }
+  }
+  if (m._last !== html) { m.innerHTML = html; m._last = html; }
+}
+function render() {
+  renderHeader();
+  renderBanner();
+  renderToolbar();
+  renderMain();
+  updateSheets();
+  $('#addBtn').hidden = S.stack.length > 0 || S.status !== 'ready' || !S.canWrite || S.clients.size === 0;
+  root.classList.toggle('locked', S.stack.length > 0);
+}
+
+/* ---------- sheets ---------- */
+const topSheet = () => S.stack[S.stack.length - 1];
+
+function openSheet(spec) {
+  if (spec.type === 'client') closeAll(true);
+  spec.tid = 'st' + (++uidSeq);
+  spec.prevFocus = document.activeElement;
+  const layer = document.createElement('div');
+  layer.className = 'layer';
+  layer.style.zIndex = String(40 + S.stack.length);
+  layer.innerHTML = `<div class="backdrop" data-act="close"></div><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="${spec.tid}"><div class="grab" aria-hidden="true"></div><div class="sheet-inner"></div></section>`;
+  spec.el = layer;
+  spec.inner = layer.querySelector('.sheet-inner');
+  spec.lastHTML = '';
+  $('#sheets').appendChild(layer);
+  S.stack.push(spec);
+  fillSheet(spec, true);
+  render();
+  const focusEl = spec.type === 'edit' && !spec.id ? $('#f-name', spec.inner) : $('.sheet-title', spec.inner);
+  if (focusEl) focusEl.focus({ preventScroll: true });
+}
+function closeTop() {
+  const spec = S.stack.pop();
+  if (!spec) return;
+  spec.el.remove();
+  render();
+  if (spec.prevFocus && document.contains(spec.prevFocus)) spec.prevFocus.focus({ preventScroll: true });
+}
+function closeAll(silent) {
+  while (S.stack.length) S.stack.pop().el.remove();
+  if (!silent) render();
+}
+function updateSheets() { S.stack.forEach(spec => fillSheet(spec, false)); }
+
+function fillSheet(spec, first) {
+  let html;
+  if (spec.type === 'client') html = clientSheetHTML(spec);
+  else if (spec.type === 'wa') {
+    if (!first && spec.editing) { updateWaLink(spec); return; }
+    html = waSheetHTML(spec);
+  } else if (first) {
+    html = spec.type === 'edit' ? editFormHTML(spec) : settingsHTML(spec);
+  } else return;
+  if (html === spec.lastHTML) return;
+  const body = $('.sheet-body', spec.inner);
+  const top = body ? body.scrollTop : 0;
+  spec.inner.innerHTML = html;
+  spec.lastHTML = html;
+  const nb = $('.sheet-body', spec.inner);
+  if (nb && !first) nb.scrollTop = top;
+}
+
+function sheetHead(spec, title, extra = '') {
+  return `<div class="sheet-head"><h2 class="sheet-title" id="${spec.tid}" tabindex="-1">${title}</h2>${extra}<button type="button" class="icon-btn" data-act="close" aria-label="סגירה">${IC.close}</button></div>`;
+}
+
+function histText(e, c, N) {
+  switch (e.a) {
+    case 'punch': return `ניקוב · ${Math.min(num(e.p), N)}/${N}`;
+    case 'redeem': return 'טיפול מתנה מומש';
+    case 'adjust': return `עדכון ידני ל־${num(e.p)} ניקובים`;
+    case 'join': return num(e.p) > 0 ? `${gw(c, 'הצטרפה', 'הצטרף')} עם ${plural(num(e.p), 'ניקוב אחד', 'ניקובים')}` : `${gw(c, 'הצטרפה', 'הצטרף')} למועדון`;
+    default: return '';
+  }
+}
+
+function clientSheetHTML(spec) {
+  const c = S.clients.get(spec.id);
+  if (!c) return sheetHead(spec, 'הכרטיסייה לא נמצאה') + '<div class="sheet-body"><p class="help">ייתכן שהלקוחה נמחקה ממכשיר אחר.</p></div>';
+  const N = S.settings.cardSize, full = c.punches >= N;
+  const paintIdx = S.justPainted && S.justPainted.id === c.id ? S.justPainted.idx : -1;
+  const last = c.log[c.log.length - 1];
+  const undoLabel = last && last.prev && UNDO_LABEL[last.a];
+  const recent = !!last && Date.now() - last.t < 3 * 60e3 && ['punch', 'redeem', 'join'].includes(last.a);
+  const dis = S.canWrite ? '' : ' disabled';
+  const id = esc(c.id);
+  const primary = full
+    ? `<button type="button" class="btn chrome big" data-act="redeem" data-id="${id}"${dis}>${IC.gift}<span>מימוש טיפול מתנה</span></button>`
+    : `<button type="button" class="btn primary big" data-act="punch" data-id="${id}"${dis}>${IC.plus}<span>ניקוב טיפול</span></button>`;
+  const waBtn = `<button type="button" class="btn wa${recent ? ' nudge' : ''}" data-act="wa" data-id="${id}">${IC.chat}<span>${recent ? 'שליחת עדכון' : 'וואטסאפ'}</span></button>`;
+  const undoBtn = undoLabel ? `<button type="button" class="btn ghost" data-act="undo" data-id="${id}"${dis}>${IC.undo}<span>${undoLabel}</span></button>` : '';
+  const phone = c.phone
+    ? `<span class="phone" dir="ltr">${esc(fmtPhone(c.phone))}</span><button type="button" class="mini-btn" data-act="copy-phone" data-id="${id}">${IC.copy}<span>העתקה</span></button>`
+    : '<span class="muted">לא הוזן</span>';
+  const since = c.createdAt ? new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(new Date(c.createdAt)) : '';
+  const hist = c.log.slice(-12).reverse().map(e => `<li><span>${esc(histText(e, c, N))}</span><time>${fmtDate(e.t)}</time></li>`).join('');
+  const del = spec.confirmDelete
+    ? `<div class="confirm" role="alert"><p>${esc(`למחוק את ${c.name} מהכרטיסייה? כל הניקובים וההיסטוריה ${gw(c, 'שלה', 'שלו')} יימחקו.`)}</p><div class="actions-row"><button type="button" class="btn danger" data-act="delete-yes" data-id="${id}">מחיקה</button><button type="button" class="btn ghost" data-act="delete-no">ביטול</button></div></div>`
+    : `<button type="button" class="text-btn danger-txt" data-act="delete-ask"${dis}>${IC.trash}<span>מחיקת ${gw(c, 'הלקוחה', 'הלקוח')}</span></button>`;
+  return sheetHead(spec, esc(c.name), `<button type="button" class="head-btn" data-act="edit" data-id="${id}"${dis}>${IC.edit}<span>עריכה</span></button>`) +
+    `<div class="sheet-body">
+      ${pcardHTML(c, paintIdx)}
+      <div class="actions">${primary}<div class="actions-row">${waBtn}${undoBtn}</div></div>
+      <dl class="info">
+        <div class="info-row"><dt>טלפון</dt><dd>${phone}</dd></div>
+        <div class="info-row"><dt>ביקור אחרון</dt><dd>${esc(c.lastVisit ? rel(c.lastVisit) + ' · ' + fmtDate(c.lastVisit) : 'עוד לא נרשם')}</dd></div>
+        <div class="info-row"><dt>סה״כ</dt><dd>${plural(c.visits, 'טיפול אחד', 'טיפולים')} · ${plural(c.rewards, 'מתנה אחת', 'מתנות')}</dd></div>
+        ${since ? `<div class="info-row"><dt>במועדון מאז</dt><dd>${esc(since)}</dd></div>` : ''}
+        ${c.notes ? `<div class="info-row notes"><dt>הערות</dt><dd>${esc(c.notes)}</dd></div>` : ''}
+      </dl>
+      ${hist ? `<section class="hist"><h3 class="sec-title">היסטוריה</h3><ol>${hist}</ol></section>` : ''}
+      <div class="danger">${del}</div>
+    </div>`;
+}
+
+function editFormHTML(spec) {
+  const c = spec.id ? S.clients.get(spec.id) : null;
+  const N = S.settings.cardSize;
+  const v = { name: c ? c.name : '', phone: c ? c.phone : '', g: c ? c.g : 'f', notes: c ? c.notes : '', punches: c ? Math.min(c.punches, N) : 0 };
+  return sheetHead(spec, c ? 'עריכת פרטים' : 'לקוחה חדשה') + `<div class="sheet-body">
+    <form class="form" id="clientForm" novalidate>
+      <div class="field">
+        <label for="f-name">שם</label>
+        <input class="input" id="f-name" name="name" autocomplete="off" enterkeyhint="next" maxlength="40" value="${esc(v.name)}">
+        <div class="err" id="f-name-err" hidden>צריך שם כדי לשמור.</div>
+      </div>
+      <div class="field">
+        <label for="f-phone">טלפון לוואטסאפ <span class="opt">(לא חובה)</span></label>
+        <input class="input ltr" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="off" dir="ltr" maxlength="20" placeholder="050-000-0000" value="${esc(v.phone)}">
+        <div class="err" id="f-phone-err" hidden></div>
+      </div>
+      <fieldset class="field">
+        <legend class="legend">פנייה בהודעות</legend>
+        <div class="seg">
+          <label><input type="radio" name="g" id="f-g-f" value="f"${v.g !== 'm' ? ' checked' : ''}><span>לשון נקבה</span></label>
+          <label><input type="radio" name="g" id="f-g-m" value="m"${v.g === 'm' ? ' checked' : ''}><span>לשון זכר</span></label>
+        </div>
+      </fieldset>
+      <div class="field">
+        <span class="legend" id="f-p-l">ניקובים בכרטיסייה עכשיו</span>
+        <div class="stepper" role="group" aria-labelledby="f-p-l">
+          <button type="button" data-act="step" data-t="f-p" data-d="1" aria-label="ניקוב נוסף">+</button>
+          <output id="f-p" data-min="0" data-max="${N}" aria-live="polite">${v.punches}</output>
+          <button type="button" data-act="step" data-t="f-p" data-d="-1" aria-label="ניקוב אחד פחות">−</button>
+          <span class="unit">מתוך ${N}</span>
+        </div>
+        <p class="help">${c ? 'לתיקון ידני בלבד. אחרי טיפול משתמשים בכפתור הניקוב.' : 'ללקוחות שכבר הגיעו אלייך לפני שהכרטיסייה התחילה.'}</p>
+      </div>
+      <div class="field">
+        <label for="f-notes">הערות <span class="opt">(לא חובה)</span></label>
+        <textarea class="input" id="f-notes" name="notes" rows="2" maxlength="300" placeholder="למשל: אוהבת גוונים ניוד, צורת שקד">${esc(v.notes)}</textarea>
+      </div>
+      <button type="submit" class="btn primary big" id="f-save">${c ? 'שמירת שינויים' : 'הוספה לכרטיסייה'}</button>
+    </form>
+  </div>`;
+}
+
+function cardHelp(n) {
+  return `הטיפול ה־${n + 1} מתנה. ללקוחה שמגיעה פעם בחודש זו מתנה בערך כל ${n + 1} חודשים, הנחה אפקטיבית של כ־${Math.round(100 / (n + 1))}%.`;
+}
+function settingsHTML(spec) {
+  const s = S.settings;
+  return sheetHead(spec, 'הגדרות הכרטיסייה') + `<div class="sheet-body">
+    <form class="form" id="settingsForm" novalidate>
+      <div class="field">
+        <label for="s-name">שם הסטודיו</label>
+        <input class="input" id="s-name" autocomplete="off" maxlength="40" value="${esc(s.studioName)}">
+        <p class="help">מופיע בראש הדף, על הכרטיסייה ובחתימה של ההודעות.</p>
+      </div>
+      <div class="field">
+        <span class="legend" id="s-n-l">טיפולים בתשלום עד טיפול מתנה</span>
+        <div class="stepper" role="group" aria-labelledby="s-n-l">
+          <button type="button" data-act="step" data-t="s-n" data-d="1" aria-label="עוד טיפול">+</button>
+          <output id="s-n" data-min="3" data-max="12" aria-live="polite">${s.cardSize}</output>
+          <button type="button" data-act="step" data-t="s-n" data-d="-1" aria-label="טיפול אחד פחות">−</button>
+        </div>
+        <div id="s-preview">${nailRow(s.cardSize, s.cardSize, 'mid')}</div>
+        <p class="help" id="s-n-help">${cardHelp(s.cardSize)}</p>
+        <p class="help">ללקוחות חודשיות מומלץ 5 או 6. השינוי חל על כל הכרטיסיות.</p>
+      </div>
+      <div class="field">
+        <label for="s-owner">הוואטסאפ שלך</label>
+        <input class="input ltr" id="s-owner" type="tel" inputmode="tel" autocomplete="off" dir="ltr" maxlength="20" placeholder="050-000-0000" value="${esc(s.ownerPhone)}">
+        <p class="help">לכאן נשלח סיכום הכרטיסיות.</p>
+      </div>
+      <div class="field">
+        <label for="s-site">כתובת האתר</label>
+        <input class="input ltr" id="s-site" type="url" inputmode="url" autocomplete="off" dir="ltr" maxlength="200" placeholder="https://sapinails.co.il" value="${esc(s.siteUrl)}">
+        <p class="help">כשיש כתובת, כל הודעה ללקוחה כוללת לינק לכרטיסייה שלה, ובוואטסאפ הלינק מופיע כתמונה של הכרטיסייה.</p>
+      </div>
+      <button type="submit" class="btn primary big" id="s-save">שמירת הגדרות</button>
+    </form>
+    <div class="divider"></div>
+    <div class="field">
+      <span class="legend">סיכום ומעקב</span>
+      <p class="help">כל הלקוחות, מי זכאית למתנה ומי לא הגיעה מזמן, בהודעת וואטסאפ אחת. טוב גם כגיבוי.</p>
+      <button type="button" class="btn wa" data-act="summary">${IC.chat}<span>סיכום לוואטסאפ</span></button>
+    </div>
+  </div>`;
+}
+
+function waText(spec) {
+  if (spec.custom != null) return spec.custom;
+  if (!spec.id) return buildSummary();
+  const c = S.clients.get(spec.id);
+  return c ? buildMessage(spec.tpl, c) : '';
+}
+function waPhone(spec) {
+  if (!spec.id) return S.settings.ownerPhone;
+  const c = S.clients.get(spec.id);
+  return c ? c.phone : '';
+}
+function waSheetHTML(spec) {
+  const c = spec.id ? S.clients.get(spec.id) : null;
+  if (spec.id && !c) return sheetHead(spec, 'הלקוחה לא נמצאה') + '<div class="sheet-body"><p class="help">ייתכן שהיא נמחקה ממכשיר אחר.</p></div>';
+  const text = waText(spec), phone = waPhone(spec), href = waHref(phone, text);
+  const chips = c ? `<div class="chips wrap" role="radiogroup" aria-label="סוג ההודעה">${TPLS.filter(t => t.k !== 'redeem' || c.rewards > 0).map(t => `<button type="button" class="chip" role="radio" aria-checked="${t.k === spec.tpl}" data-act="tpl" data-k="${t.k}">${t.label}</button>`).join('')}</div>` : '';
+  const bubble = spec.editing
+    ? `<label class="sr" for="wa-text">נוסח ההודעה</label><textarea class="bubble bubble-edit" id="wa-text" rows="10">${esc(text)}</textarea>`
+    : `<div class="bubble" id="wa-preview">${fmtWa(text)}</div>`;
+  const to = waNumber(phone)
+    ? `נשלח אל <span class="phone" dir="ltr">${esc(fmtPhone(phone))}</span>`
+    : c ? 'אין מספר שמור, וואטסאפ יבקש לבחור איש קשר.' : 'לא הוגדר מספר, וואטסאפ יבקש לבחור צ׳אט.';
+  const title = c ? `הודעה ל${esc(firstName(c.name))}` : 'סיכום לוואטסאפ';
+  return sheetHead(spec, title) + `<div class="sheet-body wa-body">
+    ${chips}
+    <div class="bubble-wrap">${bubble}</div>
+    <div class="wa-meta"><span>${to}</span><button type="button" class="text-btn" data-act="wa-edit">${spec.editing ? 'חזרה לנוסח המוכן' : 'עריכת הנוסח'}</button></div>
+    <div class="actions-row">
+      <a class="btn wa" id="wa-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${IC.chat}<span>פתיחה בוואטסאפ</span></a>
+      <button type="button" class="btn ghost" data-act="wa-copy">${IC.copy}<span>העתקה</span></button>
+    </div>
+    <p class="fine">ההודעה נשלחת רק מתוך וואטסאפ, אחרי לחיצה על שליחה.${/\/k\/\d{1,2}\/\d{1,2}\//.test(text) ? ' כדאי לחכות שנייה עד שתמונת הכרטיסייה מופיעה מעל ההודעה, ורק אז לשלוח.' : ''}</p>
+    ${href.length > 7000 ? '<p class="fine warn-txt">ההודעה ארוכה. אם וואטסאפ לא מציג את כל הטקסט, עדיף להעתיק ולהדביק.</p>' : ''}
+  </div>`;
+}
+function updateWaLink(spec) {
+  const a = $('#wa-link', spec.inner);
+  if (a) a.href = waHref(waPhone(spec), waText(spec));
+}
+
+/* ---------- toasts & copy ---------- */
+function toast(msg, actions = []) {
+  const box = $('#toasts');
+  while (box.children.length >= 2) box.firstChild.remove();
+  const el = document.createElement('div');
+  el.className = 'toast';
+  const span = document.createElement('span');
+  span.className = 't-msg';
+  span.textContent = msg;
+  el.appendChild(span);
+  actions.forEach(a => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = a.label;
+    b.addEventListener('click', () => { el.remove(); a.fn(); });
+    el.appendChild(b);
+  });
+  box.appendChild(el);
+  setTimeout(() => el.remove(), actions.length ? 7000 : 4000);
+}
+function copyText(text, fallbackEl) {
+  const fallback = () => {
+    if (!fallbackEl) return toast('ההעתקה לא הצליחה');
+    if (fallbackEl.select) { fallbackEl.focus(); fallbackEl.select(); }
+    else { const r = document.createRange(); r.selectNodeContents(fallbackEl); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+    toast('הטקסט מסומן, אפשר להעתיק ידנית');
+  };
+  try {
+    navigator.clipboard.writeText(text).then(() => toast('הועתק'), fallback);
+  } catch (_) { fallback(); }
+}
+
+/* ---------- data writes ---------- */
+const queues = new Map();
+function writeDoc(path, body) {
+  const run = async () => {
+    const ref = S.db.doc(path);
+    try { await ref.set(body); }
+    catch (e) {
+      if (e && e.code === 'unavailable') { await sleep(300 + Math.random() * 500); await ref.set(body); }
+      else throw e;
+    }
+  };
+  const p = (queues.get(path) || Promise.resolve()).catch(() => {}).then(run);
+  queues.set(path, p);
+  return p;
+}
+function handleWriteError(e) {
+  const code = e && e.code;
+  if (code === 'invalid_argument' || code === 'not_granted' || code === 'revoked' || code === 'capability_disabled' || code === 'capability_removed') {
+    S.canWrite = false; render();
+    toast('השינוי לא נשמר: אין הרשאת עריכה בדף הזה.');
+  } else if (code === 'quota_exceeded') {
+    toast('נגמר המקום לרשומות חדשות. מחיקת לקוחות ישנות תפנה מקום.');
+  } else {
+    toast('השינוי לא נשמר. בדיקת החיבור לאינטרנט ואז ניסיון נוסף.');
+  }
+}
+function commit(prevC, nextC) {
+  S.clients.set(nextC.id, nextC);
+  render();
+  return writeDoc('clients/' + nextC.id, toDoc(nextC)).catch(err => {
+    if (prevC) S.clients.set(prevC.id, prevC); else S.clients.delete(nextC.id);
+    render();
+    handleWriteError(err);
+    throw err;
+  });
+}
+function guardWrite() {
+  if (!S.db || S.status !== 'ready') { toast('אין חיבור לאחסון הנתונים כרגע.'); return false; }
+  if (!S.canWrite) { toast('אין הרשאת עריכה בדף הזה.'); return false; }
+  return true;
+}
+const prevOf = c => ({ p: c.punches, r: c.rewards, v: c.visits, lv: c.lastVisit });
+
+function punch(id, fromList) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  if (!c) return;
+  const N = S.settings.cardSize, now = Date.now();
+  if (c.punches >= N) { openSheet({ type: 'client', id }); return; }
+  if (S.lastPunch && S.lastPunch.id === id && now - S.lastPunch.t < 700) return;
+  S.lastPunch = { id, t: now };
+  const np = c.punches + 1;
+  const next = { ...c, punches: np, visits: c.visits + 1, lastVisit: now, updatedAt: now,
+    log: [...c.log, { t: now, a: 'punch', p: np, prev: prevOf(c) }].slice(-LOG_MAX) };
+  S.justPainted = { id, idx: c.punches, at: now };
+  setTimeout(() => { if (S.justPainted && S.justPainted.at === now) S.justPainted = null; }, 1200);
+  commit(c, next).catch(() => {});
+  if (fromList) {
+    if (np >= N) toast(`הכרטיסייה של ${firstName(c.name)} התמלאה. הטיפול הבא מתנה`, [{ label: 'וואטסאפ', fn: () => openWa(id, 'visit') }]);
+    else toast(`ניקוב ל${firstName(c.name)} · ${np}/${N}`, [{ label: 'וואטסאפ', fn: () => openWa(id, 'visit') }, { label: 'ביטול', fn: () => undo(id, now) }]);
+  }
+}
+function redeem(id) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  const N = S.settings.cardSize;
+  if (!c || c.punches < N) return;
+  const now = Date.now(), np = Math.max(0, c.punches - N);
+  const next = { ...c, punches: np, rewards: c.rewards + 1, visits: c.visits + 1, lastVisit: now, updatedAt: now,
+    log: [...c.log, { t: now, a: 'redeem', p: np, prev: prevOf(c) }].slice(-LOG_MAX) };
+  commit(c, next).catch(() => {});
+  toast(`טיפול המתנה מומש ונפתחה כרטיסייה חדשה ל${firstName(c.name)}`, [{ label: 'וואטסאפ', fn: () => openWa(id, 'redeem') }]);
+}
+function undo(id, expectT) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  if (!c) return;
+  const e = c.log[c.log.length - 1];
+  if (!e || !e.prev || !UNDO_LABEL[e.a]) return;
+  if (expectT && e.t !== expectT) { toast('בינתיים היה שינוי נוסף. אפשר לבטל מתוך הכרטיסייה.'); return; }
+  const next = { ...c,
+    punches: num(e.prev.p, c.punches), rewards: num(e.prev.r, c.rewards), visits: num(e.prev.v, c.visits),
+    lastVisit: Number.isFinite(e.prev.lv) ? e.prev.lv : null, updatedAt: Date.now(), log: c.log.slice(0, -1) };
+  commit(c, next).catch(() => {});
+  toast(e.a === 'punch' ? 'הניקוב בוטל' : e.a === 'redeem' ? 'מימוש המתנה בוטל' : 'העדכון בוטל');
+}
+async function deleteClient(id) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  try {
+    await S.db.doc('clients/' + id).delete();
+    S.clients.delete(id);
+    closeAll();
+    toast(`${c ? c.name : 'הלקוחה'} ${gw(c, 'נמחקה', 'נמחק')} מהכרטיסייה`);
+  } catch (e) { handleWriteError(e); }
+}
+function openWa(id, tpl) {
+  const c = S.clients.get(id);
+  if (!c) return;
+  openSheet({ type: 'wa', id, tpl: tpl || defaultTpl(c), custom: null, editing: false });
+}
+
+async function submitClient(spec) {
+  if (!guardWrite()) return;
+  const r = spec.inner;
+  const name = $('#f-name', r).value.trim().replace(/\s+/g, ' ');
+  const phone = $('#f-phone', r).value.trim();
+  const g = $('#f-g-m', r).checked ? 'm' : 'f';
+  const notes = $('#f-notes', r).value.trim();
+  const punches = clamp(parseInt($('#f-p', r).textContent, 10) || 0, 0, S.settings.cardSize);
+  const nameErr = $('#f-name-err', r), phoneErr = $('#f-phone-err', r);
+  nameErr.hidden = !!name;
+  if (!name) { $('#f-name', r).focus(); return; }
+  if (phone && phone.replace(/\D/g, '').length < 9) {
+    phoneErr.textContent = 'מספר הטלפון קצר מדי. צריך מספר מלא, למשל 050-123-4567.';
+    phoneErr.hidden = false; return;
+  }
+  const wn = waNumber(phone);
+  const dup = wn ? [...S.clients.values()].find(x => x.id !== spec.id && waNumber(x.phone) === wn) : null;
+  if (dup && spec.dupAck !== wn) {
+    phoneErr.textContent = `המספר כבר שמור אצל ${dup.name}. לחיצה נוספת על השמירה תשמור בכל זאת.`;
+    phoneErr.hidden = false; spec.dupAck = wn; return;
+  }
+  phoneErr.hidden = true;
+  const btn = $('#f-save', r);
+  btn.disabled = true;
+  const now = Date.now();
+  try {
+    if (spec.id) {
+      const c = S.clients.get(spec.id);
+      if (!c) { closeTop(); return; }
+      const next = { ...c, name, phone, g, notes, updatedAt: now };
+      if (punches !== Math.min(c.punches, S.settings.cardSize)) {
+        next.punches = punches;
+        next.log = [...c.log, { t: now, a: 'adjust', p: punches, prev: prevOf(c) }].slice(-LOG_MAX);
+      }
+      await commit(c, next);
+      closeTop();
+      toast('הפרטים נשמרו');
+    } else {
+      const ref = S.db.collection('clients').doc();
+      const c = { id: ref.id, name, phone, g, notes, punches, rewards: 0, visits: punches, createdAt: now, lastVisit: null, updatedAt: now, log: [{ t: now, a: 'join', p: punches }] };
+      await commit(null, c);
+      openSheet({ type: 'client', id: c.id });
+      toast(`${firstName(name)} ${g === 'm' ? 'נוסף' : 'נוספה'} לכרטיסייה`, [{ label: 'הודעת הצטרפות', fn: () => openWa(c.id, 'welcome') }]);
+    }
+  } catch (_) {
+    if (document.contains(btn)) btn.disabled = false;
+  }
+}
+async function submitSettings(spec) {
+  if (!guardWrite()) return;
+  const r = spec.inner;
+  const next = {
+    studioName: $('#s-name', r).value.trim().slice(0, 40),
+    cardSize: clamp(parseInt($('#s-n', r).textContent, 10) || DEFAULTS.cardSize, 3, 12),
+    ownerPhone: $('#s-owner', r).value.trim().slice(0, 20),
+    siteUrl: $('#s-site', r).value.trim().slice(0, 200),
+    updatedAt: Date.now(),
+  };
+  const prev = S.settings;
+  S.settings = normSettings(next);
+  $('#s-save', r).disabled = true;
+  render();
+  try {
+    await writeDoc('meta/settings', next);
+    closeTop();
+    toast('ההגדרות נשמרו');
+  } catch (e) {
+    S.settings = prev; render(); handleWriteError(e);
+    const b = $('#s-save', r); if (b) b.disabled = false;
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const act = el.dataset.act, id = el.dataset.id, spec = topSheet();
+  switch (act) {
+    case 'add': if (guardWrite()) openSheet({ type: 'edit', id: null }); break;
+    case 'open': openSheet({ type: 'client', id }); break;
+    case 'qpunch': punch(id, true); break;
+    case 'punch': punch(id, false); break;
+    case 'redeem': redeem(id); break;
+    case 'undo': undo(id); break;
+    case 'wa': openWa(id); break;
+    case 'edit': if (guardWrite()) openSheet({ type: 'edit', id }); break;
+    case 'close': closeTop(); break;
+    case 'settings': openSheet({ type: 'settings' }); break;
+    case 'summary': openSheet({ type: 'wa', id: null, tpl: 'summary', custom: null, editing: false }); break;
+    case 'filter': S.filter = el.dataset.f; render(); break;
+    case 'tpl':
+      if (spec && spec.type === 'wa') { spec.tpl = el.dataset.k; spec.custom = null; spec.editing = false; fillSheet(spec, true); }
+      break;
+    case 'wa-edit':
+      if (spec && spec.type === 'wa') {
+        if (spec.editing) { spec.editing = false; spec.custom = null; }
+        else { spec.custom = waText(spec); spec.editing = true; }
+        fillSheet(spec, true);
+        const ta = $('#wa-text', spec.inner);
+        if (ta) ta.focus({ preventScroll: true });
+      }
+      break;
+    case 'wa-copy':
+      if (spec && spec.type === 'wa') {
+        const ta = $('#wa-text', spec.inner);
+        copyText(ta ? ta.value : waText(spec), ta || $('#wa-preview', spec.inner));
+      }
+      break;
+    case 'copy-phone': {
+      const c = S.clients.get(id);
+      if (c) copyText(fmtPhone(c.phone), el.parentElement.querySelector('.phone'));
+      break;
+    }
+    case 'delete-ask': if (spec) { spec.confirmDelete = true; fillSheet(spec, false); } break;
+    case 'delete-no': if (spec) { spec.confirmDelete = false; fillSheet(spec, false); } break;
+    case 'delete-yes': deleteClient(id); break;
+    case 'step': {
+      const out = document.getElementById(el.dataset.t);
+      if (!out) break;
+      const v = clamp((parseInt(out.textContent, 10) || 0) + Number(el.dataset.d), Number(out.dataset.min), Number(out.dataset.max));
+      out.textContent = v;
+      if (el.dataset.t === 's-n') {
+        $('#s-preview').innerHTML = nailRow(v, v, 'mid');
+        $('#s-n-help').textContent = cardHelp(v);
+      }
+      break;
+    }
+  }
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const spec = topSheet();
+  if (!spec) return;
+  if (e.target.id === 'clientForm') submitClient(spec);
+  else if (e.target.id === 'settingsForm') submitSettings(spec);
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { S.q = e.target.value; renderMain(); }
+  else if (e.target.id === 'wa-text') { const spec = topSheet(); if (spec) { spec.custom = e.target.value; updateWaLink(spec); } }
+  else if (e.target.id === 'f-phone') { const spec = topSheet(); if (spec) spec.dupAck = null; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.stack.length) closeTop(); });
+
+/* ---------- data subscription ---------- */
+let subTries = 0;
+function subscribe() {
+  if (S.unsubC) S.unsubC();
+  if (S.unsubS) S.unsubS();
+  S.unsubC = S.db.collection('clients').onSnapshot(snap => {
+    const m = new Map();
+    snap.docs.forEach(d => { if (d.exists) { const data = d.data(); if (data) m.set(d.id, normClient(d.id, data)); } });
+    S.clients = m;
+    S.status = 'ready';
+    S.slow = false;
+    render();
+  }, onSubError);
+  S.unsubS = S.db.doc('meta/settings').onSnapshot(snap => {
+    S.settings = normSettings(snap.exists ? snap.data() : null);
+    render();
+  }, onSubError);
+}
+function onSubError(err) {
+  const code = err && err.code;
+  if (['revoked', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) {
+    S.canWrite = false;
+    if (S.status === 'loading') S.status = 'nodb';
+    render();
+    return;
+  }
+  if (subTries < 3) { subTries++; setTimeout(subscribe, 1500 * subTries); }
+}
+
+async function init() {
+  render();
+  setTimeout(() => { if (S.status === 'loading') { S.slow = true; render(); } }, 12000);
+  const cl = window.claude;
+  if (!cl || typeof cl.use !== 'function') { S.status = 'nodb'; render(); return; }
+  let db = null;
+  try { db = await cl.use('db'); } catch (_) { db = null; }
+  if (!db) { S.status = 'nodb'; render(); return; }
+  S.db = db;
+  subscribe();
+  try {
+    const u = await cl.use('user');
+    if (u && typeof u.can === 'function') {
+      const w = await u.can('data.write');
+      if (w === false) { S.canWrite = false; render(); }
+    }
+  } catch (_) {}
+}
+init();
+})();

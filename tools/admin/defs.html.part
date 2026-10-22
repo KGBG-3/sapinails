@@ -1,0 +1,11 @@
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCF1F5"/>
+      <stop offset=".32" stop-color="#E7C3D2"/>
+      <stop offset=".56" stop-color="#F8E8D5"/>
+      <stop offset=".8" stop-color="#D8B2C5"/>
+      <stop offset="1" stop-color="#F5E1EA"/>
+    </linearGradient>
+  </defs>
+</svg>
