@@ -172,6 +172,9 @@ js = sub(js, """<button type="button" class="text-btn" data-act="wa-edit">${spec
          """<button type="button" class="text-btn" data-act="wa-edit">${spec.editing ? 'חזרה לנוסח המוכן' : 'עריכה חד־פעמית'}</button></div>
     ${waTplLink(spec)}""")
 js = sub(js, '<a class="btn wa" id="wa-link" href=', '<a class="btn wa" id="wa-link" data-act="wa-open" href=')
+# wa.me redirects through a page that replaces emoji with "?"; the direct click-to-chat address keeps them
+js = sub(js, "function waHref(phone, text) { return `https://wa.me/${waNumber(phone)}?text=${encodeURIComponent(text)}`; }",
+         "function waHref(phone, text) { const n = waNumber(phone); return `https://api.whatsapp.com/send?${n ? 'phone=' + n + '&' : ''}text=${encodeURIComponent(text)}`; }")
 # replace the artifact start-up with the new one
 head, tail = js.split('async function init() {', 1)
 assert tail.rstrip().endswith('})();')

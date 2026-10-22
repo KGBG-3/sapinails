@@ -641,7 +641,7 @@ function waNumber(p) {
   if (d.length === 9 && d.startsWith('5')) return '972' + d;
   return d;
 }
-function waHref(phone, text) { return `https://wa.me/${waNumber(phone)}?text=${encodeURIComponent(text)}`; }
+function waHref(phone, text) { const n = waNumber(phone); return `https://api.whatsapp.com/send?${n ? 'phone=' + n + '&' : ''}text=${encodeURIComponent(text)}`; }
 
 function rel(ms) {
   if (!ms) return '';

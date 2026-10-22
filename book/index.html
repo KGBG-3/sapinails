@@ -232,7 +232,8 @@ const ownerWa = () => {
   if (d.startsWith('0')) d = '972' + d.slice(1);
   return d || C.waNumber;
 };
-const waLink = text => `https://wa.me/${ownerWa()}${text ? '?text=' + encodeURIComponent(text) : ''}`;
+// api.whatsapp.com keeps the emoji; the wa.me redirect turns them into "?" in in-app browsers and on computers
+const waLink = text => `https://api.whatsapp.com/send?phone=${ownerWa()}${text ? '&text=' + encodeURIComponent(text) : ''}`;
 
 async function loadBusy() {
   const today = dayKey(now());
