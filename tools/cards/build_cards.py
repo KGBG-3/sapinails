@@ -7,6 +7,10 @@ Writes, for every card size N (3..12) and punch count p (0..N):
   out/k/{N}/{p}/index.html   page the client opens (og tags point to the image)
   out/og/{N}-{p}.jpg         1200x630 card image WhatsApp shows inside the message
 plus out/index.html, out/assets/*, out/favicon.svg, out/.nojekyll
+
+In the site's repository, from its root (the pages only; the images need the fonts folder):
+  python3 tools/cards/build_cards.py tools/admin/punch.js.part tools/site/source.html . - https://kgbg-3.github.io/sapinails --no-images
+The pages also use assets/fonts.css (tools/site/make_fonts.py) and assets/site.css + site.js (the accessibility menu).
 """
 import sys, re, glob, math, html, pathlib, urllib.parse, io
 
@@ -14,7 +18,9 @@ APP, SITE, OUT, FONTS, BASE = sys.argv[1:6]
 NO_IMAGES = '--no-images' in sys.argv
 BASE = BASE.rstrip('/')
 OUT = pathlib.Path(OUT)
-VER = '2'
+VER = '2'        # images and the rose drawings
+CSS_VER = '3'    # assets/card.css
+SITE_VER = '1'   # assets/fonts.css, site.css, site.js
 WA_NUM = '972543439530'
 IG = 'https://www.instagram.com/sapinails.il/'
 SIZES = range(3, 13)
@@ -153,10 +159,23 @@ def texts(p, N):
 
 
 # ---------- page ----------
-FONTS_LINK = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
-              '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-              '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800'
-              '&amp;family=Frank+Ruhl+Libre:wght@500&amp;family=Playpen+Sans+Hebrew&amp;family=Ms+Madi&amp;display=swap">')
+NEW_WIN = '<span class="ax-sr"> (נפתח בחלון חדש)</span>'
+
+
+def head_assets(root):
+    """Fonts served from the site itself (no call to Google), the card styles, and the shared accessibility menu."""
+    return (f'<link rel="stylesheet" href="{root}assets/fonts.css?v={SITE_VER}">\n'
+            f'<link rel="stylesheet" href="{root}assets/card.css?v={CSS_VER}">\n'
+            f'<link rel="stylesheet" href="{root}assets/site.css?v={SITE_VER}">\n'
+            f'<script src="{root}assets/site.js?v={SITE_VER}"></script>')
+
+
+def foot_html(root):
+    return (f'<footer class="foot">\n'
+            f'    <nav class="foot-legal" aria-label="נגישות, פרטיות ותנאים"><a href="{root}accessibility/">הצהרת נגישות</a>'
+            f'<a href="{root}privacy/">מדיניות פרטיות</a><a href="{root}terms/">תנאי שימוש</a></nav>\n'
+            f'    <a class="script" dir="ltr" href="{root or "./"}" aria-label="sapinails.il, לדף הבית">sapinails.il</a>\n'
+            f'  </footer>')
 
 WA_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.6a8 8 0 0 1-11.7 7.1L4 20l1.3-4A8 8 0 1 1 20 11.6Z"/>'
            '<path d="M9 10.5h6M9 13.5h4"/></svg>')
@@ -210,13 +229,13 @@ def page_html(p, N):
 <meta property="og:image:alt" content="{esc(alt)}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
-{FONTS_LINK}
-<link rel="stylesheet" href="{root}assets/card.css?v={VER}">
+{head_assets(root)}
 </head>
 <body>
+<a class="skip" href="#top">דילוג לתוכן הראשי</a>
 {CHROME_DEFS}
 <div class="decos" aria-hidden="true"><img class="deco deco-a" src="{root}assets/rose.svg?v={VER}" alt="" width="173" height="132"><img class="deco deco-b" src="{root}assets/stem.svg?v={VER}" alt="" width="287" height="154"></div>
-<main class="page">
+<main class="page" id="top" tabindex="-1">
   <header class="intro">
     <p class="kicker">כרטיסיית המועדון שלך</p>
     <h1 class="title">{t['head']}</h1>
@@ -225,8 +244,8 @@ def page_html(p, N):
   {card_html(p, N, root)}
   <div class="actions">
     <a class="btn primary" href="{root}book/{'?gift=1' if p >= N else ''}">{CAL_ICON}<span>{t['cta']}</span></a>
-    <a class="btn line" href="{IG}" target="_blank" rel="noopener">{IG_ICON}<span>העבודות שלי באינסטגרם</span></a>
-    <a class="small-link" href="{esc(wa)}" target="_blank" rel="noopener">שאלה? וואטסאפ לספיר</a>
+    <a class="btn line" href="{IG}" target="_blank" rel="noopener">{IG_ICON}<span>העבודות שלי באינסטגרם{NEW_WIN}</span></a>
+    <a class="small-link" href="{esc(wa)}" target="_blank" rel="noopener">שאלה? וואטסאפ לספיר{NEW_WIN}</a>
   </div>
   <section class="how" aria-labelledby="how-h">
     <h2 id="how-h">איך זה עובד</h2>
@@ -236,7 +255,7 @@ def page_html(p, N):
       <li><b>3</b><span>הטיפול {ordinal(N + 1)} מתנה ממני, ואז מתחילים כרטיסייה חדשה.</span></li>
     </ol>
   </section>
-  <footer class="foot"><span dir="ltr">sapinails.il</span></footer>
+  {foot_html(root)}
 </main>
 <script>
 (function () {{
@@ -272,21 +291,22 @@ def home_html():
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-{FONTS_LINK}
-<link rel="stylesheet" href="assets/card.css?v={VER}">
+{head_assets('')}
 </head>
 <body class="home">
+<a class="skip" href="#top">דילוג לתוכן הראשי</a>
 <div class="decos" aria-hidden="true"><img class="deco deco-a" src="assets/rose.svg?v={VER}" alt="" width="173" height="132"><img class="deco deco-b" src="assets/stem.svg?v={VER}" alt="" width="287" height="154"></div>
-<main class="page">
+<main class="page" id="top" tabindex="-1">
   <header class="intro">
     <p class="brand" dir="ltr">sapinails.il</p>
     <h1 class="title">ציפורניים מטופחות,<br>בקליניקה פרטית</h1>
   </header>
   <div class="actions">
     <a class="btn primary" href="book/">{CAL_ICON}<span>לקביעת תור</span></a>
-    <a class="btn line" href="{IG}" target="_blank" rel="noopener">{IG_ICON}<span>העבודות שלי באינסטגרם</span></a>
-    <a class="small-link" href="{esc(wa)}" target="_blank" rel="noopener">שאלה? וואטסאפ לספיר</a>
+    <a class="btn line" href="{IG}" target="_blank" rel="noopener">{IG_ICON}<span>העבודות שלי באינסטגרם{NEW_WIN}</span></a>
+    <a class="small-link" href="{esc(wa)}" target="_blank" rel="noopener">שאלה? וואטסאפ לספיר{NEW_WIN}</a>
   </div>
+  {foot_html('')}
 </main>
 </body>
 </html>
@@ -294,7 +314,7 @@ def home_html():
 
 
 CSS = r''':root{
-  --bg:#FAE9EE;--surface:#FFFAFB;--ink:#2E1D24;--ink-2:#7D5566;--ink-3:#A48D98;
+  --bg:#FAE9EE;--surface:#FFFAFB;--ink:#2E1D24;--ink-2:#7D5566;--ink-3:#7A5A68;
   --line:#F0D7E0;--line-strong:#E5C1CE;
   --accent:#BE4B74;--accent-hover:#A63D63;--accent-soft:#F8DCE6;
   --card-flat:#F7DAE2;--sheen:rgba(255,255,255,.38);--marker:#D9809F;
@@ -313,7 +333,8 @@ body{margin:0;min-height:100vh;min-height:100dvh;position:relative;background:va
 svg{display:block}
 img{display:block;max-width:100%}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+:focus-visible{outline:3px solid var(--accent-hover);outline-offset:3px}
+main:focus{outline:none}
 .defs{position:absolute;width:0;height:0;overflow:hidden}
 
 /* corner roses, like the site */
@@ -325,7 +346,7 @@ a{color:inherit}
 .page{position:relative;z-index:1;max-width:460px;margin:0 auto;padding:calc(34px + env(safe-area-inset-top,0px)) 16px calc(34px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:22px}
 
 .intro{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
-.kicker{margin:0;font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--accent)}
+.kicker{margin:0;font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--accent-hover)}
 .title{margin:0;font-family:var(--font-display);font-weight:500;font-size:clamp(34px,10vw,42px);line-height:1.08;color:var(--accent);text-wrap:balance}
 .sub{margin:0;font-size:17px;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .brand{margin:0;font-family:var(--font-script);font-size:64px;line-height:1;color:var(--accent)}
@@ -351,6 +372,7 @@ a{color:inherit}
 .nails{position:relative;z-index:1;display:grid;justify-content:center;align-items:end;gap:10px 9px;margin-block:16px 18px}
 .nails .nail{width:34px;height:47px}
 .nails.dense .nail{width:29px;height:40px}
+@media (max-width:359px){.nails{gap:8px 6px}.nails .nail{width:29px;height:40px}.nails.dense .nail{width:26px;height:36px}}
 .nail .slot{fill:var(--nail-empty-fill);stroke:var(--nail-empty-stroke);stroke-width:1.3;stroke-dasharray:3.2 2.6}
 .nail .edge{stroke:var(--nail-edge);stroke-width:1}
 .nail .num{font-family:var(--font-ui);font-size:10.5px;font-weight:800;fill:var(--ink-3);text-anchor:middle}
@@ -376,7 +398,11 @@ a{color:inherit}
 .how ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .how li{display:flex;gap:12px;align-items:center;padding:12px 16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,250,251,.75);font-weight:600;font-size:15.5px}
 .how b{flex:none;width:24px;text-align:center;font-family:var(--font-display);font-weight:500;font-size:28px;line-height:1;color:var(--accent)}
-.foot{text-align:center;font-family:var(--font-script);font-size:34px;line-height:1;color:var(--accent);opacity:.85;padding-top:6px}
+.foot{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:6px;font-size:14px}
+.foot-links,.foot-legal{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;font-weight:700}
+.foot-links a,.foot-legal a{color:var(--accent-hover);text-underline-offset:3px}
+.foot-legal{font-size:13.5px}
+.foot .script{font-family:var(--font-script);font-size:34px;line-height:1;color:var(--accent);text-decoration:none}
 
 .home .page{min-height:100vh;min-height:100dvh;justify-content:center;gap:34px}
 .home .title{font-size:clamp(32px,9vw,40px)}

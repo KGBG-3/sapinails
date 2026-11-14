@@ -18,9 +18,10 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&amp;family=Frank+Ruhl+Libre:wght@500&amp;family=Playpen+Sans+Hebrew&amp;family=Ms+Madi&amp;display=swap">
-<link rel="stylesheet" href="../assets/card.css?v=2">
+<link rel="preload" href="../assets/fonts/assistant-hebrew.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/frank-ruhl-libre-500-hebrew.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts.css?v=1">
+<link rel="stylesheet" href="../assets/card.css?v=3">
 <style>
 /* layout: one column; three numbered steps (treatment, time, details) that open in order; the result replaces the steps */
 [hidden]{display:none!important}
@@ -52,9 +53,9 @@
 .day{flex:none;width:62px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px 7px;border-radius:16px;border:1.5px solid var(--line-strong);background:var(--surface);cursor:pointer;color:var(--ink);font:inherit}
 .day .w{font-size:12.5px;color:var(--ink-2);font-weight:800}
 .day .n{font-family:var(--font-display);font-size:23px;line-height:1.15;font-weight:500;font-variant-numeric:tabular-nums}
-.day .m{font-size:11px;color:var(--ink-3);min-height:16px;white-space:nowrap}
+.day .m{font-size:12px;color:var(--ink-3);min-height:16px;white-space:nowrap}
 .day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-.day[aria-pressed="true"] .w,.day[aria-pressed="true"] .m{color:rgba(255,255,255,.88)}
+.day[aria-pressed="true"] .w,.day[aria-pressed="true"] .m{color:#fff}
 .day:disabled{opacity:.36;cursor:default}
 .day-title{margin:4px 0 10px;font-weight:800;font-size:15.5px}
 .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -69,8 +70,11 @@
 .field{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;border:0;min-width:0}
 .field>label,.legend{font-size:14.5px;font-weight:800;padding:0}
 .opt{font-weight:500;color:var(--ink-3)}
-.input{width:100%;min-height:50px;border:1.5px solid var(--line-strong);border-radius:14px;background:var(--surface);padding:12px 14px;font:inherit;font-size:16px;color:var(--ink);outline:none;-webkit-appearance:none;appearance:none}
-.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input{width:100%;min-height:50px;border:1.5px solid var(--line-strong);border-radius:14px;background:var(--surface);padding:12px 14px;font:inherit;font-size:16px;color:var(--ink);-webkit-appearance:none;appearance:none}
+.input:focus{border-color:var(--accent-hover)}
+.input:focus-visible{outline-offset:1px}
+.input::placeholder{color:var(--ink-3);opacity:1}
+.input[aria-invalid="true"]{border-color:#B3261E}
 textarea.input{min-height:76px;resize:vertical;line-height:1.45}
 .input.ltr{direction:ltr;text-align:right}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -79,6 +83,10 @@ textarea.input{min-height:76px;resize:vertical;line-height:1.45}
 .err{margin:0;color:#B3261E;font-size:13.5px;font-weight:700}
 .err[hidden]{display:none}
 .fine{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)}
+.fine a{color:var(--accent-hover);font-weight:700;text-underline-offset:3px}
+.check{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;cursor:pointer}
+.check input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--accent-hover)}
+main:focus,.step-h:focus,.result h2:focus{outline:none}
 .btn[disabled]{opacity:.55;cursor:default;transform:none}
 .alert{margin:0;padding:12px 14px;border-radius:14px;background:#FCE4E1;color:#7A1F18;font-weight:700;font-size:14.5px;line-height:1.5}
 .alert[hidden]{display:none}
@@ -100,44 +108,48 @@ textarea.input{min-height:76px;resize:vertical;line-height:1.45}
 .skel{height:64px;border-radius:18px;background:linear-gradient(90deg,#F6E1E8 0%,#FFFAFB 50%,#F6E1E8 100%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
 @keyframes shimmer{from{background-position:200% 0}to{background-position:0 0}}
 .bk .foot{display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--font-ui);font-size:14px;opacity:1;padding-top:4px}
-.foot-links{display:flex;gap:18px;color:var(--ink-2);font-weight:700}
-.foot-links a{color:var(--accent-hover);text-underline-offset:3px}
-.foot .script{font-family:var(--font-script);font-size:32px;line-height:1;color:var(--accent)}
+.foot-links,.foot-legal{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;color:var(--ink-2);font-weight:700}
+.foot-links a,.foot-legal a{color:var(--accent-hover);text-underline-offset:3px}
+.foot-legal{font-size:13.5px}
+.foot .script{font-family:var(--font-script);font-size:32px;line-height:1;color:var(--accent);text-decoration:none}
 @media (min-width:480px){.slots{grid-template-columns:repeat(5,1fr)}}
 </style>
+<link rel="stylesheet" href="../assets/site.css?v=1">
+<script src="../assets/site.js?v=1"></script>
 </head>
 <body>
+<a class="skip" href="#top">דילוג לתוכן הראשי</a>
 <div class="decos" aria-hidden="true"><img class="deco deco-a" src="../assets/rose.svg?v=1" alt="" width="173" height="132"><img class="deco deco-b" src="../assets/stem.svg?v=1" alt="" width="287" height="154"></div>
-<main class="page bk" id="top">
+<main class="page bk" id="top" tabindex="-1">
   <header class="intro">
     <p class="brand-sm" dir="ltr">sapinails.il</p>
     <h1 class="title">קביעת תור</h1>
     <p class="sub" id="intro">בוחרים טיפול, יום ושעה פנויה, והתור נשמר.</p>
   </header>
   <p class="gift-note" id="giftNote" hidden>הכרטיסייה שלך מלאה, והטיפול הזה מתנה ממני ✨</p>
-  <p class="alert" id="loadErr" hidden></p>
+  <p class="alert" id="loadErr" role="alert" hidden></p>
 
   <section class="step" id="stService" aria-labelledby="hService">
-    <h2 class="step-h" id="hService"><span class="num">1</span>איזה טיפול?</h2>
+    <h2 class="step-h" id="hService" tabindex="-1"><span class="num">1</span>איזה טיפול?</h2>
     <div id="svcBody"><div class="svc-list"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
   </section>
 
   <section class="step" id="stTime" aria-labelledby="hTime" hidden>
-    <h2 class="step-h" id="hTime"><span class="num">2</span>מתי נוח לך?</h2>
+    <h2 class="step-h" id="hTime" tabindex="-1"><span class="num">2</span>מתי נוח לך?</h2>
     <div id="timeBody"></div>
   </section>
 
   <section class="step" id="stDetails" aria-labelledby="hDetails" hidden>
-    <h2 class="step-h" id="hDetails"><span class="num">3</span>הפרטים שלך</h2>
+    <h2 class="step-h" id="hDetails" tabindex="-1"><span class="num">3</span>הפרטים שלך</h2>
     <form class="form" id="form" novalidate>
       <div class="field">
         <label for="fName">שם מלא</label>
-        <input class="input" id="fName" name="name" autocomplete="name" enterkeyhint="next" maxlength="60">
+        <input class="input" id="fName" name="name" autocomplete="name" enterkeyhint="next" maxlength="60" required>
         <p class="err" id="eName" hidden>צריך שם מלא כדי לשמור את התור.</p>
       </div>
       <div class="field">
         <label for="fPhone">טלפון לוואטסאפ</label>
-        <input class="input ltr" id="fPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="20" placeholder="050-000-0000">
+        <input class="input ltr" id="fPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="20" placeholder="050-000-0000" required>
         <p class="err" id="ePhone" hidden>צריך מספר טלפון מלא, למשל 050-123-4567.</p>
       </div>
       <fieldset class="field" id="addonsField" hidden>
@@ -148,17 +160,20 @@ textarea.input{min-height:76px;resize:vertical;line-height:1.45}
         <label for="fNote">הערה לספיר <span class="opt">(לא חובה)</span></label>
         <textarea class="input" id="fNote" name="note" rows="2" maxlength="300" placeholder="למשל: צבע שאת רוצה, השלמה בציפורן אחת"></textarea>
       </div>
-      <p class="alert" id="sendErr" hidden></p>
+      <label class="check"><input type="checkbox" id="fRemember" checked><span>לזכור את השם והטלפון במכשיר הזה לפעם הבאה</span></label>
+      <p class="alert" id="sendErr" role="alert" hidden></p>
       <button type="submit" class="btn primary" id="send">קביעת התור</button>
-      <p class="fine">בקביעת התור מאשרים את התקנון: ביטול עד 24 שעות לפני התור, ואיחור של 15 דקות ומעלה מבטל את התור.</p>
+      <p class="fine">בקביעת התור מאשרים את <a href="../#policy">התקנון</a> ואת <a href="../terms/">תנאי השימוש</a>: ביטול עד 24 שעות לפני התור, ואיחור של 15 דקות ומעלה מבטל את התור.</p>
+      <p class="fine">הפרטים שלך: אין חובה חוקית למסור אותם, אבל בלי שם וטלפון אי אפשר לשמור תור. הם נשמרים אצל ספיר (sapinails.il, וואטסאפ <span dir="ltr" style="white-space:nowrap">054-343-9530</span>) ואצל הספקים שמאחסנים את המידע עבורה, ולא נמסרים לאף אחד אחר. ספיר משתמשת בהם לקביעת התור, לתיאום ולתזכורות בוואטסאפ ולכרטיסיית המועדון. מדי פעם היא שולחת גם הזמנה לקבוע תור חדש, ואפשר לבקש ממנה להפסיק בכל רגע. מותר לך לעיין במידע, לתקן אותו ולבקש למחוק אותו. הפירוט המלא ב<a href="../privacy/">מדיניות הפרטיות</a>.</p>
     </form>
   </section>
 
-  <section class="result" id="result" aria-live="polite" hidden></section>
+  <section class="result" id="result" hidden></section>
 
   <footer class="foot">
-    <div class="foot-links"><a id="waLink" href="https://wa.me/972543439530" target="_blank" rel="noopener">וואטסאפ לספיר</a><a id="igLink" href="https://www.instagram.com/sapinails.il/" target="_blank" rel="noopener">אינסטגרם</a></div>
-    <span class="script" dir="ltr">sapinails.il</span>
+    <div class="foot-links"><a id="waLink" href="https://wa.me/972543439530" target="_blank" rel="noopener">וואטסאפ לספיר<span class="ax-sr"> (נפתח בחלון חדש)</span></a><a id="igLink" href="https://www.instagram.com/sapinails.il/" target="_blank" rel="noopener">אינסטגרם<span class="ax-sr"> (נפתח בחלון חדש)</span></a><a href="../">לדף הבית</a></div>
+    <nav class="foot-legal" aria-label="נגישות, פרטיות ותנאים"><a href="../accessibility/">הצהרת נגישות</a><a href="../privacy/">מדיניות פרטיות</a><a href="../terms/">תנאי שימוש</a></nav>
+    <a class="script" dir="ltr" href="../" aria-label="sapinails.il, לדף הבית">sapinails.il</a>
   </footer>
 </main>
 <script src="../assets/config.js?v=1"></script>
@@ -171,6 +186,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 const pad = n => String(n).padStart(2, '0');
 const WD_SHORT = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+const NEW_WIN = '<span class="ax-sr"> (נפתח בחלון חדש)</span>';
 
 /* ---------- time, always in Israel ---------- */
 const partsFmt = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
@@ -297,8 +313,8 @@ function renderService() {
   }
   sec.classList.remove('done');
   if (!S.services.length) { box.innerHTML = '<p class="empty-day">כרגע אין טיפולים פתוחים לקביעה אונליין. אפשר לכתוב לספיר בוואטסאפ.</p>'; return; }
-  box.innerHTML = `<div class="svc-list" role="radiogroup" aria-label="בחירת טיפול">${S.services.map(s =>
-    `<button type="button" class="svc" role="radio" aria-checked="false" data-act="service" data-id="${esc(s.id)}"><span><span class="nm">${esc(s.name)}</span><span class="meta">${fmtDur(s.minutes)}</span></span><span class="pr">${fmtPrice(s.price)}</span></button>`).join('')}</div>`;
+  box.innerHTML = `<div class="svc-list" role="group" aria-label="בחירת טיפול">${S.services.map(s =>
+    `<button type="button" class="svc" data-act="service" data-id="${esc(s.id)}"><span><span class="nm">${esc(s.name)}</span><span class="meta">${fmtDur(s.minutes)}</span></span><span class="pr">${fmtPrice(s.price)}</span></button>`).join('')}</div>`;
 }
 function renderTime() {
   const sec = $('#stTime');
@@ -317,7 +333,7 @@ function renderTime() {
     S.day = first ? first.k : null;
   }
   if (!S.day) {
-    box.innerHTML = `<p class="empty-day">אין שעות פנויות לטיפול הזה בשבועות הקרובים. אפשר לכתוב לספיר ונמצא זמן.</p><div class="actions" style="margin-top:12px"><a class="btn line" href="${esc(waLink('היי ספיר, אשמח לקבוע תור'))}" target="_blank" rel="noopener">וואטסאפ לספיר</a></div>`;
+    box.innerHTML = `<p class="empty-day">אין שעות פנויות לטיפול הזה בשבועות הקרובים. אפשר לכתוב לספיר ונמצא זמן.</p><div class="actions" style="margin-top:12px"><a class="btn line" href="${esc(waLink('היי ספיר, אשמח לקבוע תור'))}" target="_blank" rel="noopener">וואטסאפ לספיר${NEW_WIN}</a></div>`;
     return;
   }
   let lastMonth = '';
@@ -352,13 +368,27 @@ function render() {
   renderTime();
   renderDetails();
 }
+const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('ax-still');
 function goTo(id) {
   const el = document.getElementById(id);
-  if (el && el.scrollIntoView) setTimeout(() => el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }), 30);
+  if (el && el.scrollIntoView) setTimeout(() => el.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }), 30);
+}
+/* the buttons of a step are redrawn after each choice, so the keyboard and the screen reader are moved to what comes next */
+function focusOn(sel) { const el = $(sel); if (el) el.focus({ preventScroll: true }); }
+function fieldErr(input, err, bad) {
+  const i = $(input), e = $(err);
+  e.hidden = !bad;
+  if (bad) { i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', e.id); }
+  else { i.removeAttribute('aria-invalid'); i.removeAttribute('aria-describedby'); }
 }
 
 /* ---------- details memory (this phone only) ---------- */
-function rememberMe(name, phone) { try { localStorage.setItem('sapinails.me', JSON.stringify({ name, phone })); } catch (_) {} }
+function rememberMe(name, phone) {
+  try {
+    if ($('#fRemember').checked) localStorage.setItem('sapinails.me', JSON.stringify({ name, phone }));
+    else localStorage.removeItem('sapinails.me');
+  } catch (_) {}
+}
 function recallMe() {
   try {
     const v = JSON.parse(localStorage.getItem('sapinails.me') || 'null');
@@ -382,8 +412,8 @@ async function send() {
   const phone = $('#fPhone').value.trim();
   const note = $('#fNote').value.trim();
   const digits = phone.replace(/\D/g, '');
-  $('#eName').hidden = name.length >= 2;
-  $('#ePhone').hidden = digits.length >= 9;
+  fieldErr('#fName', '#eName', name.length < 2);
+  fieldErr('#fPhone', '#ePhone', digits.length < 9);
   if (name.length < 2) { $('#fName').focus(); return; }
   if (digits.length < 9) { $('#fPhone').focus(); return; }
   const addons = [...S.addons];
@@ -403,14 +433,14 @@ async function send() {
       return;
     }
     const code = res && res.error;
-    if (code === 'name') { $('#eName').hidden = false; $('#fName').focus(); }
-    else if (code === 'phone') { $('#ePhone').hidden = false; $('#fPhone').focus(); }
-    else if (code === 'service') { await load(); S.service = null; S.slot = null; render(); showErr('הטיפול עודכן בינתיים. בחרי בבקשה שוב.'); goTo('stService'); }
+    if (code === 'name') { fieldErr('#fName', '#eName', true); $('#fName').focus(); }
+    else if (code === 'phone') { fieldErr('#fPhone', '#ePhone', true); $('#fPhone').focus(); }
+    else if (code === 'service') { await load(); S.service = null; S.slot = null; render(); flash('#svcBody', 'הטיפול עודכן בינתיים. בחרי בבקשה שוב.'); goTo('stService'); focusOn('#hService'); }
     else if (['taken', 'time', 'notice', 'ahead'].includes(code)) {
       try { await loadBusy(); } catch (_) {}
       S.slot = null; render();
       flash('#timeBody', ERR[code]);
-      goTo('stTime');
+      goTo('stTime'); focusOn('#hTime');
     } else showErr(ERR[code] || 'משהו לא הסתדר. נסי שוב, או כתבי לספיר בוואטסאפ.');
   } catch (_) {
     showErr('אין חיבור לאינטרנט כרגע. בדקי את החיבור ונסי שוב.');
@@ -424,6 +454,7 @@ function flash(sel, msg) {
   const box = $(sel);
   const p = document.createElement('p');
   p.className = 'alert';
+  p.setAttribute('role', 'alert');
   p.style.marginBottom = '12px';
   p.textContent = msg;
   box.prepend(p);
@@ -458,22 +489,22 @@ function showResult(res, name) {
   let html;
   if (res.status === 'confirmed') {
     const msg = `היי ספיר 💕\nקבעתי תור ל${res.service} ב${fmtLong(start)} בשעה ${hhmm(start)}. נתראה ✨`;
-    html = `<h2>התור נקבע ✨</h2>
+    html = `<h2 tabindex="-1">התור נקבע ✨</h2>
       <p class="lead-txt">${esc(first)}, מחכה לך!</p>
       ${facts}
       <div class="actions">
         <button type="button" class="btn primary" data-act="ics">הוספה ליומן בטלפון</button>
-        <a class="btn line" href="${esc(waLink(msg))}" target="_blank" rel="noopener">הודעה לספיר בוואטסאפ</a>
+        <a class="btn line" href="${esc(waLink(msg))}" target="_blank" rel="noopener">הודעה לספיר בוואטסאפ${NEW_WIN}</a>
       </div>
       <p class="fine">ביומן תקבלי תזכורת יום לפני ושעתיים לפני. לביטול או שינוי עד 24 שעות לפני התור, כותבים לספיר בוואטסאפ.</p>`;
   } else {
     const msg = `היי ספיר 💕\nאני ${name}, ביקשתי תור ל${res.service} ב${fmtLong(start)} בשעה ${hhmm(start)}.\nמצרפת תמונה עדכנית של הציפורניים 💅`;
-    html = `<h2>הבקשה נשלחה ✨</h2>
+    html = `<h2 tabindex="-1">הבקשה נשלחה ✨</h2>
       <p class="lead-txt">השעה שמורה לך עד שספיר מאשרת את התור.</p>
       ${facts}
       <p class="todo"><b>מה עכשיו?</b> שולחים לספיר בוואטסאפ תמונה עדכנית של הציפורניים. ספיר תחזור אלייך לאישור התור ולפרטי המקדמה (50₪ שמתקזזים ממחיר הטיפול, כמו שכתוב בתקנון ללקוחות חדשות).</p>
       <div class="actions">
-        <a class="btn primary" href="${esc(waLink(msg))}" target="_blank" rel="noopener">שליחת תמונה לספיר בוואטסאפ</a>
+        <a class="btn primary" href="${esc(waLink(msg))}" target="_blank" rel="noopener">שליחת תמונה לספיר בוואטסאפ${NEW_WIN}</a>
       </div>`;
   }
   html += `<button type="button" class="linkbtn again" data-act="again">קביעת תור נוסף</button>`;
@@ -483,7 +514,7 @@ function showResult(res, name) {
   const box = $('#result');
   box.innerHTML = html;
   box.hidden = false;
-  goTo('top');
+  goTo('top'); focusOn('#result h2');
 }
 
 /* ---------- events ---------- */
@@ -494,11 +525,11 @@ document.addEventListener('click', e => {
   if (act === 'service') {
     S.service = S.services.find(s => s.id === el.dataset.id) || null;
     S.slot = null;
-    render(); goTo('stTime');
-  } else if (act === 'change-service') { S.service = null; S.slot = null; render(); goTo('stService'); }
-  else if (act === 'day') { S.day = el.dataset.k; renderTime(); }
-  else if (act === 'slot') { S.slot = Number(el.dataset.t); render(); goTo('stDetails'); setTimeout(() => { const f = $('#fName'); if (f && !f.value) f.focus({ preventScroll: true }); }, 350); }
-  else if (act === 'change-time') { S.slot = null; render(); goTo('stTime'); }
+    render(); goTo('stTime'); focusOn('#hTime');
+  } else if (act === 'change-service') { S.service = null; S.slot = null; render(); goTo('stService'); focusOn('#hService'); }
+  else if (act === 'day') { S.day = el.dataset.k; renderTime(); focusOn('#days .day[aria-pressed="true"]'); }
+  else if (act === 'slot') { S.slot = Number(el.dataset.t); render(); goTo('stDetails'); focusOn('#hDetails'); setTimeout(() => { const f = $('#fName'); if (f && !f.value) f.focus({ preventScroll: true }); }, 350); }
+  else if (act === 'change-time') { S.slot = null; render(); goTo('stTime'); focusOn('#hTime'); }
   else if (act === 'addon') {
     const v = el.dataset.v;
     if (S.addons.has(v)) S.addons.delete(v); else S.addons.add(v);
@@ -515,12 +546,12 @@ document.addEventListener('click', e => {
     S.slot = null; S.service = null; S.addons.clear(); S.gift = false;
     $('#fNote').value = '';
     ['stService'].forEach(id => { $('#' + id).hidden = false; });
-    loadBusy().catch(() => {}).finally(() => { render(); goTo('top'); });
+    loadBusy().catch(() => {}).finally(() => { render(); goTo('top'); focusOn('#hService'); });
   }
 });
 $('#form').addEventListener('submit', e => { e.preventDefault(); send(); });
-$('#fName').addEventListener('input', () => { $('#eName').hidden = true; });
-$('#fPhone').addEventListener('input', () => { $('#ePhone').hidden = true; });
+$('#fName').addEventListener('input', () => fieldErr('#fName', '#eName', false));
+$('#fPhone').addEventListener('input', () => fieldErr('#fPhone', '#ePhone', false));
 
 /* ---------- start ---------- */
 (async () => {
@@ -534,7 +565,7 @@ $('#fPhone').addEventListener('input', () => { $('#ePhone').hidden = true; });
   } catch (_) {
     $('#svcBody').innerHTML = '';
     const a = $('#loadErr');
-    a.innerHTML = 'לא הצלחנו לטעון את היומן כרגע. אפשר לרענן את הדף, או לקבוע ישירות <a href="' + esc(waLink('היי ספיר, אשמח לקבוע תור')) + '" target="_blank" rel="noopener">בוואטסאפ לספיר</a>.';
+    a.innerHTML = 'לא הצלחנו לטעון את היומן כרגע. אפשר לרענן את הדף, או לקבוע ישירות <a href="' + esc(waLink('היי ספיר, אשמח לקבוע תור')) + '" target="_blank" rel="noopener">בוואטסאפ לספיר' + NEW_WIN + '</a>.';
     a.hidden = false;
   }
 })();
