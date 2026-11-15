@@ -102,6 +102,9 @@ body = sub(body, """cta.innerHTML = `<a class="btn btn-rose" href="${WA}?text=${
            """cta.innerHTML = `<a class="btn btn-rose" href="book/${full ? '?gift=1' : ''}">""")
 
 # ---------- studio policy: how to cancel, and the law comes first ----------
+# the refund line, in the narrower wording Moshe approved on 15.11.2026 (the design file still has the sweeping one)
+body = sub(body, 'לא יינתן החזר כספי מכל סיבה שהיא, מלבד ביטול שנעשה עד 24 שעות.',
+           'המקדמה ודמי הביטול לא יוחזרו בביטול של פחות מ־24 שעות לפני התור.')
 body = sub(body, '<span>בבקשה שמרו על התקנון</span></p></div>',
            '<span>בבקשה שמרו על התקנון</span></p></div>\n'
            f'      <p class="pol-legal">לביטול או שינוי תור כותבים לספיר <a href="{WA_CANCEL}" target="_blank" rel="noopener noreferrer">בוואטסאפ</a>. '
