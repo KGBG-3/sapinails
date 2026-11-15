@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const MIG = 'supabase/migrations/2026-11-15_booking_no_promo.sql';
 const UNDO = 'supabase/rollback/2026-11-15_booking_no_promo.sql';
+const DRY = 'supabase/checks/booking_dry_run.sql';
 const BEFORE_REF = process.env.BEFORE_REF || '48a2d70';   // the commit whose schema.sql matches the database before the migration
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const before = process.env.BEFORE ? fs.readFileSync(process.env.BEFORE, 'utf8')
@@ -29,9 +30,9 @@ create table auth.users (id uuid primary key default gen_random_uuid(), email te
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 grant usage on schema auth to anon, authenticated;
 create schema extensions; create schema net;
-create table net.calls (id bigserial primary key, url text, body jsonb);
+create table net.http_request_queue (id bigserial primary key, url text, body jsonb);
 create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds int default 5000)
-returns bigint language plpgsql security definer as $$ declare i bigint; begin insert into net.calls (url, body) values (url, body) returning id into i; return i; end $$;
+returns bigint language plpgsql security definer as $$ declare i bigint; begin insert into net.http_request_queue (url, body) values (url, body) returning id into i; return i; end $$;
 grant usage on schema net to anon, authenticated;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
@@ -95,7 +96,7 @@ async function snapshot(db) {
 
 async function flows(db, label) {
   console.log(`\n${label}`);
-  const calls0 = +(await one(db, 'select count(*) as n from net.calls')).n;
+  const calls0 = +(await one(db, 'select coalesce(max(id), 0) as n from net.http_request_queue')).n;
   let online = 0;
 
   // the page as it is today: six fields, no p_no_promo
@@ -201,7 +202,7 @@ async function flows(db, label) {
   }
 
   // the phone alert: one call for every online booking, none for the rest
-  const calls = await all(db, 'select body from net.calls where id > $1 order by id', [calls0]);
+  const calls = await all(db, 'select body from net.http_request_queue where id > $1 order by id', [calls0]);
   ok(calls.length === online && calls.every(x => x.body.op === 'booking' && x.body.id), `one phone alert per online booking (${online})`, calls.length);
 
   // what visitors and signed-in strangers can reach
@@ -218,6 +219,16 @@ async function flows(db, label) {
   ok(versions.length === 1 && /boolean\)$/.test(versions[0].sig), 'exactly one request_booking, the new one', versions);
 }
 const c0 = (d, ...drop) => { const o = { ...d }; drop.forEach(k => delete o[k]); return o; };
+const counts = async db => JSON.stringify(await one(db, `select (select count(*) from public.appointments) as a, (select count(*) from public.clients) as c,
+  (select count(*) from net.http_request_queue) as q, (select md5(string_agg(id || data::text, '' order by id)) from public.clients) as cards`));
+async function dryRun(db, label) {
+  const beforeRun = await counts(db);
+  let msg = '';
+  try { await db.exec(read(DRY)); } catch (e) { msg = e.message; }
+  ok(/^DRY RUN, nothing was saved\. "verdict": "ALL OK"/.test(msg), `${label}: the dry-run file reports ALL OK`, msg.slice(0, 1500));
+  ok(await counts(db) === beforeRun, `${label}: the dry run left nothing behind (bookings, cards, alerts)`);
+  return msg;
+}
 
 const mig = read(MIG), undo = read(UNDO);
 
@@ -240,6 +251,7 @@ await A.exec(mig);
 ok(true, 'the migration can be run a second time');
 await flows(A, 'after the migration');
 const snapA = await snapshot(A);
+const dryMsg = await dryRun(A, 'after the migration');
 
 // ---------- 2. undo, then forward again ----------
 console.log('\nundo');
@@ -248,6 +260,8 @@ r = await book(A, { p_service: 'gel', p_start: await slot(A, 6, '09:00'), p_name
 ok(r.ok === true, 'after the undo: the old page still books', r);
 r = await book(A, { p_service: 'gel', p_start: await slot(A, 6, '10:00'), p_name: 'אחרי ביטול', p_phone: '0507770001', p_no_promo: true });
 ok(!!r.thrown && /does not exist/.test(r.thrown), 'after the undo: the new field is unknown again', r);
+{ let msg = ''; try { await A.exec(read(DRY)); } catch (e) { msg = e.message; }
+  ok(!/"verdict": "ALL OK"/.test(msg), 'after the undo: the dry-run file does not report ALL OK', msg.slice(0, 200)); }
 ok((await card(A, 'c-old')).noPromo === 1763190000000, 'after the undo: marks on cards are still there');
 ok((await all(A, `select 1 from pg_trigger where tgname = 'clients_keep_no_promo'`)).length === 0, 'after the undo: the keep-the-mark rule is gone');
 await A.exec(undo);
@@ -276,5 +290,6 @@ await B.exec(read('supabase/schema.sql'));
 ok(JSON.stringify(await snapshot(B)) === JSON.stringify(snapB), 'schema.sql can be run again on an existing database');
 await flows(B, 'fresh install: the same flows');
 
+if (process.env.SHOW_DRY) console.log('\n' + dryMsg);
 console.log(`\n${fails ? 'FAILED: ' + fails : 'ALL PASSED'} (${passes} checks)`);
 process.exit(fails ? 1 : 0);
