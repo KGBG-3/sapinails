@@ -16,6 +16,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const MIG = 'supabase/migrations/2026-11-15_booking_no_promo.sql';
 const UNDO = 'supabase/rollback/2026-11-15_booking_no_promo.sql';
 const DRY = 'supabase/checks/booking_dry_run.sql';
+const DRY_ADMIN = 'supabase/checks/admin_save_dry_run.sql';
 const BEFORE_REF = process.env.BEFORE_REF || '48a2d70';   // the commit whose schema.sql matches the database before the migration
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const before = process.env.BEFORE ? fs.readFileSync(process.env.BEFORE, 'utf8')
@@ -221,12 +222,14 @@ async function flows(db, label) {
 const c0 = (d, ...drop) => { const o = { ...d }; drop.forEach(k => delete o[k]); return o; };
 const counts = async db => JSON.stringify(await one(db, `select (select count(*) from public.appointments) as a, (select count(*) from public.clients) as c,
   (select count(*) from net.http_request_queue) as q, (select md5(string_agg(id || data::text, '' order by id)) from public.clients) as cards`));
-async function dryRun(db, label) {
+async function dryRun(db, label, file = DRY, name = 'the booking dry run') {
   const beforeRun = await counts(db);
   let msg = '';
-  try { await db.exec(read(DRY)); } catch (e) { msg = e.message; }
-  ok(/^DRY RUN, nothing was saved\. "verdict": "ALL OK"/.test(msg), `${label}: the dry-run file reports ALL OK`, msg.slice(0, 1500));
-  ok(await counts(db) === beforeRun, `${label}: the dry run left nothing behind (bookings, cards, alerts)`);
+  try { await db.exec(read(file)); } catch (e) { msg = e.message; }
+  ok(/^DRY RUN, nothing was saved\. "verdict": "ALL OK"/.test(msg), `${label}: ${name} reports ALL OK`, msg.slice(0, 1500));
+  ok(await counts(db) === beforeRun, `${label}: ${name} left nothing behind (bookings, cards, alerts)`);
+  const who = (await one(db, 'select current_user as u')).u;
+  ok(who === 'postgres', `${label}: ${name} leaves the session as it was (role ${who})`);
   return msg;
 }
 
@@ -252,6 +255,7 @@ ok(true, 'the migration can be run a second time');
 await flows(A, 'after the migration');
 const snapA = await snapshot(A);
 const dryMsg = await dryRun(A, 'after the migration');
+const dryAdminMsg = await dryRun(A, 'after the migration', DRY_ADMIN, 'the admin-save dry run');
 
 // ---------- 2. undo, then forward again ----------
 console.log('\nundo');
@@ -290,6 +294,6 @@ await B.exec(read('supabase/schema.sql'));
 ok(JSON.stringify(await snapshot(B)) === JSON.stringify(snapB), 'schema.sql can be run again on an existing database');
 await flows(B, 'fresh install: the same flows');
 
-if (process.env.SHOW_DRY) console.log('\n' + dryMsg);
+if (process.env.SHOW_DRY) console.log('\n' + dryMsg + '\n\n' + dryAdminMsg);
 console.log(`\n${fails ? 'FAILED: ' + fails : 'ALL PASSED'} (${passes} checks)`);
 process.exit(fails ? 1 : 0);
