@@ -30,4 +30,6 @@
     python3 tools/site/make_photos.py <תיקיית התמונות המקוריות> img    # תמונות העבודות, בלי מיקום ונתונים נלווים
     python3 tools/site/make_fonts.py <תיקיית node_modules של Fontsource>   # הגופנים
 
+לפני העלאה מריצים את הבדיקות שב-`tools/tests` (הסבר ב-`tools/tests/README.md`). הן רצות מול מערכת תורים מדומה ולא נוגעות בנתונים האמיתיים.
+
 את `book/index.html` עורכים ישירות. מסך הניהול נבנה לפי `tools/admin/README.md`. בלי `--no-images` הסקריפט של הכרטיסיות בונה גם את תמונות התצוגה המקדימה ב-`og/`, ואז צריך לתת לו במקום `-` תיקייה עם חבילות הגופנים של Fontsource.
