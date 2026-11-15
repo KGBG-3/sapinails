@@ -3,6 +3,7 @@
 -- Admins are the users listed in public.admins (Sapir's login). To add one:
 --   insert into public.admins (user_id) select id from auth.users where email = '...';
 -- Visitors (role anon) can only call public_info(), public_busy() and request_booking().
+-- Changes after the first install are also kept one by one in supabase/migrations/ (and how to undo them in supabase/rollback/).
 
 begin;
 
@@ -56,7 +57,8 @@ create table if not exists public.services (
 
 -- one row per club card; data keeps the shape the card app uses
 -- {name, phone, g, notes, punches, rewards, visits, createdAt, lastVisit, updatedAt, log[]}
--- and, only for a client who asked not to get invitations, noPromo: the time (ms) the admin screen marked it
+-- and, only for a client who asked not to get invitations, noPromo: the time (ms) it was marked, by the admin screen
+-- or by the booking form. noPromo: 0 is how the admin screen removes the mark (see clients_keep_no_promo below).
 create table if not exists public.clients (
   id text primary key,
   data jsonb not null,
@@ -90,6 +92,7 @@ create table if not exists public.appointments (
   constraint appointments_no_overlap exclude using gist (tstzrange(starts_at, ends_at, '[)') with &&)
     where (status in ('pending', 'confirmed'))
 );
+alter table public.appointments add column if not exists no_promo boolean not null default false;  -- asked in the booking form not to get invitations (2026-11-15)
 create index if not exists appointments_starts_at on public.appointments (starts_at);
 create index if not exists appointments_phone_norm on public.appointments (phone_norm);
 
@@ -176,9 +179,11 @@ language sql stable security definer set search_path = '' as $$
      and p_to > p_from and p_to - p_from <= interval '120 days';
 $$;
 
+-- p_no_promo was added on 2026-11-15; the older version is dropped so that only one exists
+drop function if exists public.request_booking(text, timestamptz, text, text, text, text[]);
 create or replace function public.request_booking(
   p_service text, p_start timestamptz, p_name text, p_phone text,
-  p_note text default '', p_addons text[] default '{}')
+  p_note text default '', p_addons text[] default '{}', p_no_promo boolean default false)
 returns jsonb
 language plpgsql volatile security definer set search_path = '' as $$
 declare
@@ -188,6 +193,7 @@ declare
   v_name text := left(regexp_replace(btrim(coalesce(p_name, '')), '\s+', ' ', 'g'), 60);
   v_phone text := public.norm_phone(p_phone);
   v_note text := left(btrim(coalesce(p_note, '')), 300);
+  v_no_promo boolean := coalesce(p_no_promo, false);
   v_addons text[];
   step int; buf int; notice int; ahead int;
   local_ts timestamp; start_min int; wd int;
@@ -258,10 +264,11 @@ begin
           or exists (select 1 from public.appointments a where a.phone_norm = v_phone and a.status in ('confirmed', 'done'));
   v_status := case when v_known and coalesce(st ->> 'approval', 'new') = 'new' then 'confirmed' else 'pending' end;
 
+  -- no_promo reaches her card in the appointments_card trigger
   insert into public.appointments (starts_at, ends_at, service_id, service_name, minutes, price,
-                                   name, phone, note, addons, client_id, status, source, is_new)
+                                   name, phone, note, addons, client_id, status, source, is_new, no_promo)
   values (p_start, v_end, svc.id, svc.name, svc.minutes, svc.price,
-          v_name, v_phone, v_note, v_addons, v_client, v_status, 'online', not v_known)
+          v_name, v_phone, v_note, v_addons, v_client, v_status, 'online', not v_known, v_no_promo)
   returning id into v_id;
 
   return jsonb_build_object('ok', true, 'id', v_id, 'status', v_status, 'isNew', not v_known,
@@ -273,9 +280,9 @@ end;
 $$;
 
 revoke execute on function public.public_info(), public.public_busy(timestamptz, timestamptz),
-  public.request_booking(text, timestamptz, text, text, text, text[]), public.is_admin() from public;
+  public.request_booking(text, timestamptz, text, text, text, text[], boolean), public.is_admin() from public;
 grant execute on function public.public_info(), public.public_busy(timestamptz, timestamptz),
-  public.request_booking(text, timestamptz, text, text, text, text[]) to anon, authenticated;
+  public.request_booking(text, timestamptz, text, text, text, text[], boolean) to anon, authenticated;
 grant execute on function public.is_admin() to authenticated;
 
 -- merge a few settings keys in one statement (admin only, through the row rules above)
@@ -329,16 +336,32 @@ begin
   return v_id;
 end $$;
 
--- runs when a booking is saved as confirmed or becomes confirmed (online, approval, or added by Sapir)
+-- runs when a booking is saved, or becomes confirmed (online, approval, or added by Sapir):
+-- opens the club card when it is missing, and carries "no invitations" from the booking form to the card
 create or replace function public.appointments_card() returns trigger
 language plpgsql security definer set search_path = '' as $$
+declare
+  got_card boolean := false;
+  t bigint;
 begin
   if new.status = 'confirmed' and new.client_id is null then
     if tg_op = 'INSERT' then
       new.client_id := public.card_for(new.name, new.phone);
+      got_card := true;
     elsif old.status is distinct from 'confirmed' then
       new.client_id := public.card_for(new.name, new.phone);
+      got_card := true;
     end if;
+  end if;
+  -- once per booking: when it is saved, or when it gets its card. A later change of the booking
+  -- does not bring back a mark that Sapir removed.
+  if new.no_promo and new.client_id is not null and (tg_op = 'INSERT' or got_card) then
+    t := floor(extract(epoch from clock_timestamp()) * 1000)::bigint;
+    update public.clients c
+       set data = c.data || jsonb_build_object('noPromo', t, 'updatedAt', t)
+     where c.id = new.client_id
+       and not (case when jsonb_typeof(c.data -> 'noPromo') = 'number'
+                     then (c.data ->> 'noPromo')::numeric > 0 else false end);
   end if;
   return new;
 end $$;
@@ -411,6 +434,31 @@ create trigger appointments_notify after insert on public.appointments
 
 revoke execute on function public.card_for(text, text), public.appointments_card(), public.appointments_notify(), public.notify_url()
   from public, anon, authenticated;
+
+-- =====================================================================
+-- Added 2026-11-15 (also in supabase/migrations/2026-11-15_booking_no_promo.sql)
+-- The booking form lets a client ask not to get invitations to book again: request_booking(p_no_promo)
+-- keeps it in appointments.no_promo, and the appointments_card trigger above carries it to her card.
+-- =====================================================================
+
+-- The admin screen saves a whole card at a time. A screen that was opened before the mark was set, or one
+-- that still runs an older version, would save the card without it. Such a save keeps the mark.
+-- Removing the mark is a save that says so: noPromo: 0.
+create or replace function public.clients_keep_no_promo() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  if not (new.data ? 'noPromo') and jsonb_typeof(old.data -> 'noPromo') = 'number' then
+    if (old.data ->> 'noPromo')::numeric > 0 then
+      new.data := new.data || jsonb_build_object('noPromo', old.data -> 'noPromo');
+    end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists clients_keep_no_promo on public.clients;
+create trigger clients_keep_no_promo before update on public.clients
+  for each row execute function public.clients_keep_no_promo();
+
+revoke execute on function public.appointments_card(), public.clients_keep_no_promo() from public, anon, authenticated;
 
 -- extensions for the web call and the hourly check (Supabase); skipped where they are not installed
 do $$
