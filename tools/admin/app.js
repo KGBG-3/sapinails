@@ -667,6 +667,44 @@ function openApptWa(id, tpl) {
   openSheet({ type: 'wa', id: null, apptId: id, tpl: tpl || 'confirm', custom: null, editing: false });
 }
 
+/* ---------- clients who asked not to get invitations ("הסר") ----------
+   The mark is kept on the client's card: noPromo is the time it was set. While it is on, the message
+   "הזמנה לחזור" is not offered for her, on this card or on another card with the same phone number. */
+function promoOff(c) {
+  if (!c) return null;
+  if (c.noPromo) return c.noPromo;
+  const n = waNumber(c.phone);
+  if (n) for (const x of S.clients.values()) if (x.noPromo && x.id !== c.id && waNumber(x.phone) === n) return x.noPromo;
+  return null;
+}
+function promoRowHTML(c) {
+  const off = promoOff(c), id = esc(c.id), dis = S.canWrite ? '' : ' disabled';
+  const dd = off
+    ? `<span class="stop-val">לא לשלוח · ${fmtDate(off)}</span><button type="button" class="mini-btn" data-act="promo-on" data-id="${id}"${dis}>ביטול</button>`
+    : `<span class="muted">אפשר לשלוח</span><button type="button" class="mini-btn" data-act="promo-off" data-id="${id}"${dis}>${gw(c, 'ביקשה', 'ביקש')} להפסיק</button>`;
+  return `<div class="info-row"><dt>הזמנות לחזור</dt><dd>${dd}</dd></div>`;
+}
+function promoNoteHTML(c) {
+  if (!promoOff(c)) return '';
+  return `<p class="stop-note"><b>${esc(firstName(c.name))} ${gw(c, 'ביקשה', 'ביקש')} לא לקבל הזמנות לחזור.</b> לכן ההודעה «הזמנה לחזור» לא מופיעה כאן. הודעות על תור או על טיפול שהיה אפשר לשלוח.</p>`;
+}
+function setPromo(id, off) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  if (!c) return;
+  const now = Date.now(), who = firstName(c.name);
+  if (off) {
+    commit(c, { ...c, noPromo: now, updatedAt: now }).catch(() => {});
+    toast(`סומן: לא לשלוח ל${who} הזמנות לחזור`, [{ label: 'ביטול', fn: () => setPromo(id, false) }]);
+  } else {
+    // the mark may sit on another card with the same phone number, so every such card is cleared
+    const n = waNumber(c.phone);
+    [...S.clients.values()].filter(x => x.noPromo && (x.id === c.id || (n && waNumber(x.phone) === n)))
+      .forEach(x => commit(x, { ...x, noPromo: null, updatedAt: now }).catch(() => {}));
+    toast(`אפשר שוב לשלוח ל${who} הזמנות לחזור`);
+  }
+}
+
 /* ---------- message wording: built-in texts that Sapir can change and save ---------- */
 // {placeholders} are filled per client. A line whose placeholder is empty is left out
 // (with the "…:" line right above it), so a missing address or link leaves no gap.
@@ -674,6 +712,8 @@ const V_CARD = [['שם', 'שם הלקוחה'], ['כרטיסייה', 'הכרטי�
 const V_APPT = [['שם', 'שם הלקוחה'], ['טיפול', 'הטיפול'], ['מועד', 'יום ושעה'], ['מתי', 'היום / מחר / ביום…'], ['שעה', 'שעה'], ['כתובת', 'כתובת'], ['קישור לקביעת תור', 'קישור לקביעת תור'], ['שם הסטודיו', 'שם הסטודיו']];
 const T_SIGN = '\n\n{שם הסטודיו} 💅';
 const T_CARD = '\n\nלצפייה בכרטיסייה שלך:\n{קישור לכרטיסייה}';
+// an invitation is advertising under the spam law, so it has to say how to stop getting such messages
+const T_STOP = '\n\nלא רוצה לקבל ממני הזמנות כאלה? אפשר להשיב "הסר" 🙏';
 const MSG_DEFS = [
   { k: 'a_confirm', group: 'appt', label: 'אישור תור', help: 'נשלחת אחרי שהתור אושר.', vars: V_APPT,
     f: 'היי {שם} 💕\nהתור שלך מאושר ✨\n{טיפול}\n{מועד}\n📍 {כתובת}\n\nמחכה לך!' + T_SIGN },
@@ -700,7 +740,7 @@ const MSG_DEFS = [
   { k: 'status', group: 'card', label: 'מצב הכרטיסייה', help: 'עדכון כללי על הכרטיסייה.', vars: V_CARD,
     f: 'היי {שם} 💕\nעדכון מהכרטיסייה שלך:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN },
   { k: 'reminder', group: 'card', label: 'הזמנה לחזור', help: 'ללקוחה שלא הגיעה כבר זמן מה.', vars: V_CARD,
-    f: 'היי {שם} 💕\nמתגעגעת! עבר קצת זמן מאז הטיפול האחרון, אולי הגיע הזמן לחדש את הציפורניים? 💅\n\n{כרטיסייה}\n{מצב}\nהכרטיסייה שלך: {קישור לכרטיסייה}\n\nלקביעת תור:\n{קישור לקביעת תור}' + T_SIGN },
+    f: 'היי {שם} 💕\nמתגעגעת! עבר קצת זמן מאז הטיפול האחרון, אולי הגיע הזמן לחדש את הציפורניים? 💅\n\n{כרטיסייה}\n{מצב}\nהכרטיסייה שלך: {קישור לכרטיסייה}\n\nלקביעת תור:\n{קישור לקביעת תור}' + T_SIGN + T_STOP },
 ];
 const MSG_BY_KEY = Object.fromEntries(MSG_DEFS.map(d => [d.k, d]));
 const savedTpls = () => (S.full && S.full.templates && typeof S.full.templates === 'object' ? S.full.templates : {});
@@ -1261,6 +1301,8 @@ function extraClick(act, el) {
     case 'push-on': enablePush(); break;
     case 'push-test': testPush(); break;
     case 'push-off': disablePush(); break;
+    case 'promo-off': setPromo(id, true); break;
+    case 'promo-on': setPromo(id, false); break;
     case 'logout': logout(); break;
   }
 }

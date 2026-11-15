@@ -56,6 +56,7 @@ create table if not exists public.services (
 
 -- one row per club card; data keeps the shape the card app uses
 -- {name, phone, g, notes, punches, rewards, visits, createdAt, lastVisit, updatedAt, log[]}
+-- and, only for a client who asked not to get invitations, noPromo: the time (ms) the admin screen marked it
 create table if not exists public.clients (
   id text primary key,
   data jsonb not null,

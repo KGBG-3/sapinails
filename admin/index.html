@@ -447,6 +447,12 @@ textarea.tpl-text{min-height:230px;resize:vertical;line-height:1.55;font-family:
 /* phone alerts */
 .steps{margin:0;padding-inline-start:22px;display:flex;flex-direction:column;gap:6px;font-size:14.5px;line-height:1.5}
 .ok-line{margin:0;font-weight:800;color:var(--ok-ink)}
+
+/* clients who asked not to get invitations */
+.pill.stop{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line-strong)}
+.stop-val{color:var(--warn);font-weight:800;white-space:nowrap}
+.stop-note{margin:0;padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line-strong);font-size:14px;line-height:1.45}
+.stop-note b{color:var(--warn);font-weight:800}
 </style>
 </head>
 <body>
@@ -601,10 +607,11 @@ function normClient(id, d) {
     createdAt: num(d.createdAt, 0),
     lastVisit: Number.isFinite(d.lastVisit) ? d.lastVisit : null,
     updatedAt: num(d.updatedAt, 0),
+    noPromo: Number.isFinite(d.noPromo) && d.noPromo > 0 ? d.noPromo : null,
     log: Array.isArray(d.log) ? d.log.filter(e => e && Number.isFinite(e.t) && typeof e.a === 'string').slice(-LOG_MAX) : [],
   };
 }
-function toDoc(c) { const { id, ...rest } = c; return JSON.parse(JSON.stringify(rest)); }
+function toDoc(c) { const { id, ...rest } = c; if (rest.noPromo == null) delete rest.noPromo; return JSON.parse(JSON.stringify(rest)); }
 
 function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 function shade(i, N) {
@@ -758,7 +765,7 @@ function buildSummary() {
   const date = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' });
   let t = `📋 *סיכום כרטיסיות${studioName() ? ' · ' + studioName() : ''}*\n${date}\n${plural(list.length, 'לקוחה אחת', 'לקוחות')} · ${plural(m.visits, 'טיפול אחד', 'טיפולים')} החודש`;
   if (gifts.length) t += `\n\n🎁 *מתנה מוכנה (${gifts.length})*\n` + gifts.map(c => `• ${c.name}`).join('\n');
-  if (away.length) t += `\n\n⏳ *מזמן לא הגיעו (${away.length})*\n` + away.map(c => `• ${c.name} · ${lastSeen(c)}`).join('\n');
+  if (away.length) t += `\n\n⏳ *מזמן לא הגיעו (${away.length})*\n` + away.map(c => `• ${c.name} · ${lastSeen(c)}${promoOff(c) ? ' · בלי הזמנות' : ''}`).join('\n');
   if (list.length) {
     const MAX = 60;
     t += `\n\n💅 *כל הכרטיסיות*\n` + list.slice(0, MAX).map(c => `• ${c.name} · ${Math.min(c.punches, N)}/${N}`).join('\n');
@@ -778,7 +785,7 @@ function defaultTpl(c) {
     if (last.a === 'redeem') return 'redeem';
     if (last.a === 'join') return 'welcome';
   }
-  return isAway(c) ? 'reminder' : 'status';
+  return isAway(c) && !promoOff(c) ? 'reminder' : 'status';
 }
 
 /* ---------- rendering ---------- */
@@ -812,7 +819,7 @@ function rowHTML(c) {
     <button type="button" class="row-main" data-act="open" data-id="${esc(c.id)}">
       <span class="avatar" style="--av:${av.bg};--av-ink:${av.ink}" aria-hidden="true">${esc(init)}</span>
       <span class="row-text">
-        <span class="row-name"><span class="nm">${esc(c.name)}</span>${full ? '<span class="pill gift">מתנה מוכנה</span>' : ''}</span>
+        <span class="row-name"><span class="nm">${esc(c.name)}</span>${full ? '<span class="pill gift">מתנה מוכנה</span>' : ''}${promoOff(c) ? '<span class="pill stop">בלי הזמנות</span>' : ''}</span>
         <span class="row-meta">${nailRow(c.punches, N, 'mini')}<span class="count">${f}/${N}</span><span class="when${isAway(c) ? ' away' : ''}">${esc(lastSeen(c))}</span></span>
       </span>
     </button>
@@ -1004,7 +1011,7 @@ function clientSheetHTML(spec) {
   const since = c.createdAt ? new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(new Date(c.createdAt)) : '';
   const hist = c.log.slice(-12).reverse().map(e => `<li><span>${esc(histText(e, c, N))}</span><time>${fmtDate(e.t)}</time></li>`).join('');
   const del = spec.confirmDelete
-    ? `<div class="confirm" role="alert"><p>${esc(`למחוק את ${c.name} מהכרטיסייה? כל הניקובים וההיסטוריה ${gw(c, 'שלה', 'שלו')} יימחקו.`)}</p><div class="actions-row"><button type="button" class="btn danger" data-act="delete-yes" data-id="${id}">מחיקה</button><button type="button" class="btn ghost" data-act="delete-no">ביטול</button></div></div>`
+    ? `<div class="confirm" role="alert"><p>${esc(`למחוק את ${c.name} מהכרטיסייה? כל הניקובים וההיסטוריה ${gw(c, 'שלה', 'שלו')} יימחקו.${promoOff(c) ? ' גם הסימון «לא לשלוח הזמנות» יימחק.' : ''}`)}</p><div class="actions-row"><button type="button" class="btn danger" data-act="delete-yes" data-id="${id}">מחיקה</button><button type="button" class="btn ghost" data-act="delete-no">ביטול</button></div></div>`
     : `<button type="button" class="text-btn danger-txt" data-act="delete-ask"${dis}>${IC.trash}<span>מחיקת ${gw(c, 'הלקוחה', 'הלקוח')}</span></button>`;
   return sheetHead(spec, esc(c.name), `<button type="button" class="head-btn" data-act="edit" data-id="${id}"${dis}>${IC.edit}<span>עריכה</span></button>`) +
     `<div class="sheet-body">
@@ -1012,6 +1019,7 @@ function clientSheetHTML(spec) {
       <div class="actions">${primary}<div class="actions-row">${waBtn}${undoBtn}</div><button type="button" class="text-btn" data-act="appt-new-for" data-id="${id}"${dis}>${IC.plus}<span>קביעת תור</span></button></div>
       <dl class="info">
         <div class="info-row"><dt>טלפון</dt><dd>${phone}</dd></div>
+        ${promoRowHTML(c)}
         <div class="info-row"><dt>ביקור אחרון</dt><dd>${esc(c.lastVisit ? rel(c.lastVisit) + ' · ' + fmtDate(c.lastVisit) : 'עוד לא נרשם')}</dd></div>
         ${(() => { const nx = nextApptFor(c); return nx ? `<div class="info-row"><dt>התור הבא</dt><dd><button type="button" class="text-btn" data-act="appt-open" data-id="${esc(nx.id)}">${esc(T.long(nx.s))} · ${T.hm(nx.s)}</button></dd></div>` : ''; })()}
         <div class="info-row"><dt>סה״כ</dt><dd>${plural(c.visits, 'טיפול אחד', 'טיפולים')} · ${plural(c.rewards, 'מתנה אחת', 'מתנות')}</dd></div>
@@ -1125,10 +1133,11 @@ function waPhone(spec) {
 function waSheetHTML(spec) {
   const c = spec.id ? S.clients.get(spec.id) : null;
   if (spec.id && !c) return sheetHead(spec, 'הלקוחה לא נמצאה') + '<div class="sheet-body"><p class="help">ייתכן שהיא נמחקה ממכשיר אחר.</p></div>';
+  if (c && !spec.apptId && spec.tpl === 'reminder' && promoOff(c)) spec.tpl = 'status';
   const text = waText(spec), phone = waPhone(spec), href = waHref(phone, text);
   const ap = spec.apptId ? apptById(spec.apptId) : null;
   const chips = ap ? `<div class="chips wrap" role="radiogroup" aria-label="סוג ההודעה">${APPT_TPLS.map(t => `<button type="button" class="chip" role="radio" aria-checked="${t.k === spec.tpl}" data-act="tpl" data-k="${t.k}">${t.label}</button>`).join('')}</div>`
-    : c ? `<div class="chips wrap" role="radiogroup" aria-label="סוג ההודעה">${TPLS.filter(t => t.k !== 'redeem' || c.rewards > 0).map(t => `<button type="button" class="chip" role="radio" aria-checked="${t.k === spec.tpl}" data-act="tpl" data-k="${t.k}">${t.label}</button>`).join('')}</div>` : '';
+    : c ? `<div class="chips wrap" role="radiogroup" aria-label="סוג ההודעה">${TPLS.filter(t => (t.k !== 'redeem' || c.rewards > 0) && (t.k !== 'reminder' || !promoOff(c))).map(t => `<button type="button" class="chip" role="radio" aria-checked="${t.k === spec.tpl}" data-act="tpl" data-k="${t.k}">${t.label}</button>`).join('')}</div>` : '';
   const bubble = spec.editing
     ? `<label class="sr" for="wa-text">נוסח ההודעה</label><textarea class="bubble bubble-edit" id="wa-text" rows="10">${esc(text)}</textarea>`
     : `<div class="bubble" id="wa-preview">${fmtWa(text)}</div>`;
@@ -1137,6 +1146,7 @@ function waSheetHTML(spec) {
     : (c || ap) ? 'אין מספר שמור, וואטסאפ יבקש לבחור איש קשר.' : 'לא הוגדר מספר, וואטסאפ יבקש לבחור צ׳אט.';
   const title = ap ? `הודעה ל${esc(firstName(ap.name))}` : c ? `הודעה ל${esc(firstName(c.name))}` : 'סיכום לוואטסאפ';
   return sheetHead(spec, title) + `<div class="sheet-body wa-body">
+    ${c && !ap ? promoNoteHTML(c) : ''}
     ${chips}
     <div class="bubble-wrap">${bubble}</div>
     <div class="wa-meta"><span>${to}</span><button type="button" class="text-btn" data-act="wa-edit">${spec.editing ? 'חזרה לנוסח המוכן' : 'עריכה חד־פעמית'}</button></div>
@@ -2139,6 +2149,44 @@ function openApptWa(id, tpl) {
   openSheet({ type: 'wa', id: null, apptId: id, tpl: tpl || 'confirm', custom: null, editing: false });
 }
 
+/* ---------- clients who asked not to get invitations ("הסר") ----------
+   The mark is kept on the client's card: noPromo is the time it was set. While it is on, the message
+   "הזמנה לחזור" is not offered for her, on this card or on another card with the same phone number. */
+function promoOff(c) {
+  if (!c) return null;
+  if (c.noPromo) return c.noPromo;
+  const n = waNumber(c.phone);
+  if (n) for (const x of S.clients.values()) if (x.noPromo && x.id !== c.id && waNumber(x.phone) === n) return x.noPromo;
+  return null;
+}
+function promoRowHTML(c) {
+  const off = promoOff(c), id = esc(c.id), dis = S.canWrite ? '' : ' disabled';
+  const dd = off
+    ? `<span class="stop-val">לא לשלוח · ${fmtDate(off)}</span><button type="button" class="mini-btn" data-act="promo-on" data-id="${id}"${dis}>ביטול</button>`
+    : `<span class="muted">אפשר לשלוח</span><button type="button" class="mini-btn" data-act="promo-off" data-id="${id}"${dis}>${gw(c, 'ביקשה', 'ביקש')} להפסיק</button>`;
+  return `<div class="info-row"><dt>הזמנות לחזור</dt><dd>${dd}</dd></div>`;
+}
+function promoNoteHTML(c) {
+  if (!promoOff(c)) return '';
+  return `<p class="stop-note"><b>${esc(firstName(c.name))} ${gw(c, 'ביקשה', 'ביקש')} לא לקבל הזמנות לחזור.</b> לכן ההודעה «הזמנה לחזור» לא מופיעה כאן. הודעות על תור או על טיפול שהיה אפשר לשלוח.</p>`;
+}
+function setPromo(id, off) {
+  if (!guardWrite()) return;
+  const c = S.clients.get(id);
+  if (!c) return;
+  const now = Date.now(), who = firstName(c.name);
+  if (off) {
+    commit(c, { ...c, noPromo: now, updatedAt: now }).catch(() => {});
+    toast(`סומן: לא לשלוח ל${who} הזמנות לחזור`, [{ label: 'ביטול', fn: () => setPromo(id, false) }]);
+  } else {
+    // the mark may sit on another card with the same phone number, so every such card is cleared
+    const n = waNumber(c.phone);
+    [...S.clients.values()].filter(x => x.noPromo && (x.id === c.id || (n && waNumber(x.phone) === n)))
+      .forEach(x => commit(x, { ...x, noPromo: null, updatedAt: now }).catch(() => {}));
+    toast(`אפשר שוב לשלוח ל${who} הזמנות לחזור`);
+  }
+}
+
 /* ---------- message wording: built-in texts that Sapir can change and save ---------- */
 // {placeholders} are filled per client. A line whose placeholder is empty is left out
 // (with the "…:" line right above it), so a missing address or link leaves no gap.
@@ -2146,6 +2194,8 @@ const V_CARD = [['שם', 'שם הלקוחה'], ['כרטיסייה', 'הכרטי�
 const V_APPT = [['שם', 'שם הלקוחה'], ['טיפול', 'הטיפול'], ['מועד', 'יום ושעה'], ['מתי', 'היום / מחר / ביום…'], ['שעה', 'שעה'], ['כתובת', 'כתובת'], ['קישור לקביעת תור', 'קישור לקביעת תור'], ['שם הסטודיו', 'שם הסטודיו']];
 const T_SIGN = '\n\n{שם הסטודיו} 💅';
 const T_CARD = '\n\nלצפייה בכרטיסייה שלך:\n{קישור לכרטיסייה}';
+// an invitation is advertising under the spam law, so it has to say how to stop getting such messages
+const T_STOP = '\n\nלא רוצה לקבל ממני הזמנות כאלה? אפשר להשיב "הסר" 🙏';
 const MSG_DEFS = [
   { k: 'a_confirm', group: 'appt', label: 'אישור תור', help: 'נשלחת אחרי שהתור אושר.', vars: V_APPT,
     f: 'היי {שם} 💕\nהתור שלך מאושר ✨\n{טיפול}\n{מועד}\n📍 {כתובת}\n\nמחכה לך!' + T_SIGN },
@@ -2172,7 +2222,7 @@ const MSG_DEFS = [
   { k: 'status', group: 'card', label: 'מצב הכרטיסייה', help: 'עדכון כללי על הכרטיסייה.', vars: V_CARD,
     f: 'היי {שם} 💕\nעדכון מהכרטיסייה שלך:\n{כרטיסייה}\n{מצב}' + T_CARD + T_SIGN },
   { k: 'reminder', group: 'card', label: 'הזמנה לחזור', help: 'ללקוחה שלא הגיעה כבר זמן מה.', vars: V_CARD,
-    f: 'היי {שם} 💕\nמתגעגעת! עבר קצת זמן מאז הטיפול האחרון, אולי הגיע הזמן לחדש את הציפורניים? 💅\n\n{כרטיסייה}\n{מצב}\nהכרטיסייה שלך: {קישור לכרטיסייה}\n\nלקביעת תור:\n{קישור לקביעת תור}' + T_SIGN },
+    f: 'היי {שם} 💕\nמתגעגעת! עבר קצת זמן מאז הטיפול האחרון, אולי הגיע הזמן לחדש את הציפורניים? 💅\n\n{כרטיסייה}\n{מצב}\nהכרטיסייה שלך: {קישור לכרטיסייה}\n\nלקביעת תור:\n{קישור לקביעת תור}' + T_SIGN + T_STOP },
 ];
 const MSG_BY_KEY = Object.fromEntries(MSG_DEFS.map(d => [d.k, d]));
 const savedTpls = () => (S.full && S.full.templates && typeof S.full.templates === 'object' ? S.full.templates : {});
@@ -2733,6 +2783,8 @@ function extraClick(act, el) {
     case 'push-on': enablePush(); break;
     case 'push-test': testPush(); break;
     case 'push-off': disablePush(); break;
+    case 'promo-off': setPromo(id, true); break;
+    case 'promo-on': setPromo(id, false); break;
     case 'logout': logout(); break;
   }
 }

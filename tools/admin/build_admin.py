@@ -175,6 +175,26 @@ js = sub(js, '<a class="btn wa" id="wa-link" href=', '<a class="btn wa" id="wa-l
 # wa.me redirects through a page that replaces emoji with "?"; the direct click-to-chat address keeps them
 js = sub(js, "function waHref(phone, text) { return `https://wa.me/${waNumber(phone)}?text=${encodeURIComponent(text)}`; }",
          "function waHref(phone, text) { const n = waNumber(phone); return `https://api.whatsapp.com/send?${n ? 'phone=' + n + '&' : ''}text=${encodeURIComponent(text)}`; }")
+# ---- clients who asked not to get invitations (the functions are in app.js) ----
+# the mark lives on the client's card, so the card app has to load it, keep it on every save, and show it
+js = sub(js, "    updatedAt: num(d.updatedAt, 0),\n", "    updatedAt: num(d.updatedAt, 0),\n    noPromo: Number.isFinite(d.noPromo) && d.noPromo > 0 ? d.noPromo : null,\n")
+js = sub(js, "function toDoc(c) { const { id, ...rest } = c; return JSON.parse(JSON.stringify(rest)); }",
+         "function toDoc(c) { const { id, ...rest } = c; if (rest.noPromo == null) delete rest.noPromo; return JSON.parse(JSON.stringify(rest)); }")
+js = sub(js, "  return isAway(c) ? 'reminder' : 'status';", "  return isAway(c) && !promoOff(c) ? 'reminder' : 'status';")
+js = sub(js, """${full ? '<span class="pill gift">מתנה מוכנה</span>' : ''}</span>""",
+         """${full ? '<span class="pill gift">מתנה מוכנה</span>' : ''}${promoOff(c) ? '<span class="pill stop">בלי הזמנות</span>' : ''}</span>""")
+js = sub(js, """        <div class="info-row"><dt>טלפון</dt><dd>${phone}</dd></div>""",
+         """        <div class="info-row"><dt>טלפון</dt><dd>${phone}</dd></div>
+        ${promoRowHTML(c)}""")
+js = sub(js, "כל הניקובים וההיסטוריה ${gw(c, 'שלה', 'שלו')} יימחקו.`)}", "כל הניקובים וההיסטוריה ${gw(c, 'שלה', 'שלו')} יימחקו.${promoOff(c) ? ' גם הסימון «לא לשלוח הזמנות» יימחק.' : ''}`)}")
+js = sub(js, "  const text = waText(spec), phone = waPhone(spec), href = waHref(phone, text);",
+         "  if (c && !spec.apptId && spec.tpl === 'reminder' && promoOff(c)) spec.tpl = 'status';\n  const text = waText(spec), phone = waPhone(spec), href = waHref(phone, text);")
+js = sub(js, "${TPLS.filter(t => t.k !== 'redeem' || c.rewards > 0).map(", "${TPLS.filter(t => (t.k !== 'redeem' || c.rewards > 0) && (t.k !== 'reminder' || !promoOff(c))).map(")
+js = sub(js, """<div class="sheet-body wa-body">
+    ${chips}""", """<div class="sheet-body wa-body">
+    ${c && !ap ? promoNoteHTML(c) : ''}
+    ${chips}""")
+js = sub(js, "away.map(c => `• ${c.name} · ${lastSeen(c)}`)", "away.map(c => `• ${c.name} · ${lastSeen(c)}${promoOff(c) ? ' · בלי הזמנות' : ''}`)")
 # replace the artifact start-up with the new one
 head, tail = js.split('async function init() {', 1)
 assert tail.rstrip().endswith('})();')

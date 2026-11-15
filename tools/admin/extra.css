@@ -152,3 +152,9 @@ textarea.tpl-text{min-height:230px;resize:vertical;line-height:1.55;font-family:
 /* phone alerts */
 .steps{margin:0;padding-inline-start:22px;display:flex;flex-direction:column;gap:6px;font-size:14.5px;line-height:1.5}
 .ok-line{margin:0;font-weight:800;color:var(--ok-ink)}
+
+/* clients who asked not to get invitations */
+.pill.stop{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line-strong)}
+.stop-val{color:var(--warn);font-weight:800;white-space:nowrap}
+.stop-note{margin:0;padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line-strong);font-size:14px;line-height:1.45}
+.stop-note b{color:var(--warn);font-weight:800}
