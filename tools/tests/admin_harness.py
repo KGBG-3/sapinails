@@ -87,7 +87,11 @@ def mock_admin(context, state, calls=None, external=None):
                 if want_object: return reply(route, rows[0]) if rows else reply(route, {'code': 'PGRST116', 'message': 'no rows'}, 406)
                 return reply(route, rows)
             if req.method == 'POST':
-                for r in (body if isinstance(body, list) else [body]): state['clients'][r['id']] = copy.deepcopy(r['data'])
+                for r in (body if isinstance(body, list) else [body]):
+                    new, old = copy.deepcopy(r['data']), state['clients'].get(r['id'])
+                    # the rule of the real database (clients_keep_no_promo): a save that does not mention the mark keeps it
+                    if old and 'noPromo' not in new and type(old.get('noPromo')) in (int, float) and old['noPromo'] > 0: new['noPromo'] = old['noPromo']
+                    state['clients'][r['id']] = new
                 return route.fulfill(status=201, body='')
             if req.method == 'DELETE':
                 state['clients'].pop(eq('id'), None); return route.fulfill(status=204, body='')

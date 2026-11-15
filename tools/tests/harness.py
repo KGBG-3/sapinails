@@ -45,8 +45,11 @@ def server():
         finally: httpd.shutdown()
 
 
-def mock_backend(context, booking_status='pending', calls=None, external=None):
-    """Answer the booking system's calls locally, and record any request that leaves the site."""
+def mock_backend(context, booking_status='pending', calls=None, external=None, server='new'):
+    """Answer the booking system's calls locally, and record any request that leaves the site.
+    server: 'new' knows the field p_no_promo; 'old' answers like a database from before 2026-11-15
+    (404, function not found, when the field is sent); 'down' fails every booking."""
+    mode = server if isinstance(server, dict) else {'server': server}
     def supa(route):
         req = route.request
         name = req.url.rsplit('/', 1)[-1]
@@ -58,6 +61,10 @@ def mock_backend(context, booking_status='pending', calls=None, external=None):
         elif name == 'public_busy':
             route.fulfill(status=200, content_type='application/json', body='[]')
         elif name == 'request_booking':
+            if mode['server'] == 'down':
+                return route.fulfill(status=503, content_type='application/json', body='{"message":"down"}')
+            if mode['server'] == 'old' and 'p_no_promo' in body:
+                return route.fulfill(status=404, content_type='application/json', body=json.dumps({'code': 'PGRST202', 'message': 'Could not find the function public.request_booking(...) in the schema cache'}))
             start = datetime.datetime.fromisoformat(body['p_start'].replace('Z', '+00:00'))
             svc = next(s for s in INFO['services'] if s['id'] == body['p_service'])
             res = {'ok': True, 'id': 'test-1', 'status': booking_status, 'service': svc['name'], 'price': svc['price'],

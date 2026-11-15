@@ -1908,6 +1908,7 @@ function apptSheetHTML(spec) {
       ${a.note ? `<div class="info-row notes"><dt>הערה</dt><dd>${esc(a.note)}</dd></div>` : ''}
       <div class="info-row"><dt>נקבע</dt><dd>${a.source === 'online' ? 'באתר' : 'ידנית'} · ${esc(relAgo(Date.parse(a.created_at)))}</dd></div>
       ${a.reminded_at ? `<div class="info-row"><dt>תזכורת</dt><dd>נשלחה ${esc(relAgo(Date.parse(a.reminded_at)))}</dd></div>` : ''}
+      ${a.no_promo ? '<div class="info-row"><dt>הזמנות לחזור</dt><dd><span class="stop-val">ביקשה בטופס לא לקבל</span></dd></div>' : ''}
     </dl>
     ${(a.status === 'pending' || a.status === 'confirmed') && a.e > now - 3600e3 ? `<div class="extend"><span class="legend">צריך יותר זמן?</span><div class="chips">${[[15, 'עוד רבע שעה'], [30, 'עוד חצי שעה'], [60, 'עוד שעה']].map(([d, l]) => `<button type="button" class="chip" data-act="appt-extend" data-id="${id}" data-d="${d}"${dis}>${l}</button>`).join('')}</div></div>` : ''}
     ${card}
@@ -2085,7 +2086,7 @@ async function completeAppt(id) {
     c = (a.client_id && await loadClient(a.client_id)) || clientForAppt(a);
     if (counts) {
       if (!c) {
-        c = { id: newId(), name: a.name, phone: a.phone, g: 'f', notes: '', punches: 0, rewards: 0, visits: 0, createdAt: now, lastVisit: null, updatedAt: now, log: [{ t: now, a: 'join', p: 0 }] };
+        c = { id: newId(), name: a.name, phone: a.phone, g: 'f', notes: '', punches: 0, rewards: 0, visits: 0, createdAt: now, lastVisit: null, updatedAt: now, noPromo: a.no_promo ? now : null, log: [{ t: now, a: 'join', p: 0 }] };
         await commit(null, c);
       }
       const prev = S.clients.get(c.id) || c;
@@ -2151,7 +2152,11 @@ function openApptWa(id, tpl) {
 
 /* ---------- clients who asked not to get invitations ("הסר") ----------
    The mark is kept on the client's card: noPromo is the time it was set. While it is on, the message
-   "הזמנה לחזור" is not offered for her, on this card or on another card with the same phone number. */
+   "הזמנה לחזור" is not offered for her, on this card or on another card with the same phone number.
+   Sapir sets it here; the database sets it when a client ticks the box in the booking form
+   (appointments.no_promo, see supabase/schema.sql).
+   The database keeps the mark through any save that does not mention it, so a screen that was opened before
+   the mark was set cannot wipe it. That is why removing it is a save that says so: noPromo: 0. */
 function promoOff(c) {
   if (!c) return null;
   if (c.noPromo) return c.noPromo;
@@ -2182,7 +2187,7 @@ function setPromo(id, off) {
     // the mark may sit on another card with the same phone number, so every such card is cleared
     const n = waNumber(c.phone);
     [...S.clients.values()].filter(x => x.noPromo && (x.id === c.id || (n && waNumber(x.phone) === n)))
-      .forEach(x => commit(x, { ...x, noPromo: null, updatedAt: now }).catch(() => {}));
+      .forEach(x => commit(x, { ...x, noPromo: 0, updatedAt: now }).catch(() => {}));
     toast(`אפשר שוב לשלוח ל${who} הזמנות לחזור`);
   }
 }
@@ -2892,7 +2897,7 @@ async function startApp() {
     if (document.visibilityState === 'visible') { refreshSoon(); notify('clients'); }
   });
   window.addEventListener('hashchange', () => handleRoute(location.hash));
-  setInterval(() => { if (document.visibilityState === 'visible') refreshSoon(); }, 120000);
+  setInterval(() => { if (document.visibilityState === 'visible') { refreshSoon(); notify('clients'); } }, 120000);
 }
 async function boot() {
   $('#tabbar .in').innerHTML = [['agenda', 'יומן'], ['cards', 'כרטיסיות'], ['hours', 'שעות'], ['more', 'הגדרות']]

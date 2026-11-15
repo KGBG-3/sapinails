@@ -84,8 +84,10 @@ textarea.input{min-height:76px;resize:vertical;line-height:1.45}
 .err[hidden]{display:none}
 .fine{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)}
 .fine a{color:var(--accent-hover);font-weight:700;text-underline-offset:3px}
-.check{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;cursor:pointer}
+.check{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;font-weight:600;line-height:1.5;cursor:pointer}
 .check input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--accent-hover)}
+.check .opt{display:block}
+.result .note-ok{margin:0;font-size:14.5px;font-weight:700;color:var(--ink-2);text-wrap:balance}
 main:focus,.step-h:focus,.result h2:focus{outline:none}
 .btn[disabled]{opacity:.55;cursor:default;transform:none}
 .alert{margin:0;padding:12px 14px;border-radius:14px;background:#FCE4E1;color:#7A1F18;font-weight:700;font-size:14.5px;line-height:1.5}
@@ -161,10 +163,11 @@ main:focus,.step-h:focus,.result h2:focus{outline:none}
         <textarea class="input" id="fNote" name="note" rows="2" maxlength="300" placeholder="למשל: צבע שאת רוצה, השלמה בציפורן אחת"></textarea>
       </div>
       <label class="check"><input type="checkbox" id="fRemember" checked><span>לזכור את השם והטלפון במכשיר הזה לפעם הבאה</span></label>
+      <label class="check"><input type="checkbox" id="fNoPromo"><span>לא לשלוח לי הזמנות לקבוע תור חדש <span class="opt">אישור ותזכורת לתור הזה יישלחו כרגיל.</span></span></label>
       <p class="alert" id="sendErr" role="alert" hidden></p>
       <button type="submit" class="btn primary" id="send">קביעת התור</button>
       <p class="fine">בקביעת התור מאשרים את <a href="../#policy">התקנון</a> ואת <a href="../terms/">תנאי השימוש</a>: ביטול עד 24 שעות לפני התור, ואיחור של 15 דקות ומעלה מבטל את התור.</p>
-      <p class="fine">הפרטים שלך: אין חובה חוקית למסור אותם, אבל בלי שם וטלפון אי אפשר לשמור תור. הם נשמרים אצל ספיר (sapinails.il, וואטסאפ <span dir="ltr" style="white-space:nowrap">054-343-9530</span>) ואצל הספקים שמאחסנים את המידע עבורה, ולא נמסרים לאף אחד אחר. ספיר משתמשת בהם לקביעת התור, לתיאום ולתזכורות בוואטסאפ ולכרטיסיית המועדון. מדי פעם היא שולחת גם הזמנה לקבוע תור חדש, ואפשר לבקש ממנה להפסיק בכל רגע. מותר לך לעיין במידע, לתקן אותו ולבקש למחוק אותו. הפירוט המלא ב<a href="../privacy/">מדיניות הפרטיות</a>.</p>
+      <p class="fine">הפרטים שלך: אין חובה חוקית למסור אותם, אבל בלי שם וטלפון אי אפשר לשמור תור. הם נשמרים אצל ספיר (sapinails.il, וואטסאפ <span dir="ltr" style="white-space:nowrap">054-343-9530</span>) ואצל הספקים שמאחסנים את המידע עבורה, ולא נמסרים לאף אחד אחר. ספיר משתמשת בהם לקביעת התור, לתיאום ולתזכורות בוואטסאפ ולכרטיסיית המועדון. מדי פעם היא שולחת גם הזמנה לקבוע תור חדש. אם לא מתאים לך, אפשר לסמן את זה כאן למעלה, או לבקש ממנה להפסיק בכל רגע. מותר לך לעיין במידע, לתקן אותו ולבקש למחוק אותו. הפירוט המלא ב<a href="../privacy/">מדיניות הפרטיות</a>.</p>
     </form>
   </section>
 
@@ -232,7 +235,7 @@ async function rpc(fn, args) {
     headers: { apikey: C.key, 'Content-Type': 'application/json' },
     body: JSON.stringify(args || {}),
   });
-  if (!r.ok) throw new Error(`rpc ${fn} ${r.status}`);
+  if (!r.ok) throw Object.assign(new Error(`rpc ${fn} ${r.status}`), { status: r.status });
   return r.json();
 }
 
@@ -397,6 +400,7 @@ function recallMe() {
 }
 
 /* ---------- send ---------- */
+const NO_PROMO_NOTE = 'ביקשה לא לקבל הזמנות לקבוע תור.';
 const ERR = {
   taken: 'השעה הזו נתפסה הרגע. בחרי בבקשה שעה אחרת.',
   time: 'השעה הזו כבר לא זמינה. בחרי בבקשה שעה אחרת.',
@@ -418,18 +422,29 @@ async function send() {
   if (digits.length < 9) { $('#fPhone').focus(); return; }
   const addons = [...S.addons];
   if (S.gift) addons.push('טיפול מתנה מהכרטיסייה');
+  const noPromo = $('#fNoPromo').checked;
   S.sending = true;
   const btn = $('#send');
   btn.disabled = true; btn.textContent = 'שומרים את התור…';
   $('#sendErr').hidden = true;
   try {
-    const res = await rpc('request_booking', {
+    const args = {
       p_service: S.service.id, p_start: new Date(S.slot).toISOString(),
       p_name: name, p_phone: phone, p_note: note, p_addons: addons,
-    });
+    };
+    let res;
+    if (noPromo) {
+      // the box travels as its own field, and the server keeps it on her club card
+      try { res = await rpc('request_booking', { ...args, p_no_promo: true }); }
+      catch (e) {
+        // 404: a server that does not know the field. The booking is saved all the same, and Sapir reads the request in the note.
+        if (e.status !== 404) throw e;
+        res = await rpc('request_booking', { ...args, p_note: `${NO_PROMO_NOTE} ${note}`.trim().slice(0, 300) });
+      }
+    } else res = await rpc('request_booking', args);
     if (res && res.ok) {
       rememberMe(name, phone);
-      showResult(res, name);
+      showResult(res, name, noPromo);
       return;
     }
     const code = res && res.error;
@@ -476,7 +491,7 @@ function icsFor(res) {
   ].filter(Boolean);
   return lines.join('\r\n');
 }
-function showResult(res, name) {
+function showResult(res, name, noPromo) {
   const start = Date.parse(res.start);
   const when = `${fmtLong(start)} · ${hhmm(start)}`;
   const first = name.split(' ')[0];
@@ -507,6 +522,7 @@ function showResult(res, name) {
         <a class="btn primary" href="${esc(waLink(msg))}" target="_blank" rel="noopener">שליחת תמונה לספיר בוואטסאפ${NEW_WIN}</a>
       </div>`;
   }
+  if (noPromo) html += `<p class="note-ok">הבקשה שלך נרשמה: לא יישלחו אלייך הזמנות לקבוע תור חדש.</p>`;
   html += `<button type="button" class="linkbtn again" data-act="again">קביעת תור נוסף</button>`;
   S.lastResult = res;
   ['stService', 'stTime', 'stDetails'].forEach(id => { $('#' + id).hidden = true; });

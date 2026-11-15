@@ -176,7 +176,8 @@ js = sub(js, '<a class="btn wa" id="wa-link" href=', '<a class="btn wa" id="wa-l
 js = sub(js, "function waHref(phone, text) { return `https://wa.me/${waNumber(phone)}?text=${encodeURIComponent(text)}`; }",
          "function waHref(phone, text) { const n = waNumber(phone); return `https://api.whatsapp.com/send?${n ? 'phone=' + n + '&' : ''}text=${encodeURIComponent(text)}`; }")
 # ---- clients who asked not to get invitations (the functions are in app.js) ----
-# the mark lives on the client's card, so the card app has to load it, keep it on every save, and show it
+# the mark lives on the client's card, so the card app has to load it, keep it on every save, and show it.
+# noPromo: 0 is the removal (app.js setPromo): it is saved once so that the database lets the mark go, and it loads back as "no mark".
 js = sub(js, "    updatedAt: num(d.updatedAt, 0),\n", "    updatedAt: num(d.updatedAt, 0),\n    noPromo: Number.isFinite(d.noPromo) && d.noPromo > 0 ? d.noPromo : null,\n")
 js = sub(js, "function toDoc(c) { const { id, ...rest } = c; return JSON.parse(JSON.stringify(rest)); }",
          "function toDoc(c) { const { id, ...rest } = c; if (rest.noPromo == null) delete rest.noPromo; return JSON.parse(JSON.stringify(rest)); }")

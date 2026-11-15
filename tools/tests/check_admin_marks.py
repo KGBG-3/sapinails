@@ -98,13 +98,20 @@ with server(), sync_playwright() as pw:
     check('second card shows the mark', 'לא לשלוח' in row.inner_text(), row.inner_text())
     n_before = len(calls)
     sheet().locator('[data-act=promo-on]').click(); pg.wait_for_timeout(500)
-    writes = [(b['id'], 'noPromo' in b['data']) for m, p, b in calls[n_before:] if m == 'POST' and p.startswith('/rest/v1/clients')]
-    check('clearing from the second card clears the first', writes == [('c-noa', False)], writes)
-    check('no card is marked now', 'noPromo' not in state['clients']['c-noa'] and 'noPromo' not in state['clients']['c-noa2'])
+    writes = [(b['id'], b['data'].get('noPromo', 'absent')) for m, p, b in calls[n_before:] if m == 'POST' and p.startswith('/rest/v1/clients')]
+    check('clearing from the second card clears the first, and says so to the database (noPromo: 0)', writes == [('c-noa', 0)], writes)
+    check('no card is marked now', not state['clients']['c-noa'].get('noPromo') and not state['clients']['c-noa2'].get('noPromo'))
     row = sheet().locator('.info-row', has_text='הזמנות לחזור')
     check('row is back to default', 'אפשר לשלוח' in row.inner_text(), row.inner_text())
     sheet().locator('.icon-btn[data-act=close]').click(); pg.wait_for_timeout(250)
     check('no pills left', pg.locator('.pill.stop').count() == 0)
+    # the next save of that card no longer mentions the mark, and it stays off
+    pg.click('.punch-quick[data-id=c-noa]'); pg.wait_for_timeout(400)
+    w = last_write(calls, 'c-noa')
+    check('a punch after the removal is saved without the field', w['punches'] == 5 and 'noPromo' not in w, (w['punches'], w.get('noPromo', 'absent')))
+    check('and the card stays unmarked', not state['clients']['c-noa'].get('noPromo') and pg.locator('.pill.stop').count() == 0, state['clients']['c-noa'].get('noPromo'))
+    pg.reload(); pg.wait_for_selector('#tabbar:not([hidden])'); pg.wait_for_timeout(700)
+    check('still unmarked after a reload', pg.locator('.pill.stop').count() == 0)
 
     print('8. a male client, and undo from the toast')
     pg.click('.row-main[data-id=c-yossi]'); pg.wait_for_timeout(300)
@@ -118,7 +125,21 @@ with server(), sync_playwright() as pw:
     check('delete warning mentions the mark', 'גם הסימון «לא לשלוח הזמנות» יימחק' in sheet().locator('.confirm').inner_text(), sheet().locator('.confirm').inner_text())
     sheet().locator('[data-act=delete-no]').click(); pg.wait_for_timeout(150)
     pg.locator('#toasts button', has_text='ביטול').click(); pg.wait_for_timeout(400)
-    check('undo from the toast clears it', 'noPromo' not in state['clients']['c-yossi'], state['clients']['c-yossi'].get('noPromo'))
+    check('undo from the toast clears it', not state['clients']['c-yossi'].get('noPromo'), state['clients']['c-yossi'].get('noPromo'))
+    sheet().locator('.icon-btn[data-act=close]').click(); pg.wait_for_timeout(250)
+
+    print('8b. a mark that the booking form set while this screen was open')
+    # the database marked Maya's card (she ticked the box in the booking form); this screen has not re-read the cards yet
+    t_form = int(time.time() * 1000) - 60000
+    state['clients']['c-maya']['noPromo'] = t_form
+    pg.click('.punch-quick[data-id=c-maya]'); pg.wait_for_timeout(500)
+    w = last_write(calls, 'c-maya')
+    check('the screen saved her card without knowing the mark', 'noPromo' not in w and w['punches'] == 3, (w.get('noPromo', 'absent'), w['punches']))
+    check('the mark is still in the database, with its date', state['clients']['c-maya'].get('noPromo') == t_form and state['clients']['c-maya']['punches'] == 3, state['clients']['c-maya'].get('noPromo'))
+    check('and the screen shows it after the save', pg.locator('.row', has=pg.locator('.pill.stop')).locator('.nm').all_text_contents() == ['מאיה ישראלי'], pg.locator('.row', has=pg.locator('.pill.stop')).locator('.nm').all_text_contents())
+    pg.click('.row-main[data-id=c-maya]'); pg.wait_for_timeout(300)
+    sheet().locator('[data-act=promo-on]').click(); pg.wait_for_timeout(500)
+    check('Sapir can still remove it', not state['clients']['c-maya'].get('noPromo') and pg.locator('.pill.stop').count() == 0, state['clients']['c-maya'].get('noPromo'))
     sheet().locator('.icon-btn[data-act=close]').click(); pg.wait_for_timeout(250)
 
     print('9. the rest of the screen still works')
